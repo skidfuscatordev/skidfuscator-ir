@@ -1,9 +1,11 @@
 package dev.skidfuscator.ir.klass.impl;
 
 import dev.skidfuscator.ir.FunctionNode;
+import dev.skidfuscator.ir.field.FieldNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.KlassNode;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
@@ -23,6 +25,8 @@ public class ResolvedKlassNode implements KlassNode {
     private int access;
 
     private List<FunctionNode> methods;
+
+    private List<FieldNode> fields;
 
     public ResolvedKlassNode(Hierarchy hierarchy, ClassNode node) {
         this.hierarchy = hierarchy;
@@ -66,6 +70,28 @@ public class ResolvedKlassNode implements KlassNode {
             }
         }
 
+        if (node.fields != null) {
+            this.fields = new ArrayList<>();
+
+            for (org.objectweb.asm.tree.FieldNode field : node.fields) {
+                final FieldNode node = hierarchy.findField(
+                        this.node.name,
+                        field.name,
+                        field.desc
+                );
+
+                this.fields.add(node);
+            }
+
+            /*
+             * Since the classes are being resolved in
+             * a BFS manner, the method groups will be
+             * fine.
+             */
+            for (FieldNode field : this.fields) {
+                field.resolve();
+            }
+        }
     }
 
     @Override
@@ -81,6 +107,13 @@ public class ResolvedKlassNode implements KlassNode {
     }
 
     @Override
+    public @NotNull List<FieldNode> getFields() {
+        return this.fields == null
+                ? Collections.emptyList()
+                : Collections.unmodifiableList(fields);
+    }
+
+    @Override
     public void setMethods(List<FunctionNode> nodes) {
         for (FunctionNode method : this.getMethods()) {
             method.setParent(null);
@@ -90,10 +123,26 @@ public class ResolvedKlassNode implements KlassNode {
     }
 
     @Override
+    public void setFields(@Nullable List<FieldNode> nodes) {
+        for (FieldNode method : this.getFields()) {
+            method.setParent(null);
+        }
+
+        this.fields = nodes;
+    }
+
+    @Override
     public void addMethod(FunctionNode node) {
         node.setParent(this);
 
         this.methods.add(node);
+    }
+
+    @Override
+    public void addField(FieldNode node) {
+        node.setParent(this);
+
+        this.fields.add(node);
     }
 
     @Override

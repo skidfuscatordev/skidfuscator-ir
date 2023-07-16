@@ -1,9 +1,12 @@
 package dev.skidfuscator.ir.hierarchy;
 
 import dev.skidfuscator.ir.FunctionNode;
+import dev.skidfuscator.ir.field.FieldDescriptor;
+import dev.skidfuscator.ir.field.FieldNode;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.method.MethodDescriptor;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 
 public interface Hierarchy {
@@ -40,5 +43,15 @@ public interface Hierarchy {
 
     default FunctionNode findMethod(final MethodInsnNode node) {
         return findMethod(node.owner, node.name, node.desc);
+    }
+
+    FieldNode findField(final FieldDescriptor fieldDescriptor);
+
+    default FieldNode findField(final String owner, final String name, final String desc) {
+        return findField(new FieldDescriptor(owner, name, desc));
+    }
+
+    default FieldNode findField(final FieldInsnNode node) {
+        return findField(node.owner, node.name, node.desc);
     }
 }

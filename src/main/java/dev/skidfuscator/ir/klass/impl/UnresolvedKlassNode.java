@@ -1,9 +1,11 @@
 package dev.skidfuscator.ir.klass.impl;
 
 import dev.skidfuscator.ir.FunctionNode;
+import dev.skidfuscator.ir.field.FieldNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.KlassNode;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
 
 import java.util.Collections;
@@ -68,6 +70,14 @@ public class UnresolvedKlassNode implements KlassNode {
     }
 
     @Override
+    public @NotNull List<FieldNode> getFields() {
+        throw new IllegalStateException(String.format(
+                "Cannot compute fields of unresolved class %s",
+                name
+        ));
+    }
+
+    @Override
     public void setMethods(List<FunctionNode> nodes) {
         throw new IllegalStateException(String.format(
                 "Cannot set methods of unresolved class %s",
@@ -76,9 +86,25 @@ public class UnresolvedKlassNode implements KlassNode {
     }
 
     @Override
+    public void setFields(@Nullable List<FieldNode> nodes) {
+        throw new IllegalStateException(String.format(
+                "Cannot set fields of unresolved class %s",
+                name
+        ));
+    }
+
+    @Override
     public void addMethod(FunctionNode node) {
         throw new IllegalStateException(String.format(
                 "Cannot add method to unresolved class %s",
+                name
+        ));
+    }
+
+    @Override
+    public void addField(FieldNode node) {
+        throw new IllegalStateException(String.format(
+                "Cannot add field to unresolved class %s",
                 name
         ));
     }

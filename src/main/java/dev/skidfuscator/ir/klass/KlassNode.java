@@ -1,6 +1,7 @@
 package dev.skidfuscator.ir.klass;
 
 import dev.skidfuscator.ir.FunctionNode;
+import dev.skidfuscator.ir.field.FieldNode;
 import dev.skidfuscator.ir.hierarchy.HierarchyResolvable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -82,6 +83,12 @@ public interface KlassNode {
     List<FunctionNode> getMethods();
 
     /**
+     * @return  List of wrapped fields
+     */
+    @NotNull
+    List<FieldNode> getFields();
+
+    /**
      * Sets methods.
      *
      * @param nodes the nodes
@@ -89,11 +96,25 @@ public interface KlassNode {
     void setMethods(@Nullable final List<FunctionNode> nodes);
 
     /**
+     * Sets fields.
+     *
+     * @param nodes the nodes
+     */
+    void setFields(@Nullable final List<FieldNode> nodes);
+
+    /**
      * Add method.
      *
      * @param node the node
      */
     void addMethod(final FunctionNode node);
+
+    /**
+     * Add field.
+     *
+     * @param node the node
+     */
+    void addField(final FieldNode node);
 
     /**
      * Is interface boolean.

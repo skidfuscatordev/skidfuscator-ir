@@ -1,6 +1,10 @@
 package dev.skidfuscator.ir.hierarchy.impl;
 
 import dev.skidfuscator.ir.FunctionNode;
+import dev.skidfuscator.ir.field.FieldDescriptor;
+import dev.skidfuscator.ir.field.FieldGraph;
+import dev.skidfuscator.ir.field.FieldNode;
+import dev.skidfuscator.ir.field.impl.ResolvedFieldNode;
 import dev.skidfuscator.ir.method.MethodGraph;
 import dev.skidfuscator.ir.method.impl.ResolvedFunctionNode;
 import dev.skidfuscator.ir.hierarchy.klass.KlassExtendsEdge;
@@ -45,11 +49,26 @@ public class SkidHierarchy implements Hierarchy {
     private final MethodGraph functionGraph;
 
 
+    /**
+     * This will, has and will ALWAYS base itself on
+     * LEGACY names. This means any name modification
+     * WILL NOT BE RESOLVED IN HERE. This is BY DESIGN.
+     * <p>
+     * This allows us to do:
+     * - Safe renaming
+     * - Safe re-parenting
+     */
+    private final Map<FieldDescriptor, FieldNode> fieldEquivalence;
+    private final FieldGraph fieldGraph;
+
+
     public SkidHierarchy() {
         this.classEquivalence = new HashMap<>();
         this.functionEquivalence = new HashMap<>();
+        this.fieldEquivalence = new HashMap<>();
         this.klassGraph = new KlassGraph();
         this.functionGraph = new MethodGraph();
+        this.fieldGraph = new FieldGraph();
     }
 
     /**
@@ -99,6 +118,11 @@ public class SkidHierarchy implements Hierarchy {
         return functionEquivalence.get(methodDescriptor);
     }
 
+    @Override
+    public FieldNode findField(FieldDescriptor fieldDescriptor) {
+        return fieldEquivalence.get(fieldDescriptor);
+    }
+
     public KlassNode create(final ClassNode classNode) {
         KlassNode klassNode = findClass(classNode.name);
 
@@ -110,6 +134,12 @@ public class SkidHierarchy implements Hierarchy {
             for (MethodNode method : classNode.methods) {
                 final FunctionNode function = create(klassNode, method);
                 klassNode.addMethod(function);
+            }
+
+            //TODO: Naming
+            for (org.objectweb.asm.tree.FieldNode asmField : classNode.fields) {
+                final FieldNode field = create(klassNode, asmField);
+                klassNode.addField(field);
             }
         }
 
@@ -137,6 +167,28 @@ public class SkidHierarchy implements Hierarchy {
         }
 
         return functionNode;
+    }
+
+    public FieldNode create(final KlassNode parent, final org.objectweb.asm.tree.FieldNode node) {
+        final FieldDescriptor descriptor = new FieldDescriptor(
+                parent.getName(),
+                node.name,
+                node.desc
+        );
+
+        FieldNode fieldNode = findField(descriptor);
+
+        if (fieldNode == null) {
+            fieldNode = new ResolvedFieldNode(
+                    node
+            );
+            fieldNode.setParent(parent);
+
+            fieldEquivalence.put(descriptor, fieldNode);
+            fieldGraph.addVertex(fieldNode);
+        }
+
+        return fieldNode;
     }
 
     public void resolveKlassEdges(final KlassNode klassNode) {
