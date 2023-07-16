@@ -7,14 +7,13 @@ import dev.skidfuscator.ir.klass.KlassNode;
 public interface FieldNode extends HierarchyResolvable {
 
     /**
-     * Resolves the function, parsing through
-     * instructions and resolving method groups.
+     * Resolves the field
      */
     void resolve();
 
     /**
      * Method used to dump the information from
-     * the function node. Currently not implemented.
+     * the field node. Currently not implemented.
      */
     void dump();
 

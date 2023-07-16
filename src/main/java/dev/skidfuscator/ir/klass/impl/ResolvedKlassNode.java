@@ -83,11 +83,6 @@ public class ResolvedKlassNode implements KlassNode {
                 this.fields.add(node);
             }
 
-            /*
-             * Since the classes are being resolved in
-             * a BFS manner, the method groups will be
-             * fine.
-             */
             for (FieldNode field : this.fields) {
                 field.resolve();
             }
