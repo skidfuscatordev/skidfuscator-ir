@@ -1,0 +1,4 @@
+rootProject.name = 'skidfuscator-ir'
+include 'dev.skidfuscator.ir'
+include 'dev.skidfuscator.ir.jvm'
+
