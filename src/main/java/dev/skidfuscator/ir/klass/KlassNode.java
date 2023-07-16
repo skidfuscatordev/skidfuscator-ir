@@ -2,6 +2,7 @@ package dev.skidfuscator.ir.klass;
 
 import dev.skidfuscator.ir.FunctionNode;
 import dev.skidfuscator.ir.hierarchy.HierarchyResolvable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
 
@@ -25,12 +26,14 @@ public interface KlassNode {
     /**
      * @return  Returns self as a Type
      */
+    @NotNull
     Type asType();
 
     /**
      * @return  Name of the class with the following format:
      *          my/first/Class
      */
+    @NotNull
     String getName();
 
     /**
@@ -40,7 +43,7 @@ public interface KlassNode {
      *
      * @param name new name for the class
      */
-    void setName(final String name);
+    void setName(@NotNull final String name);
 
     /**
      * @return  Gets the super class wrapper
@@ -53,13 +56,14 @@ public interface KlassNode {
      *
      * @param klass the superclass class
      */
-    void setParent(final KlassNode klass);
+    void setParent(@Nullable final KlassNode klass);
 
     /**
      * @return  gets an immutable list copy of the
      *          implemented interfaces by the wrapped
      *          class
      */
+    @NotNull
     List<KlassNode> getInterfaces();
 
     /**
@@ -69,11 +73,12 @@ public interface KlassNode {
      * @param klasses the collection of implementing
      *                interfaces
      */
-    void setInterfaces(final List<KlassNode> klasses);
+    void setInterfaces(@Nullable final List<KlassNode> klasses);
 
     /**
      * @return  List of wrapped methods
      */
+    @NotNull
     List<FunctionNode> getMethods();
 
     /**
@@ -81,7 +86,7 @@ public interface KlassNode {
      *
      * @param nodes the nodes
      */
-    void setMethods(final List<FunctionNode> nodes);
+    void setMethods(@Nullable final List<FunctionNode> nodes);
 
     /**
      * Add method.

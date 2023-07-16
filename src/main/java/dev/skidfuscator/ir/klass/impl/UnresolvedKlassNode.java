@@ -3,6 +3,7 @@ package dev.skidfuscator.ir.klass.impl;
 import dev.skidfuscator.ir.FunctionNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.KlassNode;
+import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.Type;
 
 import java.util.Collections;
@@ -18,7 +19,7 @@ public class UnresolvedKlassNode implements KlassNode {
     }
 
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return name;
     }
 
@@ -28,7 +29,7 @@ public class UnresolvedKlassNode implements KlassNode {
     }
 
     @Override
-    public Type asType() {
+    public @NotNull Type asType() {
         return Type.getObjectType("L" + this.getName() + ";");
     }
 
@@ -46,7 +47,7 @@ public class UnresolvedKlassNode implements KlassNode {
     }
 
     @Override
-    public List<KlassNode> getInterfaces() {
+    public @NotNull List<KlassNode> getInterfaces() {
         return Collections.emptyList();
     }
 
@@ -59,7 +60,7 @@ public class UnresolvedKlassNode implements KlassNode {
     }
 
     @Override
-    public List<FunctionNode> getMethods() {
+    public @NotNull List<FunctionNode> getMethods() {
         throw new IllegalStateException(String.format(
                 "Cannot compute methods of unresolved class %s",
                 name
@@ -83,7 +84,7 @@ public class UnresolvedKlassNode implements KlassNode {
     }
 
     @Override
-    public void setName(String name) {
+    public void setName(@NotNull String name) {
         throw new IllegalStateException(String.format(
                 "Cannot set name of unresolved class %s",
                 name

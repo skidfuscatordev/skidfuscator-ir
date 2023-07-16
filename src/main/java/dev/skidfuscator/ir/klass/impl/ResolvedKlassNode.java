@@ -3,6 +3,7 @@ package dev.skidfuscator.ir.klass.impl;
 import dev.skidfuscator.ir.FunctionNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.KlassNode;
+import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
@@ -68,12 +69,12 @@ public class ResolvedKlassNode implements KlassNode {
     }
 
     @Override
-    public Type asType() {
+    public @NotNull Type asType() {
         return Type.getObjectType("L" + this.getName() + ";");
     }
 
     @Override
-    public List<FunctionNode> getMethods() {
+    public @NotNull List<FunctionNode> getMethods() {
         return this.methods == null
                 ? Collections.emptyList()
                 : Collections.unmodifiableList(methods);
@@ -96,12 +97,12 @@ public class ResolvedKlassNode implements KlassNode {
     }
 
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return this.name;
     }
 
     @Override
-    public void setName(final String name) {
+    public void setName(final @NotNull String name) {
         this.name = name;
     }
 
@@ -119,7 +120,7 @@ public class ResolvedKlassNode implements KlassNode {
     }
 
     @Override
-    public List<KlassNode> getInterfaces() {
+    public @NotNull List<KlassNode> getInterfaces() {
         return implementations == null
                 ? Collections.emptyList()
                 : Collections.unmodifiableList(implementations);

@@ -7,12 +7,29 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 
 public interface Hierarchy {
+    /**
+     * Finds a class with the given name
+     *
+     * @param name the name of the class to find
+     * @return the KlassNode object representing the found class
+     */
     KlassNode findClass(final String name);
 
+    /**
+     * Finds the class with the specified name.
+     *
+     * @param node The ClassNode to search for.
+     * @return The found ClassNode.
+     */
     default KlassNode findClass(final ClassNode node) {
         return findClass(node.name);
     }
 
+    /**
+     * Resolves the edges of the specified KlassNode
+     *
+     * @param klassNode the KlassNode to resolve the edges for
+     */
     void resolveKlassEdges(final KlassNode klassNode);
 
     FunctionNode findMethod(final MethodDescriptor methodDescriptor);
