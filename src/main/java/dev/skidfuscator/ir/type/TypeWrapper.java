@@ -58,7 +58,7 @@ public class TypeWrapper {
 
     public Type dump() {
         return !classes.isEmpty() ? Type.getType(desc.formatted(
-                (Object[]) classes.stream().map(klassNode -> "L" + klassNode + ";").toArray(String[]::new)
+                (Object[]) classes.stream().map(klassNode -> "L" + klassNode.getName() + ";").toArray(String[]::new)
         )) : Type.getType(desc);
     }
 }
