@@ -1,11 +1,8 @@
 package dev.skidfuscator.ir.insn.impl;
 
 import dev.skidfuscator.ir.FunctionNode;
-import dev.skidfuscator.ir.gen.BytecodeFrontend;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.insn.AbstractInsn;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodInsnNode;
 
 public class InvokeInsn extends AbstractInsn {
@@ -13,7 +10,7 @@ public class InvokeInsn extends AbstractInsn {
     private FunctionNode target;
 
     public InvokeInsn(Hierarchy hierarchy, MethodInsnNode node) {
-        super(hierarchy);
+        super(hierarchy, node);
         this.node = node;
     }
 

@@ -3,15 +3,14 @@ package dev.skidfuscator.ir.method.impl;
 import dev.skidfuscator.ir.FunctionNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.insn.Insn;
+import dev.skidfuscator.ir.insn.impl.IntInsn;
 import dev.skidfuscator.ir.insn.impl.InvokeInsn;
 import dev.skidfuscator.ir.insn.impl.LdcInsn;
+import dev.skidfuscator.ir.insn.impl.TypeInsn;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.method.FunctionGroup;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,8 +73,24 @@ public class ResolvedFunctionNode implements FunctionNode {
                 );
             }
 
+            else if (instruction instanceof TypeInsnNode) {
+                insn = new TypeInsn(
+                        hierarchy,
+                        (TypeInsnNode) instruction
+                );
+            }
+
+            else if (instruction instanceof IntInsnNode) {
+                insn = new IntInsn(
+                        hierarchy,
+                        (IntInsnNode) instruction
+                );
+            }
+
             this.instructions.add(insn);
         }
+
+        this.instructions.forEach(Insn::resolve);
 
         FunctionGroup group = null;
 

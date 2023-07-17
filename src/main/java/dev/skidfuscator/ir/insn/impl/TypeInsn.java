@@ -6,12 +6,12 @@ import dev.skidfuscator.ir.klass.KlassNode;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.TypeInsnNode;
 
-public class NewInsn extends AbstractInsn {
+public class TypeInsn extends AbstractInsn {
     private final TypeInsnNode node;
     private KlassNode target;
 
-    public NewInsn(Hierarchy hierarchy, TypeInsnNode node) {
-        super(hierarchy);
+    public TypeInsn(Hierarchy hierarchy, TypeInsnNode node) {
+        super(hierarchy, node);
         this.node = node;
     }
 

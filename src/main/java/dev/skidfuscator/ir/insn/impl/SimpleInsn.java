@@ -1,25 +1,25 @@
 package dev.skidfuscator.ir.insn.impl;
 
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
-import dev.skidfuscator.ir.insn.ConstantInsn;
+import dev.skidfuscator.ir.insn.AbstractInsn;
 import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.InsnNode;
 
-public class LdcInsn extends ConstantInsn {
-    private final LdcInsnNode node;
+public class SimpleInsn extends AbstractInsn {
+    private final InsnNode node;
 
-    public LdcInsn(Hierarchy hierarchy, LdcInsnNode node) {
+    public SimpleInsn(Hierarchy hierarchy, InsnNode node) {
         super(hierarchy, node);
         this.node = node;
     }
 
     @Override
     public void resolve() {
-        this.constant = node.cst;
+
     }
 
     @Override
     public void dump() {
-        this.node.cst = constant;
+
     }
 }
