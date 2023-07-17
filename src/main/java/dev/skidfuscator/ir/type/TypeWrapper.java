@@ -11,6 +11,10 @@ import java.util.List;
 /*
 I still don't have idea how i want it to be
 This is stupid help me xd
+
+TODO: Add support for "java/lang/String"
+TODO: Unit tests
+TODO: Basic fallback if hierarchy#findClass fails
  */
 public class TypeWrapper implements HierarchyResolvable {
 

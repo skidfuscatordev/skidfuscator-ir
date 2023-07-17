@@ -3,6 +3,7 @@ package dev.skidfuscator.ir.insn.impl;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.insn.ConstantInsn;
 import dev.skidfuscator.ir.klass.KlassNode;
+import dev.skidfuscator.ir.type.TypeWrapper;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.LdcInsnNode;
 
@@ -17,11 +18,11 @@ public class LdcInsn extends ConstantInsn {
 
     @Override
     public void resolve() {
-        this.constant = this.constant instanceof Type type ? hierarchy.findClass(type.getInternalName()) : node.cst;
+        this.constant = this.node.cst instanceof Type type ? new TypeWrapper(type, hierarchy) : this.node.cst;
     }
 
     @Override
     public void dump() {
-        this.node.cst = this.constant instanceof KlassNode target ? target.asType() : this.constant;
+        this.node.cst = this.constant instanceof TypeWrapper type ? type.dump() : this.constant;
     }
 }
