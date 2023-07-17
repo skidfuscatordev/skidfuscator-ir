@@ -6,22 +6,22 @@ import dev.skidfuscator.ir.klass.KlassNode;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.TypeInsnNode;
 
-public class NewInsn extends AbstractInsn {
+public class TypeInsn extends AbstractInsn {
     private final TypeInsnNode node;
     private KlassNode target;
 
-    public NewInsn(Hierarchy hierarchy, TypeInsnNode node) {
+    public TypeInsn(Hierarchy hierarchy, TypeInsnNode node) {
         super(hierarchy);
         this.node = node;
     }
 
     @Override
     public void resolve() {
-        this.target = hierarchy.findClass(Type.getObjectType(node.desc).getClassName().replace(".", "/"));
+        this.target = hierarchy.findClass(Type.getObjectType(node.desc).getInternalName());
     }
 
     @Override
     public void dump() {
-        this.node.desc = "L" + target.getName() + ";";
+        this.node.desc = /*"L" +*/ target.getName() /*+ ";"*/;
     }
 }

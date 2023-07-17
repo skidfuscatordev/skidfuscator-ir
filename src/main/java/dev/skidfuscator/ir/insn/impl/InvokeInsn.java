@@ -1,7 +1,7 @@
 package dev.skidfuscator.ir.insn.impl;
 
 import dev.skidfuscator.ir.FunctionNode;
-import dev.skidfuscator.ir.gen.BytecodeFrontend;
+//import dev.skidfuscator.ir.gen.BytecodeFrontend;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.insn.AbstractInsn;
 import org.objectweb.asm.MethodVisitor;
