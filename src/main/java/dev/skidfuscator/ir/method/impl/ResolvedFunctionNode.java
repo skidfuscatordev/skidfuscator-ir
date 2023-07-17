@@ -91,6 +91,19 @@ public class ResolvedFunctionNode implements FunctionNode {
                 );
             }
 
+            else if (instruction instanceof IntInsnNode) {
+                insn = new IntInsn(
+                        hierarchy,
+                        (IntInsnNode) instruction
+                );
+            }
+
+            else if (instruction instanceof InsnNode) {
+                insn = new SimpleInsn(
+                        hierarchy,
+                        (InsnNode) instruction
+                );
+            }
 
             else
                 continue;

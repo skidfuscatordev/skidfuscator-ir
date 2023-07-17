@@ -12,7 +12,7 @@ public class MultiANewArrayInsn extends AbstractInsn {
     private KlassNode target;
 
     public MultiANewArrayInsn(Hierarchy hierarchy, MultiANewArrayInsnNode node) {
-        super(hierarchy);
+        super(hierarchy, node);
         this.node = node;
     }
 

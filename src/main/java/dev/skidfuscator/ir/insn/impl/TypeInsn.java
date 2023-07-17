@@ -11,7 +11,7 @@ public class TypeInsn extends AbstractInsn {
     private KlassNode target;
 
     public TypeInsn(Hierarchy hierarchy, TypeInsnNode node) {
-        super(hierarchy);
+        super(hierarchy, node);
         this.node = node;
     }
 

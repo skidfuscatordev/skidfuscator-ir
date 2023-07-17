@@ -13,7 +13,7 @@ public class InvokeInsn extends AbstractInsn {
     private FunctionNode target;
 
     public InvokeInsn(Hierarchy hierarchy, MethodInsnNode node) {
-        super(hierarchy);
+        super(hierarchy, node);
         this.node = node;
     }
 

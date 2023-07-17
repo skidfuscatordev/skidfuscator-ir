@@ -11,7 +11,7 @@ public class LdcInsn extends ConstantInsn {
     private final LdcInsnNode node;
 
     public LdcInsn(Hierarchy hierarchy, LdcInsnNode node) {
-        super(hierarchy);
+        super(hierarchy, node);
         this.node = node;
     }
 

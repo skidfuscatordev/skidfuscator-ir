@@ -12,7 +12,7 @@ public class FieldInsn extends AbstractInsn {
     private FieldNode target;
 
     public FieldInsn(Hierarchy hierarchy, FieldInsnNode node) {
-        super(hierarchy);
+        super(hierarchy, node);
         this.node = node;
     }
 
