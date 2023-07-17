@@ -1,6 +1,7 @@
 package dev.skidfuscator.ir.type;
 
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
+import dev.skidfuscator.ir.hierarchy.HierarchyResolvable;
 import dev.skidfuscator.ir.klass.KlassNode;
 import org.objectweb.asm.Type;
 
@@ -11,7 +12,7 @@ import java.util.List;
 I still don't have idea how i want it to be
 This is stupid help me xd
  */
-public class TypeWrapper {
+public class TypeWrapper implements HierarchyResolvable {
 
     private final Type type;
     private final Hierarchy hierarchy;
@@ -24,6 +25,7 @@ public class TypeWrapper {
         this.hierarchy = hierarchy;
     }
 
+    @Override
     public void resolve() {
         if (type.getSort() == Type.METHOD) {
             desc += "(";
@@ -40,9 +42,14 @@ public class TypeWrapper {
     private void resolve0(Type type) {
         switch (type.getSort()) {
             case Type.ARRAY -> {
+                Type element = type.getElementType();
                 desc += "[".repeat(type.getDimensions());
-                desc += "%s"; //className?
-                classes.add(hierarchy.findClass(type.getElementType().getInternalName()));
+                if (element.getSort() == Type.OBJECT) {
+                    desc += "%s"; //className?
+                    classes.add(hierarchy.findClass(type.getElementType().getInternalName()));
+                } else {
+                    desc += element.getInternalName();
+                }
             }
             case Type.OBJECT -> {
                 desc += "%s"; //className?

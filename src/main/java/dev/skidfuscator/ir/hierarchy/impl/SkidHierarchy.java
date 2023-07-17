@@ -99,7 +99,7 @@ public class SkidHierarchy implements Hierarchy {
                     .incomingEdgesOf(node)
                     .stream()
                     .map(KlassInheritanceEdge::getNode)
-                    .collect(Collectors.toList());
+                    .toList();
 
             node.resolve();
             resolved.add(node);
