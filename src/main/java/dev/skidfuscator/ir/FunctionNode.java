@@ -30,6 +30,13 @@ public interface FunctionNode extends HierarchyResolvable {
     List<Insn> getInstructions();
 
     /**
+     * Retrieves the exceptions of the function.
+     *
+     * @return The list of exceptions
+     */
+    List<KlassNode> getExceptions();
+
+    /**
      * Retrieves the parent class of the function.
      *
      * @return The parent class of the function

@@ -23,6 +23,8 @@ public class ResolvedFunctionNode implements FunctionNode {
     private List<Insn> instructions;
     private int access;
 
+    private List<KlassNode> exceptions;
+
     public ResolvedFunctionNode(MethodNode node, Hierarchy hierarchy) {
         this.node = node;
         this.hierarchy = hierarchy;
@@ -53,6 +55,15 @@ public class ResolvedFunctionNode implements FunctionNode {
     public void resolve() {
         this.access = node.access;
         this.instructions = new ArrayList<>();
+
+        //Test implementation
+        //TODO: Java stream api goes brrrr
+        if (node.exceptions != null) {
+            this.exceptions = new ArrayList<>();
+            for (String exception : node.exceptions) {
+                this.exceptions.add(hierarchy.findClass(exception));
+            }
+        }
 
         for (AbstractInsnNode instruction : this.node.instructions) {
             final Insn insn;
@@ -91,6 +102,13 @@ public class ResolvedFunctionNode implements FunctionNode {
                 );
             }
 
+            else if (instruction instanceof InvokeDynamicInsnNode) {
+                insn = new InvokeDynamicInsn(
+                        hierarchy,
+                        (InvokeDynamicInsnNode) instruction
+                );
+            }
+
             else if (instruction instanceof IntInsnNode) {
                 insn = new IntInsn(
                         hierarchy,
@@ -102,6 +120,41 @@ public class ResolvedFunctionNode implements FunctionNode {
                 insn = new SimpleInsn(
                         hierarchy,
                         (InsnNode) instruction
+                );
+            }
+
+            else if (instruction instanceof IincInsnNode) {
+                insn = new IincInsn(
+                        hierarchy,
+                        (IincInsnNode) instruction
+                );
+            }
+
+            else if (instruction instanceof JumpInsnNode) {
+                insn = new JumpInsn(
+                        hierarchy,
+                        (JumpInsnNode) instruction
+                );
+            }
+
+            else if (instruction instanceof LookupSwitchInsnNode) {
+                insn = new LookupSwitchInsn(
+                        hierarchy,
+                        (LookupSwitchInsnNode) instruction
+                );
+            }
+
+            else if (instruction instanceof TableSwitchInsnNode) {
+                insn = new TableSwitchInsn(
+                        hierarchy,
+                        (TableSwitchInsnNode) instruction
+                );
+            }
+
+            else if (instruction instanceof VarInsnNode) {
+                insn = new VarInsn(
+                        hierarchy,
+                        (VarInsnNode) instruction
                 );
             }
 
@@ -167,6 +220,11 @@ public class ResolvedFunctionNode implements FunctionNode {
     @Override
     public List<Insn> getInstructions() {
         return instructions;
+    }
+
+    @Override
+    public List<KlassNode> getExceptions() {
+        return exceptions;
     }
 
     @Override
