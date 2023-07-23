@@ -3,10 +3,7 @@ package dev.skidfuscator.ir.method.impl;
 import dev.skidfuscator.ir.FunctionNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.insn.Insn;
-import dev.skidfuscator.ir.insn.impl.IntInsn;
-import dev.skidfuscator.ir.insn.impl.InvokeInsn;
-import dev.skidfuscator.ir.insn.impl.LdcInsn;
-import dev.skidfuscator.ir.insn.impl.TypeInsn;
+import dev.skidfuscator.ir.insn.impl.*;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.method.FunctionGroup;
 import org.objectweb.asm.Opcodes;
@@ -84,6 +81,13 @@ public class ResolvedFunctionNode implements FunctionNode {
                 insn = new IntInsn(
                         hierarchy,
                         (IntInsnNode) instruction
+                );
+            }
+
+            else {
+                insn = new UnresolvedInsn(
+                        hierarchy,
+                        instruction
                 );
             }
 

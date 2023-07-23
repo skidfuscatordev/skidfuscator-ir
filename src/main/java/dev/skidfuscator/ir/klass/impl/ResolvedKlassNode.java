@@ -1,11 +1,13 @@
 package dev.skidfuscator.ir.klass.impl;
 
 import dev.skidfuscator.ir.FunctionNode;
+import dev.skidfuscator.ir.annotation.Annotation;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.KlassNode;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -19,6 +21,7 @@ public class ResolvedKlassNode implements KlassNode {
 
     private KlassNode parent;
     private List<KlassNode> implementations;
+    private List<Annotation> annotations;
     private String name;
     private int access;
 
@@ -66,6 +69,41 @@ public class ResolvedKlassNode implements KlassNode {
             }
         }
 
+        if (node.visibleAnnotations != null) {
+            for (AnnotationNode annotationNode : node.visibleAnnotations) {
+                final Annotation annotation = new Annotation(hierarchy, annotationNode, Annotation.AnnotationType.VISIBLE);
+                annotation.resolve();
+
+                this.annotations.add(annotation);
+            }
+        }
+
+        if (node.visibleTypeAnnotations != null) {
+            for (AnnotationNode annotationNode : node.visibleTypeAnnotations) {
+                final Annotation annotation = new Annotation(hierarchy, annotationNode, Annotation.AnnotationType.VISIBLE);
+                annotation.resolve();
+
+                this.annotations.add(annotation);
+            }
+        }
+
+        if (node.invisibleAnnotations != null) {
+            for (AnnotationNode annotationNode : node.invisibleAnnotations) {
+                final Annotation annotation = new Annotation(hierarchy, annotationNode, Annotation.AnnotationType.INVISIBLE);
+                annotation.resolve();
+
+                this.annotations.add(annotation);
+            }
+        }
+
+        if (node.invisibleTypeAnnotations != null) {
+            for (AnnotationNode annotationNode : node.invisibleTypeAnnotations) {
+                final Annotation annotation = new Annotation(hierarchy, annotationNode, Annotation.AnnotationType.INVISIBLE);
+                annotation.resolve();
+
+                this.annotations.add(annotation);
+            }
+        }
     }
 
     @Override
@@ -143,5 +181,11 @@ public class ResolvedKlassNode implements KlassNode {
     public void dump() {
         this.node.name = name;
         this.node.access = access;
+
+        for (FunctionNode method : methods) {
+            method.dump();
+        }
+
+        
     }
 }
