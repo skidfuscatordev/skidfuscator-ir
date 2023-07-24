@@ -30,7 +30,14 @@ public class ResolvedFunctionNode implements FunctionNode {
 
     @Override
     public void dump() {
+        this.node.name = this.getName();
+        this.node.desc = this.getDesc();
+        this.node.access = this.access;
 
+        this.node.instructions = new InsnList();
+        for (Insn instruction : this.instructions) {
+            this.node.instructions.add(instruction.dump());
+        }
     }
 
     @Override

@@ -19,7 +19,7 @@ public class SimpleInsn extends AbstractInsn {
     }
 
     @Override
-    public void dump() {
-
+    public AbstractInsnNode dump() {
+        return node;
     }
 }

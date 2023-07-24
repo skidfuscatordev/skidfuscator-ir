@@ -19,7 +19,8 @@ public class LdcInsn extends ConstantInsn {
     }
 
     @Override
-    public void dump() {
+    public AbstractInsnNode dump() {
         this.node.cst = constant;
+        return node;
     }
 }
