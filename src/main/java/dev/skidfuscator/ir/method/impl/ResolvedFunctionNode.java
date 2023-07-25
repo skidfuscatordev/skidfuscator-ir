@@ -111,13 +111,17 @@ public class ResolvedFunctionNode implements FunctionNode {
          * create their groups without worrying
          * about conflicts.
          */
-        if (!isStatic()) {
+        if (!isStatic() && !node.name.equals("<init>")) {
             final Stack<KlassNode> stack = new Stack<>();
             stack.add(parent.getParent());
             stack.addAll(parent.getInterfaces());
 
             while (!stack.isEmpty()) {
                 final KlassNode klass = stack.pop();
+
+                // Skip java.lang.Object
+                if (klass == null)
+                    continue;
 
                 final FunctionNode similar = hierarchy.findMethod(
                         klass.getName(),
@@ -193,5 +197,10 @@ public class ResolvedFunctionNode implements FunctionNode {
     @Override
     public boolean isConstructor() {
         return this.getName().equals("<init>");
+    }
+
+    @Override
+    public String toString() {
+        return getParent().getName() + "." + getName() + getDesc();
     }
 }

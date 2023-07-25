@@ -60,9 +60,9 @@ public class SkidHierarchy implements Hierarchy {
      *
      * @param classes Collection of classes to resolve
      */
-    private void resolveClasses(final Collection<ClassNode> classes) {
+    public void resolveClasses(final Collection<ClassNode> classes) {
         classes.forEach(this::create);
-
+        classEquivalence.values().forEach(KlassNode::resolveHierarchy);
         final Set<KlassNode> resolved = new HashSet<>();
 
         final KlassNode root = findClass("java/lang/Object");
@@ -76,13 +76,15 @@ public class SkidHierarchy implements Hierarchy {
             if (resolved.contains(node))
                 continue;
 
+            System.out.println("Resolving: " + node);
+            System.out.println("Children: " + klassGraph.outgoingEdgesOf(node));
             final List<KlassNode> children = klassGraph
                     .incomingEdgesOf(node)
                     .stream()
                     .map(KlassInheritanceEdge::getNode)
                     .collect(Collectors.toList());
 
-            node.resolve();
+            node.resolveInternal();
             resolved.add(node);
 
             queue.addAll(children);
@@ -134,17 +136,20 @@ public class SkidHierarchy implements Hierarchy {
 
             functionEquivalence.put(descriptor, functionNode);
             functionGraph.addVertex(functionNode);
+        } else {
+            throw new IllegalStateException("Method already exists: " + descriptor);
         }
 
         return functionNode;
     }
 
     public void resolveKlassEdges(final KlassNode klassNode) {
-        for (KlassInheritanceEdge edge : klassGraph.edgesOf(klassNode)) {
+        for (KlassInheritanceEdge edge : new HashSet<>(klassGraph.outgoingEdgesOf(klassNode))) {
             klassGraph.removeEdge(edge);
         }
 
         if (klassNode.getParent() != null) {
+            System.out.println("Adding edge: " + klassNode + " -> " + klassNode.getParent());
             final boolean success = klassGraph.addEdge(
                     klassNode,
                     klassNode.getParent(),

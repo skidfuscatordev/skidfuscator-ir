@@ -24,7 +24,12 @@ public class UnresolvedKlassNode implements KlassNode {
     }
 
     @Override
-    public void resolve() {
+    public void resolveHierarchy() {
+
+    }
+
+    @Override
+    public void resolveInternal() {
 
     }
 

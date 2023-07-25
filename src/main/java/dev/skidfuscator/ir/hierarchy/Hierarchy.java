@@ -6,7 +6,19 @@ import dev.skidfuscator.ir.method.MethodDescriptor;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 
+import java.util.Collection;
+
 public interface Hierarchy {
+    /**
+     * Resolve classes in a typical BFS top down strategy.
+     * This allows for the construction of method groups
+     * based on their parents, making it easier to have
+     * less conflicts for branches for methods.
+     *
+     * @param classes Collection of classes to resolve
+     */
+    void resolveClasses(final Collection<ClassNode> classes);
+
     /**
      * Finds a class with the given name
      *

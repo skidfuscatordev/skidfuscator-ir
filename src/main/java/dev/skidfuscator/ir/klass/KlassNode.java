@@ -1,7 +1,6 @@
 package dev.skidfuscator.ir.klass;
 
 import dev.skidfuscator.ir.FunctionNode;
-import dev.skidfuscator.ir.hierarchy.HierarchyResolvable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
@@ -15,13 +14,16 @@ import java.util.List;
  * access etc.
  */
 public interface KlassNode {
+
+    void resolveHierarchy();
+
     /**
      * Resolve the KlassNode. This should be invoked in a BFS
      * fashion from top-down hierarchy tree. The first Klass
      * to be resolved henceforth should be the java/lang/Object
      * class.
      */
-    void resolve();
+    void resolveInternal();
 
     /**
      * @return  Returns self as a Type

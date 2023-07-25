@@ -38,4 +38,9 @@ public abstract class KlassAbstractEdge implements KlassInheritanceEdge {
         result = 31 * result + (inherits != null ? inherits.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return inherits + "\n   |\n   \\-> " + node + "\n";
+    }
 }

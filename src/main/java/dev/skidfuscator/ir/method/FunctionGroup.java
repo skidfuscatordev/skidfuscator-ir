@@ -47,4 +47,9 @@ public class FunctionGroup {
         result = 31 * result + (desc != null ? desc.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return name + desc;
+    }
 }

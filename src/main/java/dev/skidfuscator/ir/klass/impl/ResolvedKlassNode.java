@@ -30,43 +30,38 @@ public class ResolvedKlassNode implements KlassNode {
     public ResolvedKlassNode(Hierarchy hierarchy, ClassNode node) {
         this.hierarchy = hierarchy;
         this.node = node;
+        this.implementations = new ArrayList<>();
+        this.annotations = new ArrayList<>();
+        this.methods = new ArrayList<>();
+        this.name = node.name;
+        this.access = node.access;
     }
 
     @Override
-    public void resolve() {
+    public void resolveHierarchy() {
         if (node.superName != null) {
             this.parent = hierarchy.findClass(node.superName);
         }
 
         if (node.interfaces != null) {
-            this.implementations = new ArrayList<>();
             for (String interfaze : node.interfaces) {
                 final KlassNode resolved = hierarchy.findClass(interfaze);
                 this.implementations.add(resolved);
             }
         }
 
-        if (node.methods != null) {
-            this.methods = new ArrayList<>();
+        hierarchy.resolveKlassEdges(this);
+    }
 
-            for (MethodNode method : node.methods) {
-                final FunctionNode node = hierarchy.findMethod(
-                        this.node.name,
-                        method.name,
-                        method.desc
-                );
-
-                this.methods.add(node);
-            }
-
-            /*
-             * Since the classes are being resolved in
-             * a BFS manner, the method groups will be
-             * fine.
-             */
-            for (FunctionNode method : this.methods) {
-                method.resolve();
-            }
+    @Override
+    public void resolveInternal() {
+        /*
+         * Since the classes are being resolved in
+         * a BFS manner, the method groups will be
+         * fine.
+         */
+        for (FunctionNode method : this.methods) {
+            method.resolve();
         }
 
         if (node.visibleAnnotations != null) {
@@ -104,6 +99,8 @@ public class ResolvedKlassNode implements KlassNode {
                 this.annotations.add(annotation);
             }
         }
+
+        hierarchy.resolveKlassEdges(this);
     }
 
     @Override
@@ -187,5 +184,10 @@ public class ResolvedKlassNode implements KlassNode {
         }
 
         
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }
