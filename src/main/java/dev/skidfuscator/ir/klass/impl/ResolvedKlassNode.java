@@ -1,10 +1,12 @@
 package dev.skidfuscator.ir.klass.impl;
 
-import dev.skidfuscator.ir.FunctionNode;
+import dev.skidfuscator.ir.method.FunctionNode;
 import dev.skidfuscator.ir.annotation.Annotation;
 import dev.skidfuscator.ir.field.FieldNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.KlassNode;
+import dev.skidfuscator.ir.method.impl.ResolvedMutableFunctionNode;
+import dev.skidfuscator.ir.util.Descriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
@@ -13,32 +15,41 @@ import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class ResolvedKlassNode implements KlassNode {
     private final Hierarchy hierarchy;
     private final ClassNode node;
+    private boolean resolvedInternally;
+    private boolean resolvedHierarchy;
+
     private KlassNode parent;
-    private List<KlassNode> implementations;
+    private List<KlassNode> interfaces;
     private List<Annotation> annotations;
     private String name;
     private int access;
-    private List<FunctionNode> methods;
-    private List<FieldNode> fields;
-
+    private Map<Descriptor, FunctionNode> methods;
     private List<FieldNode> fields;
 
     public ResolvedKlassNode(Hierarchy hierarchy, ClassNode node) {
         this.hierarchy = hierarchy;
         this.node = node;
-        this.implementations = new ArrayList<>();
+        this.interfaces = new ArrayList<>();
         this.annotations = new ArrayList<>();
-        this.methods = new ArrayList<>();
+        this.methods = new HashMap<>();
         this.fields = new ArrayList<>();
         this.name = node.name;
         this.access = node.access;
+    }
+
+    @Override
+    public boolean isResolvedHierarchy() {
+        return resolvedHierarchy;
+    }
+
+    @Override
+    public boolean isResolvedInternal() {
+        return resolvedInternally;
     }
 
     @Override
@@ -50,23 +61,89 @@ public class ResolvedKlassNode implements KlassNode {
         if (node.interfaces != null) {
             for (String interfaze : node.interfaces) {
                 final KlassNode resolved = hierarchy.findClass(interfaze);
-                this.implementations.add(resolved);
+                this.interfaces.add(resolved);
             }
         }
 
         hierarchy.resolveKlassEdges(this);
+
+        /*
+         * Resolve the fields and overwrite any parent
+         * field which is being added.
+         */
+        if (parent != null) {
+            System.out.println("Resolving parent " + parent.getName() + " fields for " + this.name);
+            for (final FunctionNode method : this.parent.getMethods()) {
+                if (method.isConstructor())
+                    continue;
+
+                System.out.println("Adding method " + method.getOriginalDescriptor() + " to " + this.name);
+                final FunctionNode function = new ResolvedMutableFunctionNode(
+                        hierarchy,
+                        method.getOriginalDescriptor(),
+                        null,
+                        method
+                );
+                function.setOwner(this);
+            }
+
+            System.out.println("Success! Resolved parent " + parent.getName() + " fields for " + this.name);
+        }
+
+        System.out.println("Resolving " + this.name + " implementations");
+        for (KlassNode implementation : this.interfaces) {
+            System.out.println("Resolving implementation " + implementation.getName() + " fields for " + this.name);
+            for (final FunctionNode method : implementation.getMethods()) {
+                if (method.isConstructor())
+                    continue;
+
+                System.out.println("Adding implementation method " + method.getOriginalDescriptor() + " to " + this.name);
+                final FunctionNode function = new ResolvedMutableFunctionNode(
+                        hierarchy,
+                        method.getOriginalDescriptor(),
+                        null,
+                        method
+                );
+                function.setOwner(this);
+            }
+        }
+        System.out.println("Success! Resolved " + this.name + " implementations");
+
+        /*
+         * Resolve the methods and overwrite any parent
+         * method which is being added.
+         */
+        for (MethodNode method : this.node.methods) {
+            System.out.println("\\-> " + method.name + method.desc);
+            final FunctionNode function = new ResolvedMutableFunctionNode(
+                    hierarchy,
+                    Descriptor.of(
+                            method.name,
+                            method.desc
+                    ),
+                    method,
+                    this.methods.get(Descriptor.of(method))
+            );
+            function.setOwner(this);
+        }
+
+        System.out.println("Finished resolving " + this.name + " methods");
+        for (FunctionNode method : this.methods.values()) {
+            this.hierarchy.addMethod(method);
+        }
+        System.out.println("Finished adding " + this.name + " methods");
+
+        this.resolvedHierarchy = true;
     }
 
     @Override
     public void resolveInternal() {
-        /*
-         * Since the classes are being resolved in
-         * a BFS manner, the method groups will be
-         * fine.
-         */
-        for (FunctionNode method : this.methods) {
-            method.resolve();
+        assert !resolvedInternally : String.format("Class %s is already resolved!", this.name);
+        if (parent != null && !parent.isResolvedInternal()) {
+            parent.resolveInternal();
         }
+
+        this.resolvedInternally = true;
 
         if (node.visibleAnnotations != null) {
             for (AnnotationNode annotationNode : node.visibleAnnotations) {
@@ -104,7 +181,23 @@ public class ResolvedKlassNode implements KlassNode {
             }
         }
 
-        hierarchy.resolveKlassEdges(this);
+        this.hierarchy.resolveKlassEdges(this);
+
+        for (FunctionNode method : this.methods.values()) {
+            method.resolveHierarchy();
+        }
+    }
+
+    @Override
+    public void resolveInstructions() {
+        /*
+         * Since the classes are being resolved in
+         * a BFS manner, the method groups will be
+         * fine.
+         */
+        for (FunctionNode method : this.methods.values()) {
+            method.resolveInternal();
+        }
     }
 
     @Override
@@ -113,10 +206,15 @@ public class ResolvedKlassNode implements KlassNode {
     }
 
     @Override
-    public @NotNull List<FunctionNode> getMethods() {
+    public @NotNull Collection<FunctionNode> getMethods() {
         return this.methods == null
-                ? Collections.emptyList()
-                : Collections.unmodifiableList(methods);
+                ? Collections.emptySet()
+                : Collections.unmodifiableCollection(methods.values());
+    }
+
+    @Override
+    public @NotNull FunctionNode getMethod(String name, String desc) {
+        return this.methods.get(new Descriptor(name, desc));
     }
 
     @Override
@@ -127,18 +225,9 @@ public class ResolvedKlassNode implements KlassNode {
     }
 
     @Override
-    public void setMethods(List<FunctionNode> nodes) {
-        for (FunctionNode method : this.getMethods()) {
-            method.setParent(null);
-        }
-
-        this.methods = nodes;
-    }
-
-    @Override
     public void setFields(@Nullable List<FieldNode> nodes) {
-        for (FieldNode method : this.getFields()) {
-            method.setParent(null);
+        for (FieldNode field : this.getFields()) {
+            field.setParent(null);
         }
 
         this.fields = nodes;
@@ -146,29 +235,28 @@ public class ResolvedKlassNode implements KlassNode {
 
     @Override
     public void addMethod(FunctionNode node) {
-        node.setParent(this);
-
-        this.methods.add(node);
+        assert node.getOwner() != null : "Cannot add a method that does not a parent. Please re-assign in the function node itself by calling FunctionNode#setParent(KlassNode)";
+        this.methods.put(node.getOriginalDescriptor(), node);
     }
 
     @Override
     public void removeMethod(FunctionNode node) {
-
-    }
-
-    @Override
-    public @NotNull List<FieldNode> getFields() {
-        return null;
+        assert node.getOwner() == this : "Cannot remove a method from a class that is not its parent";
+        this.methods.remove(node.getOriginalDescriptor());
     }
 
     @Override
     public void addField(FieldNode node) {
+        assert node.getParent() != null : "Cannot add a field that has a parent. Please re-assign in the field node itself by calling FieldNode#setParent(KlassNode)";
 
+        node.setParent(this);
+        this.fields.add(node);
     }
 
     @Override
     public void removeField(FieldNode node) {
-
+        assert node.getParent() == this : "Cannot remove a field from a class that is not its parent";
+        this.fields.remove(node);
     }
 
     @Override
@@ -196,14 +284,14 @@ public class ResolvedKlassNode implements KlassNode {
 
     @Override
     public @NotNull List<KlassNode> getInterfaces() {
-        return implementations == null
+        return interfaces == null
                 ? Collections.emptyList()
-                : Collections.unmodifiableList(implementations);
+                : Collections.unmodifiableList(interfaces);
     }
 
     @Override
     public void setInterfaces(List<KlassNode> klasses) {
-        this.implementations = klasses;
+        this.interfaces = klasses;
 
         // Update hierarchy
         this.hierarchy.resolveKlassEdges(this);
@@ -219,8 +307,9 @@ public class ResolvedKlassNode implements KlassNode {
         this.node.name = name;
         this.node.access = access;
 
-        for (FunctionNode method : methods) {
-            method.dump();
+        this.node.methods.clear();
+        for (FunctionNode method : methods.values()) {
+            this.node.methods.add(method.dump());
         }
 
         

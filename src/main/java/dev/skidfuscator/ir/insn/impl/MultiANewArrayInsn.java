@@ -20,6 +20,8 @@ public class MultiANewArrayInsn extends AbstractInsn {
     @Override
     public void resolve() {
         this.target = hierarchy.findClass(Type.getObjectType(node.desc).getElementType().getInternalName());
+
+        super.resolve();
     }
 
     @Override

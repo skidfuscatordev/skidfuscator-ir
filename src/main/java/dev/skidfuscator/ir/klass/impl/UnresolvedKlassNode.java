@@ -1,8 +1,7 @@
 package dev.skidfuscator.ir.klass.impl;
 
-import dev.skidfuscator.ir.FunctionNode;
+import dev.skidfuscator.ir.method.FunctionNode;
 import dev.skidfuscator.ir.field.FieldNode;
-import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.KlassNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,12 +25,27 @@ public class UnresolvedKlassNode implements KlassNode {
     }
 
     @Override
+    public boolean isResolvedHierarchy() {
+        return true;
+    }
+
+    @Override
+    public boolean isResolvedInternal() {
+        return true;
+    }
+
+    @Override
     public void resolveHierarchy() {
 
     }
 
     @Override
     public void resolveInternal() {
+
+    }
+
+    @Override
+    public void resolveInstructions() {
 
     }
 
@@ -75,17 +89,17 @@ public class UnresolvedKlassNode implements KlassNode {
     }
 
     @Override
-    public @NotNull List<FieldNode> getFields() {
+    public @NotNull FunctionNode getMethod(String name, String desc) {
         throw new IllegalStateException(String.format(
-                "Cannot compute fields of unresolved class %s",
+                "Cannot get method of unresolved class %s",
                 name
         ));
     }
 
     @Override
-    public void setMethods(List<FunctionNode> nodes) {
+    public @NotNull List<FieldNode> getFields() {
         throw new IllegalStateException(String.format(
-                "Cannot set methods of unresolved class %s",
+                "Cannot compute fields of unresolved class %s",
                 name
         ));
     }
@@ -123,6 +137,22 @@ public class UnresolvedKlassNode implements KlassNode {
     }
 
     @Override
+    public void removeMethod(FunctionNode node) {
+        throw new IllegalStateException(String.format(
+                "Cannot remove method of unresolved class %s",
+                name
+        ));
+    }
+
+    @Override
+    public void removeField(FieldNode node) {
+        throw new IllegalStateException(String.format(
+                "Cannot remove field of unresolved class %s",
+                name
+        ));
+    }
+
+    @Override
     public boolean isInterface() {
         throw new IllegalStateException(String.format(
                 "Cannot compute access status of unresolved class %s",
@@ -136,5 +166,10 @@ public class UnresolvedKlassNode implements KlassNode {
                 "Cannot dump unresolved class %s",
                 name
         ));
+    }
+
+    @Override
+    public String toString() {
+        return "UNRESOLVED/" + name;
     }
 }

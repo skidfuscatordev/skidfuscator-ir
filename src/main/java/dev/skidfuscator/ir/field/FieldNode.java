@@ -8,6 +8,10 @@ import java.util.List;
 public interface FieldNode {
     KlassNode getParent();
 
+    String getName();
+
+    void setName(final String name);
+
     void setParent(final KlassNode node);
 
     void resolve();
@@ -20,9 +24,11 @@ public interface FieldNode {
 
     void setDefault(final Object obj);
 
+    boolean isStatic();
+
     List<FieldInvoker<?>> getInvokers();
 
-    void addInvoker(final FieldInvoker<?> invoker);
+    void addInvoke(final FieldInvoker<?> invoker);
 
-    void removeInvoker(final FieldInvoker<?> invoker);
+    void removeInvoke(final FieldInvoker<?> invoker);
 }

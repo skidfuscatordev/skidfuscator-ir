@@ -1,6 +1,6 @@
 package dev.skidfuscator.ir.annotation;
 
-import dev.skidfuscator.ir.FunctionNode;
+import dev.skidfuscator.ir.method.FunctionNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.util.Parameter;
@@ -135,7 +135,7 @@ public class Annotation {
                     0,
                     o -> node.values.set(0, o),
                     () -> node.values.get(0),
-                    owner.getMethods().get(0)
+                    owner.getMethods().iterator().next()
             ));
             return;
         }

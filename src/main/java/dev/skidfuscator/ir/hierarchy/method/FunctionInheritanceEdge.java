@@ -1,23 +1,23 @@
 package dev.skidfuscator.ir.hierarchy.method;
 
-import dev.skidfuscator.ir.method.impl.ResolvedFunctionNode;
+import dev.skidfuscator.ir.method.impl.ResolvedAbstractFunctionNode;
 
 import java.util.Objects;
 
 public abstract class FunctionInheritanceEdge {
-    private final ResolvedFunctionNode parent;
-    private final ResolvedFunctionNode child;
+    private final ResolvedAbstractFunctionNode parent;
+    private final ResolvedAbstractFunctionNode child;
 
-    public FunctionInheritanceEdge(ResolvedFunctionNode parent, ResolvedFunctionNode child) {
+    public FunctionInheritanceEdge(ResolvedAbstractFunctionNode parent, ResolvedAbstractFunctionNode child) {
         this.parent = parent;
         this.child = child;
     }
 
-    public ResolvedFunctionNode getParent() {
+    public ResolvedAbstractFunctionNode getParent() {
         return parent;
     }
 
-    public ResolvedFunctionNode getChild() {
+    public ResolvedAbstractFunctionNode getChild() {
         return child;
     }
 

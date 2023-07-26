@@ -6,4 +6,8 @@ public interface Insn {
     void resolve();
 
     AbstractInsnNode dump();
+
+    InstructionList getParent();
+
+    void setParent(InstructionList parent);
 }

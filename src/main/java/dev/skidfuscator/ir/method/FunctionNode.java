@@ -1,33 +1,46 @@
-package dev.skidfuscator.ir;
+package dev.skidfuscator.ir.method;
 
 import dev.skidfuscator.ir.hierarchy.HierarchyResolvable;
-import dev.skidfuscator.ir.insn.Insn;
+import dev.skidfuscator.ir.insn.InstructionList;
 import dev.skidfuscator.ir.klass.KlassNode;
-import dev.skidfuscator.ir.method.FunctionGroup;
-import dev.skidfuscator.ir.method.FunctionInvoker;
+import dev.skidfuscator.ir.util.Descriptor;
+import org.objectweb.asm.tree.MethodNode;
 
 import java.util.List;
 
 public interface FunctionNode extends HierarchyResolvable {
 
+    Descriptor getOriginalDescriptor();
+
+    boolean isResolved();
+
     /**
      * Resolves the function, parsing through
      * instructions and resolving method groups.
      */
-    void resolve();
+    void resolveHierarchy();
+
+    /**
+     * Resolves the instructions links of the
+     * function and internal operations.
+     *
+     * THIS IS OPTIONAL IF YOU WISH TO PERFORM
+     * ANALYSIS ON THIS FUNCTION
+     */
+    void resolveInternal();
 
     /**
      * Method used to dump the information from
      * the function node. Currently not implemented.
      */
-    void dump();
+    MethodNode dump();
 
     /**
      * Retrieves the instructions of the function.
      *
      * @return The list of instructions
      */
-    List<Insn> getInstructions();
+    InstructionList getInstructions();
 
     /**
      * Resolves all the invocations of the function.
@@ -61,31 +74,14 @@ public interface FunctionNode extends HierarchyResolvable {
      *
      * @return The parent class of the function
      */
-    KlassNode getParent();
+    KlassNode getOwner();
 
     /**
      * Sets the parent class of the function.
      *
      * @param node The parent class to set
      */
-    void setParent(final KlassNode node);
-
-    /**
-     * Retrieves the group of the function.
-     *
-     * @return The group of the function
-     */
-    FunctionGroup getGroup();
-
-    /**
-     * Sets the group of the function, verifying no
-     * conflicts with existing group.
-     *
-     * @param   group The group to set
-     * @throws  IllegalStateException if there's a conflict
-     *          with the current group
-     */
-    void setGroup(final FunctionGroup group);
+    void setOwner(final KlassNode node);
 
     /**
      * Retrieves the name of the function.

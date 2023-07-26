@@ -15,12 +15,12 @@ public class InvokeDynamicInsn extends AbstractInsn {
     }
 
     @Override
-    public void resolve() {
-
+    public AbstractInsnNode dump() {
+        return node;
     }
 
     @Override
-    public void dump() {
-
+    public String toString() {
+        return "push(indy) " + node.name + node.desc;
     }
 }

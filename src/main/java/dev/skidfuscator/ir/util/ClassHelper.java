@@ -1,4 +1,4 @@
-package dev.skidfuscator.ir.test.util;
+package dev.skidfuscator.ir.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -7,7 +7,6 @@ import java.io.OutputStream;
 import java.util.*;
 
 import dev.skidfuscator.ir.klass.KlassNode;
-import lombok.SneakyThrows;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 import org.objectweb.asm.tree.ClassNode;
@@ -33,9 +32,12 @@ public class ClassHelper {
 		return map;
 	}
 
-	@SneakyThrows
 	public static ClassNode create(Class<?> clazz)  {
-		return create(clazz.getName());
+		try {
+			return create(clazz.getName());
+		} catch (Throwable e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	public static ClassNode create(byte[] bytes) {

@@ -30,7 +30,7 @@ public class TypeWrapper implements HierarchyResolvable {
     }
 
     @Override
-    public void resolve() {
+    public void resolveHierarchy() {
         if (type.getSort() == Type.METHOD) {
             desc += "(";
             for (Type argumentType : type.getArgumentTypes()) {

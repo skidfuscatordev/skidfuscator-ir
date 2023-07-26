@@ -2,6 +2,7 @@ package dev.skidfuscator.ir.insn.impl;
 
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.insn.AbstractInsn;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 
 public class JumpInsn extends AbstractInsn {
@@ -14,12 +15,12 @@ public class JumpInsn extends AbstractInsn {
     }
 
     @Override
-    public void resolve() {
-
+    public AbstractInsnNode dump() {
+        return node;
     }
 
     @Override
-    public void dump() {
-
+    public String toString() {
+        return "jump " + node.label.getLabel();
     }
 }

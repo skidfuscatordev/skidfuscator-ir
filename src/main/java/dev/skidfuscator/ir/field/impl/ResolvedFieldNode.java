@@ -5,6 +5,7 @@ import dev.skidfuscator.ir.field.FieldInvoker;
 import dev.skidfuscator.ir.field.FieldNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.KlassNode;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.TypeAnnotationNode;
@@ -26,8 +27,9 @@ public class ResolvedFieldNode implements FieldNode {
     public ResolvedFieldNode(Hierarchy hierarchy, org.objectweb.asm.tree.FieldNode node) {
         this.hierarchy = hierarchy;
         this.node = node;
+        this.name = node.name;
         this.defaultValue = node.value;
-        this.type = Type.getType(node.desc);
+        this.type = Type.getObjectType(node.desc);
         this.invokers = new ArrayList<>();
         this.annotations = new ArrayList<>();
     }
@@ -114,6 +116,16 @@ public class ResolvedFieldNode implements FieldNode {
     }
 
     @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
     public KlassNode getParent() {
         return parent;
     }
@@ -143,12 +155,23 @@ public class ResolvedFieldNode implements FieldNode {
     }
 
     @Override
-    public void addInvoker(FieldInvoker<?> invoker) {
+    public void addInvoke(FieldInvoker<?> invoker) {
+        System.out.println("Adding invoker " + invoker + " to " + this);
         this.invokers.add(invoker);
     }
 
     @Override
-    public void removeInvoker(FieldInvoker<?> invoker) {
+    public void removeInvoke(FieldInvoker<?> invoker) {
         this.invokers.remove(invoker);
+    }
+
+    @Override
+    public boolean isStatic() {
+        return (this.node.access & Opcodes.ACC_STATIC) != 0;
+    }
+
+    @Override
+    public String toString() {
+        return parent + "#" + name + type.getInternalName() + " = " + defaultValue;
     }
 }

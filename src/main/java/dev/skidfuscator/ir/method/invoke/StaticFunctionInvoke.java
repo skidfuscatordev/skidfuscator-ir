@@ -1,6 +1,6 @@
 package dev.skidfuscator.ir.method.invoke;
 
-import dev.skidfuscator.ir.FunctionNode;
+import dev.skidfuscator.ir.method.FunctionNode;
 import dev.skidfuscator.ir.insn.impl.InvokeInsn;
 import dev.skidfuscator.ir.method.FunctionInvoker;
 import org.jetbrains.annotations.NotNull;

@@ -12,11 +12,6 @@ public class UnresolvedInsn extends AbstractInsn {
     }
 
     @Override
-    public void resolve() {
-
-    }
-
-    @Override
     public AbstractInsnNode dump() {
         return node;
     }

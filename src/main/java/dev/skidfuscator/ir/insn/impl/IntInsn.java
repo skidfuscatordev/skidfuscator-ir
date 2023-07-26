@@ -14,12 +14,12 @@ public class IntInsn extends AbstractInsn {
     }
 
     @Override
-    public void resolve() {
-
+    public AbstractInsnNode dump() {
+        return node;
     }
 
     @Override
-    public AbstractInsnNode dump() {
-        return node;
+    public String toString() {
+        return "push(int) " + node.operand;
     }
 }
