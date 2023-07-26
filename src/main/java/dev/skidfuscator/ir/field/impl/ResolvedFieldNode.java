@@ -5,6 +5,7 @@ import dev.skidfuscator.ir.field.FieldInvoker;
 import dev.skidfuscator.ir.field.FieldNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.KlassNode;
+import dev.skidfuscator.ir.type.TypeWrapper;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.TypeAnnotationNode;
@@ -18,7 +19,7 @@ public class ResolvedFieldNode implements FieldNode {
     private final org.objectweb.asm.tree.FieldNode node;
     private String name;
     private KlassNode parent;
-    private Type type;
+    private TypeWrapper type;
     private Object defaultValue;
     private List<FieldInvoker<?>> invokers;
     private List<Annotation> annotations;
@@ -27,13 +28,14 @@ public class ResolvedFieldNode implements FieldNode {
         this.hierarchy = hierarchy;
         this.node = node;
         this.defaultValue = node.value;
-        this.type = Type.getType(node.desc);
+        this.type = new TypeWrapper(Type.getType(node.desc), hierarchy);
         this.invokers = new ArrayList<>();
         this.annotations = new ArrayList<>();
     }
 
     @Override
     public void resolve() {
+        this.name = node.name;
         if (node.visibleAnnotations != null) {
             for (AnnotationNode annotationNode : node.visibleAnnotations) {
                 final Annotation annotation = new Annotation(hierarchy, annotationNode, Annotation.AnnotationType.VISIBLE);
@@ -74,7 +76,7 @@ public class ResolvedFieldNode implements FieldNode {
     @Override
     public void dump() {
         this.node.name = name;
-        this.node.desc = type.getInternalName();
+        this.node.desc = type.dump().getDescriptor();
         this.node.value = defaultValue;
 
         this.node.visibleAnnotations = null;
@@ -114,6 +116,11 @@ public class ResolvedFieldNode implements FieldNode {
     }
 
     @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
     public KlassNode getParent() {
         return parent;
     }
@@ -124,7 +131,7 @@ public class ResolvedFieldNode implements FieldNode {
 
     @Override
     public Type getType() {
-        return type;
+        return type.dump();
     }
 
     @Override

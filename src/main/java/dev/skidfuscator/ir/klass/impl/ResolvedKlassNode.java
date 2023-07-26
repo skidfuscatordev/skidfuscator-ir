@@ -28,8 +28,6 @@ public class ResolvedKlassNode implements KlassNode {
     private List<FunctionNode> methods;
     private List<FieldNode> fields;
 
-    private List<FieldNode> fields;
-
     public ResolvedKlassNode(Hierarchy hierarchy, ClassNode node) {
         this.hierarchy = hierarchy;
         this.node = node;
@@ -154,11 +152,6 @@ public class ResolvedKlassNode implements KlassNode {
     @Override
     public void removeMethod(FunctionNode node) {
 
-    }
-
-    @Override
-    public @NotNull List<FieldNode> getFields() {
-        return null;
     }
 
     @Override

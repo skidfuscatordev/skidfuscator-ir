@@ -21,7 +21,7 @@ public class InvokeDynamicInsn extends AbstractInsn {
     }
 
     @Override
-    public void dump() {
-
+    public AbstractInsnNode dump() {
+        return node;
     }
 }

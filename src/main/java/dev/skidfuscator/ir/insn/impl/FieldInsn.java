@@ -4,6 +4,7 @@ import dev.skidfuscator.ir.FunctionNode;
 import dev.skidfuscator.ir.field.FieldNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.insn.AbstractInsn;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 
@@ -22,13 +23,10 @@ public class FieldInsn extends AbstractInsn {
     }
 
     @Override
-    public void dump() {
+    public AbstractInsnNode dump() {
         this.node.owner = target.getParent().getName();
         this.node.name = target.getName();
-        this.node.desc = target.getDesc();
-    }
-
-    public boolean isStatic() {
-        return target.isStatic();
+        this.node.desc = target.getType().getDescriptor();
+        return node;
     }
 }

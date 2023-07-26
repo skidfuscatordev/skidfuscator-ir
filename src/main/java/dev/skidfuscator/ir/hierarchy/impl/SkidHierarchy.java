@@ -64,7 +64,6 @@ public class SkidHierarchy implements Hierarchy {
         this.fieldEquivalence = new HashMap<>();
         this.klassGraph = new KlassGraph();
         this.functionGraph = new FunctionGraph();
-        this.fieldEquivalence = new HashMap<>();
     }
 
     /**

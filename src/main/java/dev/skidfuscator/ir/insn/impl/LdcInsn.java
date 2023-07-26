@@ -5,6 +5,7 @@ import dev.skidfuscator.ir.insn.ConstantInsn;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.type.TypeWrapper;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 
 //TODO: I dont know how i should implement ldc with type, even more when it comes to array type

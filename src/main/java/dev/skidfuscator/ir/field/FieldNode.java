@@ -14,6 +14,8 @@ public interface FieldNode {
 
     void dump();
 
+    String getName();
+
     Type getType();
 
     Object getDefault();
