@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.objectweb.asm.tree.ClassNode;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -46,7 +48,13 @@ public class SimpleMicroClassTest {
         // self <init>()
         // void test1()
         // void test2()
-        assertEquals(4, microKlassNode.getMethods().size());
+        final Collection<FunctionNode> methods = microKlassNode.getMethods()
+                .stream()
+                .filter(e -> !e.isSynthetic())
+                .collect(Collectors.toList());
+        assertEquals(4, methods.size(), () -> "Invalid method count (expected 4 but was "
+                + methods.size() + "): \n --> "
+                + methods.stream().map(Objects::toString).collect(Collectors.joining("\n --> ")));
     }
 
     @Test

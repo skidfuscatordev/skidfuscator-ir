@@ -55,15 +55,6 @@ public interface Hierarchy {
     void addMethod(final FunctionNode node);
 
     /**
-     * Creates a new KlassNode with the specified ClassNode
-     * and adds it to the hierarchy.
-     *
-     * @param methodNode the MethodNode to create the Function from
-     * @return the created FunctionNode
-     */
-    FunctionNode createMethod(final KlassNode parent, final MethodNode methodNode);
-
-    /**
      * Finds the method with the specified name.
      *
      * @param methodDescriptor The original descriptor of the method being saught

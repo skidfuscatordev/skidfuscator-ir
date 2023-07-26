@@ -12,6 +12,8 @@ public interface FunctionNode extends HierarchyResolvable {
 
     Descriptor getOriginalDescriptor();
 
+    boolean isSynthetic();
+
     boolean isResolved();
 
     /**

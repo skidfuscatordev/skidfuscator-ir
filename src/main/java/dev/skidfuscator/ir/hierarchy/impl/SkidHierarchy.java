@@ -83,7 +83,10 @@ public class SkidHierarchy implements Hierarchy {
      */
     public void resolveClasses(final Collection<ClassNode> classes) {
         classes.forEach(this::create);
-        new HashSet<>(classEquivalence.values()).forEach(KlassNode::resolveHierarchy);
+        new HashSet<>(classEquivalence.values())
+                .stream()
+                .filter(e -> !e.isResolvedHierarchy())
+                .forEach(KlassNode::resolveHierarchy);
         final Set<KlassNode> resolved = new HashSet<>();
 
         final KlassNode root = findClass("java/lang/Object");
@@ -179,11 +182,6 @@ public class SkidHierarchy implements Hierarchy {
         } else {
             throw new IllegalStateException("Method already exists: " + descriptor);
         }
-    }
-
-    @Override
-    public FunctionNode createMethod(final KlassNode parent, final MethodNode node) {
-        throw new IllegalStateException("Deprecated - up for removal");
     }
 
     public FieldNode create(final KlassNode parent, final org.objectweb.asm.tree.FieldNode node) {

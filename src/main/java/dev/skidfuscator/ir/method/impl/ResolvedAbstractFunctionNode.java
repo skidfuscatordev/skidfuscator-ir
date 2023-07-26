@@ -60,6 +60,11 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
     }
 
     @Override
+    public boolean isSynthetic() {
+        return false;
+    }
+
+    @Override
     public void resolveHierarchy() {
         if (node == null)
             return;
@@ -67,6 +72,12 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
         this.access = node.access;
         //Test implementation
         //TODO: Java stream api goes brrrr
+        if (node.exceptions != null) {
+            for (String exception : node.exceptions) {
+                final KlassNode exceptionKlass = hierarchy.findClass(exception);
+                this.exceptions.add(exceptionKlass);
+            }
+        }
     }
 
     @Override
@@ -78,14 +89,9 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
                     this.getOwner()
             ));
         }
-        if (node == null)
+        if (node == null) {
+            resolved = true;
             return;
-
-        if (node.exceptions != null) {
-            for (String exception : node.exceptions) {
-                final KlassNode exceptionKlass = hierarchy.findClass(exception);
-                this.exceptions.add(exceptionKlass);
-            }
         }
 
         for (AbstractInsnNode instruction : this.node.instructions) {

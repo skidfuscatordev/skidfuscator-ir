@@ -19,6 +19,11 @@ public class ResolvedMutableFunctionNode extends ResolvedAbstractFunctionNode {
     }
 
     @Override
+    public boolean isSynthetic() {
+        return this.node == null && this.getInstructions().isEmpty();
+    }
+
+    @Override
     public void resolveHierarchy() {
         if (owner.getParent() != null) {
             final FunctionNode parent = owner.getParent().getMethod(
