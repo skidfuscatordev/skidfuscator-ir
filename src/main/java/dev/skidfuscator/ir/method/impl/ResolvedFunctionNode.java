@@ -6,12 +6,12 @@ import dev.skidfuscator.ir.insn.Insn;
 import dev.skidfuscator.ir.insn.impl.*;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.method.FunctionGroup;
-import dev.skidfuscator.ir.type.TypeWrapper;
+import dev.skidfuscator.ir.method.FunctionInvoker;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
@@ -23,6 +23,7 @@ public class ResolvedFunctionNode implements FunctionNode {
     private FunctionGroup group;
 
     private List<Insn> instructions;
+    private List<FunctionInvoker<?>> invokers;
     private int access;
 
     private List<KlassNode> exceptions;
@@ -30,11 +31,21 @@ public class ResolvedFunctionNode implements FunctionNode {
     public ResolvedFunctionNode(MethodNode node, Hierarchy hierarchy) {
         this.node = node;
         this.hierarchy = hierarchy;
+        this.access = node.access;
+        this.instructions = new ArrayList<>();
+        this.invokers = new ArrayList<>();
     }
 
     @Override
     public void dump() {
+        this.node.name = this.getName();
+        this.node.desc = this.getDesc();
+        this.node.access = this.access;
 
+        this.node.instructions = new InsnList();
+        for (Insn instruction : this.instructions) {
+            this.node.instructions.add(instruction.dump());
+        }
     }
 
     @Override
@@ -51,6 +62,25 @@ public class ResolvedFunctionNode implements FunctionNode {
                     group.getName() + group.getDesc()
             ));
         }
+    }
+
+    @Override
+    public List<FunctionInvoker<?>> getInvokes() {
+        return Collections.unmodifiableList(invokers);
+    }
+
+    @Override
+    public void addInvoke(FunctionInvoker<?> invoker) {
+        this.invokers.add(invoker);
+
+        assert invoker.getTarget() == this : "The target invocation needs to set to this function before adding!";
+    }
+
+    @Override
+    public void removeInvoke(FunctionInvoker<?> invoker) {
+        this.invokers.remove(invoker);
+
+        assert invoker.getTarget() == null : "The target invocation needs to set to null before removing!";
     }
 
     @Override
@@ -175,13 +205,17 @@ public class ResolvedFunctionNode implements FunctionNode {
          * create their groups without worrying
          * about conflicts.
          */
-        if (!isStatic()) {
+        if (!isStatic() && !node.name.equals("<init>")) {
             final Stack<KlassNode> stack = new Stack<>();
             stack.add(parent.getParent());
             stack.addAll(parent.getInterfaces());
 
             while (!stack.isEmpty()) {
                 final KlassNode klass = stack.pop();
+
+                // Skip java.lang.Object
+                if (klass == null)
+                    continue;
 
                 final FunctionNode similar = hierarchy.findMethod(
                         klass.getName(),
@@ -215,7 +249,7 @@ public class ResolvedFunctionNode implements FunctionNode {
 
 
         this.group = group == null
-                ? new FunctionGroup(this.node.name, new TypeWrapper(Type.getType(this.node.desc), this.hierarchy))
+                ? new FunctionGroup(this.node.name, this.node.desc)
                 : group;
     }
 
@@ -250,7 +284,7 @@ public class ResolvedFunctionNode implements FunctionNode {
     }
 
     @Override
-    public TypeWrapper getDesc() {
+    public String getDesc() {
         return this.group.getDesc();
     }
 
@@ -262,5 +296,10 @@ public class ResolvedFunctionNode implements FunctionNode {
     @Override
     public boolean isConstructor() {
         return this.getName().equals("<init>");
+    }
+
+    @Override
+    public String toString() {
+        return getParent().getName() + "." + getName() + getDesc();
     }
 }

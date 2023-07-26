@@ -3,12 +3,10 @@ package dev.skidfuscator.ir.insn.impl;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.insn.AbstractInsn;
 import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.IntInsnNode;
 
-public class IntInsn extends AbstractInsn {
-    private final IntInsnNode node;
-
-    public IntInsn(Hierarchy hierarchy, IntInsnNode node) {
+public class UnresolvedInsn extends AbstractInsn {
+    private final AbstractInsnNode node;
+    public UnresolvedInsn(Hierarchy hierarchy, AbstractInsnNode node) {
         super(hierarchy, node);
         this.node = node;
     }
@@ -20,6 +18,10 @@ public class IntInsn extends AbstractInsn {
 
     @Override
     public AbstractInsnNode dump() {
+        return node;
+    }
+
+    public AbstractInsnNode getNode() {
         return node;
     }
 }

@@ -4,6 +4,7 @@ import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.insn.AbstractInsn;
 import dev.skidfuscator.ir.klass.KlassNode;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MultiANewArrayInsnNode;
 
 public class MultiANewArrayInsn extends AbstractInsn {
@@ -22,7 +23,8 @@ public class MultiANewArrayInsn extends AbstractInsn {
     }
 
     @Override
-    public void dump() {
+    public AbstractInsnNode dump() {
         this.node.desc = "[".repeat(node.dims) + "L" + target.getName() + ";"; //I have no idea
+        return node;
     }
 }

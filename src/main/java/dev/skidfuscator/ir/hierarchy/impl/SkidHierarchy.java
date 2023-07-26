@@ -1,11 +1,9 @@
 package dev.skidfuscator.ir.hierarchy.impl;
 
 import dev.skidfuscator.ir.FunctionNode;
-import dev.skidfuscator.ir.field.FieldDescriptor;
-import dev.skidfuscator.ir.field.FieldGraph;
 import dev.skidfuscator.ir.field.FieldNode;
 import dev.skidfuscator.ir.field.impl.ResolvedFieldNode;
-import dev.skidfuscator.ir.method.MethodGraph;
+import dev.skidfuscator.ir.method.FunctionGraph;
 import dev.skidfuscator.ir.method.impl.ResolvedFunctionNode;
 import dev.skidfuscator.ir.hierarchy.klass.KlassExtendsEdge;
 import dev.skidfuscator.ir.hierarchy.klass.KlassImplementsEdge;
@@ -14,7 +12,7 @@ import dev.skidfuscator.ir.hierarchy.klass.KlassInheritanceEdge;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.impl.ResolvedKlassNode;
-import dev.skidfuscator.ir.method.MethodDescriptor;
+import dev.skidfuscator.ir.util.Descriptor;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -45,9 +43,8 @@ public class SkidHierarchy implements Hierarchy {
      * - Safe renaming
      * - Safe re-parenting
      */
-    private final Map<MethodDescriptor, FunctionNode> functionEquivalence;
-    private final MethodGraph functionGraph;
-
+    private final Map<Descriptor, FunctionNode> functionEquivalence;
+    private final FunctionGraph functionGraph;
 
     /**
      * This will, has and will ALWAYS base itself on
@@ -58,8 +55,7 @@ public class SkidHierarchy implements Hierarchy {
      * - Safe renaming
      * - Safe re-parenting
      */
-    private final Map<FieldDescriptor, FieldNode> fieldEquivalence;
-    private final FieldGraph fieldGraph;
+    private final Map<Descriptor, FieldNode> fieldEquivalence;
 
 
     public SkidHierarchy() {
@@ -67,8 +63,8 @@ public class SkidHierarchy implements Hierarchy {
         this.functionEquivalence = new HashMap<>();
         this.fieldEquivalence = new HashMap<>();
         this.klassGraph = new KlassGraph();
-        this.functionGraph = new MethodGraph();
-        this.fieldGraph = new FieldGraph();
+        this.functionGraph = new FunctionGraph();
+        this.fieldEquivalence = new HashMap<>();
     }
 
     /**
@@ -79,9 +75,9 @@ public class SkidHierarchy implements Hierarchy {
      *
      * @param classes Collection of classes to resolve
      */
-    private void resolveClasses(final Collection<ClassNode> classes) {
+    public void resolveClasses(final Collection<ClassNode> classes) {
         classes.forEach(this::create);
-
+        classEquivalence.values().forEach(KlassNode::resolveHierarchy);
         final Set<KlassNode> resolved = new HashSet<>();
 
         final KlassNode root = findClass("java/lang/Object");
@@ -95,13 +91,15 @@ public class SkidHierarchy implements Hierarchy {
             if (resolved.contains(node))
                 continue;
 
+            System.out.println("Resolving: " + node);
+            System.out.println("Children: " + klassGraph.outgoingEdgesOf(node));
             final List<KlassNode> children = klassGraph
                     .incomingEdgesOf(node)
                     .stream()
                     .map(KlassInheritanceEdge::getNode)
                     .toList();
 
-            node.resolve();
+            node.resolveInternal();
             resolved.add(node);
 
             queue.addAll(children);
@@ -114,13 +112,13 @@ public class SkidHierarchy implements Hierarchy {
     }
 
     @Override
-    public FunctionNode findMethod(MethodDescriptor methodDescriptor) {
+    public FunctionNode findMethod(Descriptor methodDescriptor) {
         return functionEquivalence.get(methodDescriptor);
     }
 
     @Override
-    public FieldNode findField(FieldDescriptor fieldDescriptor) {
-        return fieldEquivalence.get(fieldDescriptor);
+    public FieldNode findField(Descriptor methodDescriptor) {
+        return fieldEquivalence.get(methodDescriptor);
     }
 
     public KlassNode create(final ClassNode classNode) {
@@ -136,10 +134,9 @@ public class SkidHierarchy implements Hierarchy {
                 klassNode.addMethod(function);
             }
 
-            //TODO: Naming
-            for (org.objectweb.asm.tree.FieldNode asmField : classNode.fields) {
-                final FieldNode field = create(klassNode, asmField);
-                klassNode.addField(field);
+            for (org.objectweb.asm.tree.FieldNode field : classNode.fields) {
+                final FieldNode fieldNode = create(klassNode, field);
+                klassNode.addField(fieldNode);
             }
         }
 
@@ -147,7 +144,7 @@ public class SkidHierarchy implements Hierarchy {
     }
 
     public FunctionNode create(final KlassNode parent, final MethodNode node) {
-        final MethodDescriptor descriptor = new MethodDescriptor(
+        final Descriptor descriptor = new Descriptor(
                 parent.getName(),
                 node.name,
                 node.desc
@@ -164,13 +161,15 @@ public class SkidHierarchy implements Hierarchy {
 
             functionEquivalence.put(descriptor, functionNode);
             functionGraph.addVertex(functionNode);
+        } else {
+            throw new IllegalStateException("Method already exists: " + descriptor);
         }
 
         return functionNode;
     }
 
     public FieldNode create(final KlassNode parent, final org.objectweb.asm.tree.FieldNode node) {
-        final FieldDescriptor descriptor = new FieldDescriptor(
+        final Descriptor descriptor = new Descriptor(
                 parent.getName(),
                 node.name,
                 node.desc
@@ -180,24 +179,26 @@ public class SkidHierarchy implements Hierarchy {
 
         if (fieldNode == null) {
             fieldNode = new ResolvedFieldNode(
-                    node,
-                    this
+                    this,
+                    node
             );
             fieldNode.setParent(parent);
 
             fieldEquivalence.put(descriptor, fieldNode);
-            fieldGraph.addVertex(fieldNode);
+        } else {
+            throw new IllegalStateException("Field already exists: " + descriptor);
         }
 
         return fieldNode;
     }
 
     public void resolveKlassEdges(final KlassNode klassNode) {
-        for (KlassInheritanceEdge edge : klassGraph.edgesOf(klassNode)) {
+        for (KlassInheritanceEdge edge : new HashSet<>(klassGraph.outgoingEdgesOf(klassNode))) {
             klassGraph.removeEdge(edge);
         }
 
         if (klassNode.getParent() != null) {
+            System.out.println("Adding edge: " + klassNode + " -> " + klassNode.getParent());
             final boolean success = klassGraph.addEdge(
                     klassNode,
                     klassNode.getParent(),

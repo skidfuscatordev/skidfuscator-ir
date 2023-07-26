@@ -22,7 +22,8 @@ public class LdcInsn extends ConstantInsn {
     }
 
     @Override
-    public void dump() {
+    public AbstractInsnNode dump() {
         this.node.cst = this.constant instanceof TypeWrapper type ? type.dump() : this.constant;
+        return node;
     }
 }
