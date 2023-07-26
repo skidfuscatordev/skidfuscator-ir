@@ -4,12 +4,15 @@ import dev.skidfuscator.ir.FunctionNode;
 import dev.skidfuscator.ir.field.FieldNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.KlassNode;
+import dev.skidfuscator.ir.type.TypeWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.RecordComponentNode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +30,18 @@ public class ResolvedKlassNode implements KlassNode {
     private List<FunctionNode> methods;
 
     private List<FieldNode> fields;
+    
+    private KlassNode nestHost;
+
+    private List<KlassNode> nestMembers;
+
+    private KlassNode outerClass;
+
+    private FunctionNode outerMethod;
+
+    private TypeWrapper outerMethodDesc;
+
+    private List<KlassNode> permittedSubClasses;
 
     public ResolvedKlassNode(Hierarchy hierarchy, ClassNode node) {
         this.hierarchy = hierarchy;
@@ -44,6 +59,49 @@ public class ResolvedKlassNode implements KlassNode {
             for (String interfaze : node.interfaces) {
                 final KlassNode resolved = hierarchy.findClass(interfaze);
                 this.implementations.add(resolved);
+            }
+        }
+
+        if (node.nestHostClass != null) {
+            this.nestHost = hierarchy.findClass(node.nestHostClass);
+        }
+
+        //TODO: Java streams goes brrr
+        if (node.nestMembers != null) {
+            this.nestMembers = new ArrayList<>();
+            for (String nestMember : node.nestMembers) {
+                this.nestMembers.add(hierarchy.findClass(nestMember));
+            }
+        }
+
+        if (node.innerClasses != null) {
+            for (InnerClassNode innerClass : node.innerClasses) {
+                //TODO
+            }
+        }
+
+        if (node.module != null) {
+            //TODO
+        }
+
+        //? WHAT
+        //Did i even do it in the good way?
+        if (node.outerClass != null && node.outerMethod != null && node.outerMethodDesc != null) {
+            this.outerClass = hierarchy.findClass(node.outerClass);
+            this.outerMethod = hierarchy.findMethod(node.outerClass, node.outerMethod, node.outerMethodDesc);
+            this.outerMethodDesc = new TypeWrapper(Type.getType(node.outerMethodDesc), hierarchy);
+        }
+
+        if (node.recordComponents != null) {
+            for (RecordComponentNode recordComponent : node.recordComponents) {
+                //TODO
+            }
+        }
+
+        if (node.permittedSubclasses != null) {
+            permittedSubClasses = new ArrayList<>();
+            for (String permittedSubclass : node.permittedSubclasses) {
+                this.permittedSubClasses.add(hierarchy.findClass(permittedSubclass));
             }
         }
 

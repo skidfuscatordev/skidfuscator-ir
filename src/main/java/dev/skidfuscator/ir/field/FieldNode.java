@@ -2,6 +2,7 @@ package dev.skidfuscator.ir.field;
 
 import dev.skidfuscator.ir.hierarchy.HierarchyResolvable;
 import dev.skidfuscator.ir.klass.KlassNode;
+import dev.skidfuscator.ir.type.TypeWrapper;
 
 //TODO: Different name due to ASM FieldNode
 public interface FieldNode extends HierarchyResolvable {
@@ -50,7 +51,7 @@ public interface FieldNode extends HierarchyResolvable {
      *
      * @return The descriptor of the field
      */
-    String getDesc();
+    TypeWrapper getDesc();
 
     /**
      * Determines if the field is static.

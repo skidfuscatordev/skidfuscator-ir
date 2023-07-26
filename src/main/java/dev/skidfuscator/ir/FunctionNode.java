@@ -5,6 +5,7 @@ import dev.skidfuscator.ir.insn.AbstractInsn;
 import dev.skidfuscator.ir.insn.Insn;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.method.FunctionGroup;
+import dev.skidfuscator.ir.type.TypeWrapper;
 
 import java.util.List;
 
@@ -86,7 +87,7 @@ public interface FunctionNode extends HierarchyResolvable {
      *
      * @return The descriptor of the function
      */
-    String getDesc();
+    TypeWrapper getDesc();
 
     /**
      * Determines if the function is static.

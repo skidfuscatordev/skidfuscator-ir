@@ -6,7 +6,9 @@ import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.insn.Insn;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.method.FunctionGroup;
+import dev.skidfuscator.ir.type.TypeWrapper;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.util.List;
@@ -16,22 +18,25 @@ public class ResolvedFieldNode implements FieldNode {
 
     private final org.objectweb.asm.tree.FieldNode node;
 
+    private final Hierarchy hierarchy;
+
     private KlassNode parent;
     private String name;
 
-    private String desc;
+    private TypeWrapper desc;
 
     private int access;
 
-    public ResolvedFieldNode(org.objectweb.asm.tree.FieldNode node) {
+    public ResolvedFieldNode(org.objectweb.asm.tree.FieldNode node, Hierarchy hierarchy) {
         this.node = node;
+        this.hierarchy = hierarchy;
     }
 
     @Override
     public void resolve() {
         this.access = node.access;
         this.name = node.name;
-        this.desc = node.desc;
+        this.desc = new TypeWrapper(Type.getType(this.node.desc), this.hierarchy);
     }
 
     @Override
@@ -60,7 +65,7 @@ public class ResolvedFieldNode implements FieldNode {
     }
 
     @Override
-    public String getDesc() {
+    public TypeWrapper getDesc() {
         return this.desc;
     }
 

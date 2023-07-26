@@ -63,13 +63,21 @@ public class TypeWrapper implements HierarchyResolvable {
         }
     }
 
-    public String getDesc() {
-        return desc;
-    }
-
     public Type dump() {
         return !classes.isEmpty() ? Type.getType(desc.formatted(
                 (Object[]) classes.stream().map(klassNode -> "L" + klassNode.getName() + ";").toArray(String[]::new)
         )) : Type.getType(desc);
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public String getOriginalDesc() {
+        return type.getDescriptor();
+    }
+
+    public Type getType() {
+        return type;
     }
 }

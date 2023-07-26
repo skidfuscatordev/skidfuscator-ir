@@ -1,14 +1,16 @@
 package dev.skidfuscator.ir.method;
 
+import dev.skidfuscator.ir.type.TypeWrapper;
+
 import java.util.Objects;
 import java.util.UUID;
 
 public class FunctionGroup {
     private final UUID id;
     private String name;
-    private String desc;
+    private TypeWrapper desc;
 
-    public FunctionGroup(String name, String desc) {
+    public FunctionGroup(String name, TypeWrapper desc) {
         this.id = UUID.randomUUID();
         this.name = name;
         this.desc = desc;
@@ -22,11 +24,11 @@ public class FunctionGroup {
         this.name = name;
     }
 
-    public String getDesc() {
+    public TypeWrapper getDesc() {
         return desc;
     }
 
-    public void setDesc(String desc) {
+    public void setDesc(TypeWrapper desc) {
         this.desc = desc;
     }
 

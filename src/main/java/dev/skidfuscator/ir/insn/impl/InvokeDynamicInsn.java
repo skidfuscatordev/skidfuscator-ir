@@ -5,6 +5,7 @@ import dev.skidfuscator.ir.insn.AbstractInsn;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InvokeDynamicInsnNode;
 
+//TODO
 public class InvokeDynamicInsn extends AbstractInsn {
 
     private final InvokeDynamicInsnNode node;

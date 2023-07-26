@@ -6,7 +6,9 @@ import dev.skidfuscator.ir.insn.Insn;
 import dev.skidfuscator.ir.insn.impl.*;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.method.FunctionGroup;
+import dev.skidfuscator.ir.type.TypeWrapper;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 import java.util.ArrayList;
@@ -213,7 +215,7 @@ public class ResolvedFunctionNode implements FunctionNode {
 
 
         this.group = group == null
-                ? new FunctionGroup(this.node.name, this.node.desc)
+                ? new FunctionGroup(this.node.name, new TypeWrapper(Type.getType(this.node.desc), this.hierarchy))
                 : group;
     }
 
@@ -248,7 +250,7 @@ public class ResolvedFunctionNode implements FunctionNode {
     }
 
     @Override
-    public String getDesc() {
+    public TypeWrapper getDesc() {
         return this.group.getDesc();
     }
 

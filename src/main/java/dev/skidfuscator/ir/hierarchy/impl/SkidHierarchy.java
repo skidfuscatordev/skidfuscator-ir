@@ -180,7 +180,8 @@ public class SkidHierarchy implements Hierarchy {
 
         if (fieldNode == null) {
             fieldNode = new ResolvedFieldNode(
-                    node
+                    node,
+                    this
             );
             fieldNode.setParent(parent);
 
