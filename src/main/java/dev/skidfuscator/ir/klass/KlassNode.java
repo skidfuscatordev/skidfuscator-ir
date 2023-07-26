@@ -1,6 +1,7 @@
 package dev.skidfuscator.ir.klass;
 
 import dev.skidfuscator.ir.FunctionNode;
+import dev.skidfuscator.ir.field.FieldNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
@@ -96,6 +97,30 @@ public interface KlassNode {
      * @param node the node
      */
     void addMethod(final FunctionNode node);
+
+    /**
+     * Remove method.
+     *
+     * @param node the node
+     */
+    void removeMethod(final FunctionNode node);
+
+    /**
+     * @return  List of wrapped fields
+     */
+    @NotNull
+    List<FieldNode> getFields();
+
+    /**
+     * Adds a field
+     */
+    void addField(final FieldNode node);
+
+    /**
+     * Removes a field.
+     * @param node the node
+     */
+    void removeField(final FieldNode node);
 
     /**
      * Is interface boolean.

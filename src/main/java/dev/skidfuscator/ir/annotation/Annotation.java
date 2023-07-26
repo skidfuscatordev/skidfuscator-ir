@@ -3,7 +3,7 @@ package dev.skidfuscator.ir.annotation;
 import dev.skidfuscator.ir.FunctionNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.KlassNode;
-import dev.skidfuscator.ir.parameter.Parameter;
+import dev.skidfuscator.ir.util.Parameter;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 

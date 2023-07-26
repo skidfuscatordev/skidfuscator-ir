@@ -1,4 +1,4 @@
-package dev.skidfuscator.ir.parameter;
+package dev.skidfuscator.ir.util;
 
 import org.objectweb.asm.Type;
 

@@ -1,9 +1,11 @@
 package dev.skidfuscator.ir.hierarchy;
 
 import dev.skidfuscator.ir.FunctionNode;
+import dev.skidfuscator.ir.field.FieldNode;
 import dev.skidfuscator.ir.klass.KlassNode;
-import dev.skidfuscator.ir.method.MethodDescriptor;
+import dev.skidfuscator.ir.util.Descriptor;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 
 import java.util.Collection;
@@ -44,13 +46,35 @@ public interface Hierarchy {
      */
     void resolveKlassEdges(final KlassNode klassNode);
 
-    FunctionNode findMethod(final MethodDescriptor methodDescriptor);
+    /**
+     * Finds the method with the specified name.
+     *
+     * @param methodDescriptor The original descriptor of the method being saught
+     * @return The found (or not) function node
+     */
+    FunctionNode findMethod(final Descriptor methodDescriptor);
 
     default FunctionNode findMethod(final String owner, final String name, final String desc) {
-        return findMethod(new MethodDescriptor(owner, name, desc));
+        return findMethod(new Descriptor(owner, name, desc));
     }
 
     default FunctionNode findMethod(final MethodInsnNode node) {
         return findMethod(node.owner, node.name, node.desc);
+    }
+
+    /**
+     * Finds the field with the specified name.
+     *
+     * @param descriptor The descriptor of the field to search for.
+     * @return The found FieldNode.
+     */
+    FieldNode findField(final Descriptor descriptor);
+
+    default FieldNode findField(final String owner, final String name, final String desc) {
+        return findField(new Descriptor(owner, name, desc));
+    }
+
+    default FieldNode findField(final FieldInsnNode node) {
+        return findField(node.owner, node.name, node.desc);
     }
 }

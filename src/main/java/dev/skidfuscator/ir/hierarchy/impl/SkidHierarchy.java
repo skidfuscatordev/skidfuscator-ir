@@ -1,7 +1,9 @@
 package dev.skidfuscator.ir.hierarchy.impl;
 
 import dev.skidfuscator.ir.FunctionNode;
-import dev.skidfuscator.ir.method.MethodGraph;
+import dev.skidfuscator.ir.field.FieldNode;
+import dev.skidfuscator.ir.field.impl.ResolvedFieldNode;
+import dev.skidfuscator.ir.method.FunctionGraph;
 import dev.skidfuscator.ir.method.impl.ResolvedFunctionNode;
 import dev.skidfuscator.ir.hierarchy.klass.KlassExtendsEdge;
 import dev.skidfuscator.ir.hierarchy.klass.KlassImplementsEdge;
@@ -10,7 +12,7 @@ import dev.skidfuscator.ir.hierarchy.klass.KlassInheritanceEdge;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.impl.ResolvedKlassNode;
-import dev.skidfuscator.ir.method.MethodDescriptor;
+import dev.skidfuscator.ir.util.Descriptor;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -41,15 +43,27 @@ public class SkidHierarchy implements Hierarchy {
      * - Safe renaming
      * - Safe re-parenting
      */
-    private final Map<MethodDescriptor, FunctionNode> functionEquivalence;
-    private final MethodGraph functionGraph;
+    private final Map<Descriptor, FunctionNode> functionEquivalence;
+    private final FunctionGraph functionGraph;
+
+    /**
+     * This will, has and will ALWAYS base itself on
+     * LEGACY names. This means any name modification
+     * WILL NOT BE RESOLVED IN HERE. This is BY DESIGN.
+     * <p>
+     * This allows us to do:
+     * - Safe renaming
+     * - Safe re-parenting
+     */
+    private final Map<Descriptor, FieldNode> fieldEquivalence;
 
 
     public SkidHierarchy() {
         this.classEquivalence = new HashMap<>();
         this.functionEquivalence = new HashMap<>();
         this.klassGraph = new KlassGraph();
-        this.functionGraph = new MethodGraph();
+        this.functionGraph = new FunctionGraph();
+        this.fieldEquivalence = new HashMap<>();
     }
 
     /**
@@ -97,8 +111,13 @@ public class SkidHierarchy implements Hierarchy {
     }
 
     @Override
-    public FunctionNode findMethod(MethodDescriptor methodDescriptor) {
+    public FunctionNode findMethod(Descriptor methodDescriptor) {
         return functionEquivalence.get(methodDescriptor);
+    }
+
+    @Override
+    public FieldNode findField(Descriptor methodDescriptor) {
+        return fieldEquivalence.get(methodDescriptor);
     }
 
     public KlassNode create(final ClassNode classNode) {
@@ -113,13 +132,18 @@ public class SkidHierarchy implements Hierarchy {
                 final FunctionNode function = create(klassNode, method);
                 klassNode.addMethod(function);
             }
+
+            for (org.objectweb.asm.tree.FieldNode field : classNode.fields) {
+                final FieldNode fieldNode = create(klassNode, field);
+                klassNode.addField(fieldNode);
+            }
         }
 
         return klassNode;
     }
 
     public FunctionNode create(final KlassNode parent, final MethodNode node) {
-        final MethodDescriptor descriptor = new MethodDescriptor(
+        final Descriptor descriptor = new Descriptor(
                 parent.getName(),
                 node.name,
                 node.desc
@@ -141,6 +165,30 @@ public class SkidHierarchy implements Hierarchy {
         }
 
         return functionNode;
+    }
+
+    public FieldNode create(final KlassNode parent, final org.objectweb.asm.tree.FieldNode node) {
+        final Descriptor descriptor = new Descriptor(
+                parent.getName(),
+                node.name,
+                node.desc
+        );
+
+        FieldNode fieldNode = findField(descriptor);
+
+        if (fieldNode == null) {
+            fieldNode = new ResolvedFieldNode(
+                    this,
+                    node
+            );
+            fieldNode.setParent(parent);
+
+            fieldEquivalence.put(descriptor, fieldNode);
+        } else {
+            throw new IllegalStateException("Field already exists: " + descriptor);
+        }
+
+        return fieldNode;
     }
 
     public void resolveKlassEdges(final KlassNode klassNode) {

@@ -2,6 +2,7 @@ package dev.skidfuscator.ir.klass.impl;
 
 import dev.skidfuscator.ir.FunctionNode;
 import dev.skidfuscator.ir.annotation.Annotation;
+import dev.skidfuscator.ir.field.FieldNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.KlassNode;
 import org.jetbrains.annotations.NotNull;
@@ -18,14 +19,13 @@ import java.util.List;
 public class ResolvedKlassNode implements KlassNode {
     private final Hierarchy hierarchy;
     private final ClassNode node;
-
     private KlassNode parent;
     private List<KlassNode> implementations;
     private List<Annotation> annotations;
     private String name;
     private int access;
-
     private List<FunctionNode> methods;
+    private List<FieldNode> fields;
 
     public ResolvedKlassNode(Hierarchy hierarchy, ClassNode node) {
         this.hierarchy = hierarchy;
@@ -33,6 +33,7 @@ public class ResolvedKlassNode implements KlassNode {
         this.implementations = new ArrayList<>();
         this.annotations = new ArrayList<>();
         this.methods = new ArrayList<>();
+        this.fields = new ArrayList<>();
         this.name = node.name;
         this.access = node.access;
     }
@@ -129,6 +130,26 @@ public class ResolvedKlassNode implements KlassNode {
         node.setParent(this);
 
         this.methods.add(node);
+    }
+
+    @Override
+    public void removeMethod(FunctionNode node) {
+
+    }
+
+    @Override
+    public @NotNull List<FieldNode> getFields() {
+        return null;
+    }
+
+    @Override
+    public void addField(FieldNode node) {
+
+    }
+
+    @Override
+    public void removeField(FieldNode node) {
+
     }
 
     @Override

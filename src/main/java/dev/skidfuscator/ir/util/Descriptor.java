@@ -1,13 +1,13 @@
-package dev.skidfuscator.ir.method;
+package dev.skidfuscator.ir.util;
 
 import java.util.Objects;
 
-public class MethodDescriptor {
+public class Descriptor {
     private final String owner;
     private final String name;
     private final String desc;
 
-    public MethodDescriptor(String owner, String name, String desc) {
+    public Descriptor(String owner, String name, String desc) {
         this.owner = owner;
         this.name = name;
         this.desc = desc;
@@ -16,7 +16,7 @@ public class MethodDescriptor {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof MethodDescriptor that)) return false;
+        if (!(o instanceof Descriptor that)) return false;
 
         if (!Objects.equals(owner, that.owner)) return false;
         if (!Objects.equals(name, that.name)) return false;

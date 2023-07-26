@@ -1,10 +1,10 @@
 package dev.skidfuscator.ir;
 
 import dev.skidfuscator.ir.hierarchy.HierarchyResolvable;
-import dev.skidfuscator.ir.insn.AbstractInsn;
 import dev.skidfuscator.ir.insn.Insn;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.method.FunctionGroup;
+import dev.skidfuscator.ir.method.FunctionInvoker;
 
 import java.util.List;
 
@@ -28,6 +28,26 @@ public interface FunctionNode extends HierarchyResolvable {
      * @return The list of instructions
      */
     List<Insn> getInstructions();
+
+    /**
+     * Resolves all the invocations of the function.
+     *
+     * @return The list of invocations
+     */
+    List<FunctionInvoker<?>> getInvokes();
+
+    /**
+     * Adds an invocation to the function.
+     *
+     * @param invoker The invoker to add
+     */
+    void addInvoke(final FunctionInvoker<?> invoker);
+
+    /**
+     * Removes an invocation from the function.
+     * @param invoker The invoker to remove
+     */
+    void removeInvoke(final FunctionInvoker<?> invoker);
 
     /**
      * Retrieves the parent class of the function.

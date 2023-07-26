@@ -6,10 +6,12 @@ import dev.skidfuscator.ir.insn.Insn;
 import dev.skidfuscator.ir.insn.impl.*;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.method.FunctionGroup;
+import dev.skidfuscator.ir.method.FunctionInvoker;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
@@ -21,11 +23,15 @@ public class ResolvedFunctionNode implements FunctionNode {
     private FunctionGroup group;
 
     private List<Insn> instructions;
+    private List<FunctionInvoker<?>> invokers;
     private int access;
 
     public ResolvedFunctionNode(MethodNode node, Hierarchy hierarchy) {
         this.node = node;
         this.hierarchy = hierarchy;
+        this.access = node.access;
+        this.instructions = new ArrayList<>();
+        this.invokers = new ArrayList<>();
     }
 
     @Override
@@ -57,10 +63,26 @@ public class ResolvedFunctionNode implements FunctionNode {
     }
 
     @Override
-    public void resolve() {
-        this.access = node.access;
-        this.instructions = new ArrayList<>();
+    public List<FunctionInvoker<?>> getInvokes() {
+        return Collections.unmodifiableList(invokers);
+    }
 
+    @Override
+    public void addInvoke(FunctionInvoker<?> invoker) {
+        this.invokers.add(invoker);
+
+        assert invoker.getTarget() == this : "The target invocation needs to set to this function before adding!";
+    }
+
+    @Override
+    public void removeInvoke(FunctionInvoker<?> invoker) {
+        this.invokers.remove(invoker);
+
+        assert invoker.getTarget() == null : "The target invocation needs to set to null before removing!";
+    }
+
+    @Override
+    public void resolve() {
         for (AbstractInsnNode instruction : this.node.instructions) {
             final Insn insn;
             if (instruction instanceof MethodInsnNode) {
