@@ -61,6 +61,7 @@ public class SkidHierarchy implements Hierarchy {
     public SkidHierarchy() {
         this.classEquivalence = new HashMap<>();
         this.functionEquivalence = new HashMap<>();
+        this.fieldEquivalence = new HashMap<>();
         this.klassGraph = new KlassGraph();
         this.functionGraph = new FunctionGraph();
         this.fieldEquivalence = new HashMap<>();
@@ -96,7 +97,7 @@ public class SkidHierarchy implements Hierarchy {
                     .incomingEdgesOf(node)
                     .stream()
                     .map(KlassInheritanceEdge::getNode)
-                    .collect(Collectors.toList());
+                    .toList();
 
             node.resolveInternal();
             resolved.add(node);

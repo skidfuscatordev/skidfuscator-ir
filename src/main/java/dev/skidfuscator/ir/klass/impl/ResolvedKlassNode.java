@@ -6,6 +6,7 @@ import dev.skidfuscator.ir.field.FieldNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.KlassNode;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
@@ -25,6 +26,8 @@ public class ResolvedKlassNode implements KlassNode {
     private String name;
     private int access;
     private List<FunctionNode> methods;
+    private List<FieldNode> fields;
+
     private List<FieldNode> fields;
 
     public ResolvedKlassNode(Hierarchy hierarchy, ClassNode node) {
@@ -117,12 +120,28 @@ public class ResolvedKlassNode implements KlassNode {
     }
 
     @Override
+    public @NotNull List<FieldNode> getFields() {
+        return this.fields == null
+                ? Collections.emptyList()
+                : Collections.unmodifiableList(fields);
+    }
+
+    @Override
     public void setMethods(List<FunctionNode> nodes) {
         for (FunctionNode method : this.getMethods()) {
             method.setParent(null);
         }
 
         this.methods = nodes;
+    }
+
+    @Override
+    public void setFields(@Nullable List<FieldNode> nodes) {
+        for (FieldNode method : this.getFields()) {
+            method.setParent(null);
+        }
+
+        this.fields = nodes;
     }
 
     @Override

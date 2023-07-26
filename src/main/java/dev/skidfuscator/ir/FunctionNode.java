@@ -50,6 +50,13 @@ public interface FunctionNode extends HierarchyResolvable {
     void removeInvoke(final FunctionInvoker<?> invoker);
 
     /**
+     * Retrieves the exceptions of the function.
+     *
+     * @return The list of exceptions
+     */
+    List<KlassNode> getExceptions();
+
+    /**
      * Retrieves the parent class of the function.
      *
      * @return The parent class of the function

@@ -8,6 +8,7 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MultiANewArrayInsnNode;
 
 public class MultiANewArrayInsn extends AbstractInsn {
+
     private final MultiANewArrayInsnNode node;
     private KlassNode target;
 
@@ -18,12 +19,12 @@ public class MultiANewArrayInsn extends AbstractInsn {
 
     @Override
     public void resolve() {
-        this.target = hierarchy.findClass(Type.getObjectType(node.desc).getElementType().getClassName().replace(".", "/"));
+        this.target = hierarchy.findClass(Type.getObjectType(node.desc).getElementType().getInternalName());
     }
 
     @Override
     public AbstractInsnNode dump() {
-        this.node.desc = "[L" + target.getName() + ";";
+        this.node.desc = "[".repeat(node.dims) + "L" + target.getName() + ";"; //I have no idea
         return node;
     }
 }

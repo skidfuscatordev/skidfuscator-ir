@@ -18,12 +18,12 @@ public class TypeInsn extends AbstractInsn {
 
     @Override
     public void resolve() {
-        this.target = hierarchy.findClass(Type.getObjectType(node.desc).getClassName().replace(".", "/"));
+        this.target = hierarchy.findClass(Type.getObjectType(node.desc).getInternalName());
     }
 
     @Override
     public AbstractInsnNode dump() {
-        this.node.desc = "L" + target.getName() + ";";
+        this.node.desc = /*"L" +*/ target.getName() /*+ ";"*/;
         return node;
     }
 }

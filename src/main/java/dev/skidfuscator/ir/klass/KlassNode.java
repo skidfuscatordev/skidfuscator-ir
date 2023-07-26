@@ -85,11 +85,24 @@ public interface KlassNode {
     List<FunctionNode> getMethods();
 
     /**
+     * @return  List of wrapped fields
+     */
+    @NotNull
+    List<FieldNode> getFields();
+
+    /**
      * Sets methods.
      *
      * @param nodes the nodes
      */
     void setMethods(@Nullable final List<FunctionNode> nodes);
+
+    /**
+     * Sets fields.
+     *
+     * @param nodes the nodes
+     */
+    void setFields(@Nullable final List<FieldNode> nodes);
 
     /**
      * Add method.
