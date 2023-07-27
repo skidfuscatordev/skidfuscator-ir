@@ -5,8 +5,8 @@ Imagine if you could rename a class and its invokers by doing `klass.setName(<na
 ### Todo
 - [ ] Finish all insn nodes
 - [ ] Create test suite
-- [ ] Add support for fields
-- [ ] Add support for annotation
+- [x] Add support for fields
+- [x] Add support for annotation
 - [ ] signatures
 - [ ] mapper for types
 - [ ] mapper for annotations
