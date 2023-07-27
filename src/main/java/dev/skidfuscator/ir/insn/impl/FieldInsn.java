@@ -10,14 +10,12 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 
-public class FieldInsn extends AbstractInsn {
-    private final FieldInsnNode node;
+public class FieldInsn extends AbstractInsn<FieldInsnNode> {
     private FieldInvoker<FieldInsn> invoke;
     private boolean synthetic;
 
     public FieldInsn(Hierarchy hierarchy, FieldInsnNode node) {
         super(hierarchy, node);
-        this.node = node;
     }
 
     @Override
@@ -38,7 +36,7 @@ public class FieldInsn extends AbstractInsn {
     }
 
     @Override
-    public AbstractInsnNode dump() {
+    public FieldInsnNode dump() {
         this.node.owner = invoke.getTarget().getParent().getName();
         this.node.name = invoke.getTarget().getName();
         this.node.desc = invoke.getTarget().getType().getInternalName();
@@ -52,6 +50,11 @@ public class FieldInsn extends AbstractInsn {
 
     public String getType() {
         return invoke.getTarget().getType().getInternalName();
+    }
+
+    public boolean isAssign() {
+        return this.node.getOpcode() == Opcodes.PUTFIELD
+                || this.node.getOpcode() == Opcodes.PUTSTATIC;
     }
 
     @Override
@@ -76,8 +79,7 @@ public class FieldInsn extends AbstractInsn {
 
     @Override
     public String toString() {
-        final boolean fetch = this.node.getOpcode() == Opcodes.GETSTATIC
-                || this.node.getOpcode() == Opcodes.GETFIELD;
+        final boolean fetch = !isAssign();
 
         return fetch
                 ? "push(field) " + invoke.getTarget()

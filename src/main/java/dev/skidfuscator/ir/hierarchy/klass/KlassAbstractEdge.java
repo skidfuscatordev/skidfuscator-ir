@@ -26,10 +26,14 @@ public abstract class KlassAbstractEdge implements KlassInheritanceEdge {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof KlassAbstractEdge that)) return false;
+        if (!(o instanceof KlassAbstractEdge)) return false;
 
-        if (!Objects.equals(node, that.node)) return false;
-        return Objects.equals(inherits, that.inherits);
+        KlassAbstractEdge that = (KlassAbstractEdge) o;
+
+        if (node != null ? !node.equals(that.node) : that.node != null) return false;
+        if (inherits != null ? !inherits.equals(that.inherits) : that.inherits != null) return false;
+
+        return true;
     }
 
     @Override

@@ -95,7 +95,7 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
         }
 
         for (AbstractInsnNode instruction : this.node.instructions) {
-            final Insn insn;
+            final Insn<?> insn;
             if (instruction instanceof MethodInsnNode) {
                 insn = new InvokeInsn(
                         hierarchy,
@@ -187,12 +187,29 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
                 );
             }
 
+            else if (instruction instanceof LabelNode) {
+                insn = new LabelInsn(
+                        hierarchy,
+                        (LabelNode) instruction
+                );
+            }
+
+            else if (instruction instanceof FrameNode) {
+                insn = new FrameInsn(
+                        hierarchy,
+                        (FrameNode) instruction
+                );
+            }
+
             else
-                continue;
+                throw new IllegalStateException("Unknown instruction " + instruction.getClass().getSimpleName());
 
 
-            insn.resolve();
             this.instructions.add(insn);
+        }
+
+        for (Insn<?> instruction : instructions) {
+            instruction.resolve();
         }
 
         this.resolved = true;

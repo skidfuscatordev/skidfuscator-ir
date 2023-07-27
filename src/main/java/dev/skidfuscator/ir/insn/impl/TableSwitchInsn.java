@@ -5,17 +5,8 @@ import dev.skidfuscator.ir.insn.AbstractInsn;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 
-public class TableSwitchInsn extends AbstractInsn {
-
-    private final TableSwitchInsnNode node;
-
+public class TableSwitchInsn extends AbstractInsn<TableSwitchInsnNode> {
     public TableSwitchInsn(Hierarchy hierarchy, TableSwitchInsnNode node) {
         super(hierarchy, node);
-        this.node = node;
-    }
-
-    @Override
-    public AbstractInsnNode dump() {
-        return node;
     }
 }

@@ -7,13 +7,11 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 
-public class TypeInsn extends AbstractInsn {
-    private final TypeInsnNode node;
+public class TypeInsn extends AbstractInsn<TypeInsnNode> {
     private KlassNode target;
 
     public TypeInsn(Hierarchy hierarchy, TypeInsnNode node) {
         super(hierarchy, node);
-        this.node = node;
     }
 
     @Override
@@ -23,8 +21,8 @@ public class TypeInsn extends AbstractInsn {
     }
 
     @Override
-    public AbstractInsnNode dump() {
+    public TypeInsnNode dump() {
         this.node.desc = /*"L" +*/ target.getName() /*+ ";"*/;
-        return node;
+        return super.dump();
     }
 }

@@ -14,14 +14,12 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class InvokeInsn extends AbstractInsn {
-    private final MethodInsnNode node;
+public class InvokeInsn extends AbstractInsn<MethodInsnNode> {
     private FunctionInvoker<InvokeInsn> invoker;
     private boolean synthetic;
 
     public InvokeInsn(Hierarchy hierarchy, MethodInsnNode node) {
         super(hierarchy, node);
-        this.node = node;
     }
 
     @Override
@@ -54,12 +52,12 @@ public class InvokeInsn extends AbstractInsn {
     }
 
     @Override
-    public AbstractInsnNode dump() {
+    public MethodInsnNode dump() {
         this.node.owner = invoker.getTarget().getOwner().getName();
         this.node.name = invoker.getTarget().getName();
         this.node.desc = invoker.getTarget().getDesc();
 
-        return node;
+        return super.dump();
     }
 
     @Override

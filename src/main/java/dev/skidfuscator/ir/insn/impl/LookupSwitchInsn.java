@@ -3,24 +3,55 @@ package dev.skidfuscator.ir.insn.impl;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.insn.AbstractInsn;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 
-public class LookupSwitchInsn extends AbstractInsn {
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.function.ToIntFunction;
 
-    private final LookupSwitchInsnNode node;
-
+public class LookupSwitchInsn extends AbstractInsn<LookupSwitchInsnNode> {
+    private Map<Integer, LabelInsn> keyMap;
+    private LabelInsn dflt;
     public LookupSwitchInsn(Hierarchy hierarchy, LookupSwitchInsnNode node) {
         super(hierarchy, node);
-        this.node = node;
     }
 
     @Override
-    public AbstractInsnNode dump() {
+    public void resolve() {
+        this.keyMap = new HashMap<>();
+
+        for (int i = 0; i < this.node.labels.size(); i++) {
+            final int key = this.node.keys.get(i);
+            final LabelNode label = this.node.labels.get(i);
+
+            keyMap.put(key, this.getParent().getLabel(label));
+        }
+    }
+
+    @Override
+    public LookupSwitchInsnNode dump() {
+        this.node.labels.clear();
+        this.node.keys.clear();
+        this.keyMap.entrySet().stream()
+                .sorted(Comparator.comparingInt(Map.Entry::getKey))
+                .forEach(e -> {
+                    this.node.keys.add(e.getKey());
+                    this.node.labels.add(e.getValue().dump());
+                });
+        this.node.dflt = this.dflt.dump();
+
         return node;
     }
 
-    @Override
-    public String toString() {
-        return super.toString();
+
+    public Map<Integer, LabelInsn> getKeyMap() {
+        return keyMap;
+    }
+
+    public LabelInsn getDflt() {
+        return dflt;
     }
 }

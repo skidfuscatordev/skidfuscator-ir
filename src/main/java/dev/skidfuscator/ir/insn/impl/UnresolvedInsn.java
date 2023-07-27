@@ -4,19 +4,8 @@ import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.insn.AbstractInsn;
 import org.objectweb.asm.tree.AbstractInsnNode;
 
-public class UnresolvedInsn extends AbstractInsn {
-    private final AbstractInsnNode node;
+public class UnresolvedInsn extends AbstractInsn<AbstractInsnNode> {
     public UnresolvedInsn(Hierarchy hierarchy, AbstractInsnNode node) {
         super(hierarchy, node);
-        this.node = node;
-    }
-
-    @Override
-    public AbstractInsnNode dump() {
-        return node;
-    }
-
-    public AbstractInsnNode getNode() {
-        return node;
     }
 }

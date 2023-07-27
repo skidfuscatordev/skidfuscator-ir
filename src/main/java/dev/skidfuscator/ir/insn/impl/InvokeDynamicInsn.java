@@ -5,18 +5,10 @@ import dev.skidfuscator.ir.insn.AbstractInsn;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InvokeDynamicInsnNode;
 
-public class InvokeDynamicInsn extends AbstractInsn {
-
-    private final InvokeDynamicInsnNode node;
-
+public class InvokeDynamicInsn extends AbstractInsn<InvokeDynamicInsnNode> {
     public InvokeDynamicInsn(Hierarchy hierarchy, InvokeDynamicInsnNode node) {
         super(hierarchy, node);
         this.node = node;
-    }
-
-    @Override
-    public AbstractInsnNode dump() {
-        return node;
     }
 
     @Override

@@ -20,6 +20,7 @@ import org.objectweb.asm.tree.MethodNode;
 
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
 
 public class SkidHierarchy implements Hierarchy {
     /**
@@ -104,7 +105,7 @@ public class SkidHierarchy implements Hierarchy {
                     .incomingEdgesOf(node)
                     .stream()
                     .map(KlassInheritanceEdge::getNode)
-                    .toList();
+                    .collect(Collectors.toList());
 
             if (!node.isResolvedInternal())
                 node.resolveInternal();

@@ -5,17 +5,9 @@ import dev.skidfuscator.ir.insn.AbstractInsn;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
 
-public class IntInsn extends AbstractInsn {
-    private final IntInsnNode node;
-
+public class IntInsn extends AbstractInsn<IntInsnNode> {
     public IntInsn(Hierarchy hierarchy, IntInsnNode node) {
         super(hierarchy, node);
-        this.node = node;
-    }
-
-    @Override
-    public AbstractInsnNode dump() {
-        return node;
     }
 
     @Override

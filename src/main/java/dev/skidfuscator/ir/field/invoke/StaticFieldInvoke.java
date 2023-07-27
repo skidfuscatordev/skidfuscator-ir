@@ -2,6 +2,7 @@ package dev.skidfuscator.ir.field.invoke;
 
 import dev.skidfuscator.ir.field.FieldInvoker;
 import dev.skidfuscator.ir.field.FieldNode;
+import dev.skidfuscator.ir.insn.Insn;
 import dev.skidfuscator.ir.insn.impl.FieldInsn;
 import org.jetbrains.annotations.NotNull;
 
@@ -45,6 +46,16 @@ public class StaticFieldInvoke implements FieldInvoker<FieldInsn> {
         assert target != null : "Critical! Self target is null!";
 
         return target;
+    }
+
+    @Override
+    public boolean isAssign() {
+        return insn.isAssign();
+    }
+
+    @Override
+    public void replace(Insn... insns) {
+        insn.replace(insns);
     }
 
     @Override
