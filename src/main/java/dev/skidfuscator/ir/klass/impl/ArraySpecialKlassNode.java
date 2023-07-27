@@ -55,6 +55,11 @@ public class ArraySpecialKlassNode implements KlassNode {
     }
 
     @Override
+    public void lock() {
+        throw new IllegalStateException("Cannot lock an array class");
+    }
+
+    @Override
     public void resolveInternal() {
         throw new IllegalStateException("Cannot set internal of an array class");
     }

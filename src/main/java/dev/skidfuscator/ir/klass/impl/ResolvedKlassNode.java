@@ -20,6 +20,7 @@ import java.util.*;
 public class ResolvedKlassNode implements KlassNode {
     private final Hierarchy hierarchy;
     private final ClassNode node;
+    private boolean mutable;
     private boolean resolvedInternally;
     private boolean resolvedHierarchy;
 
@@ -40,6 +41,7 @@ public class ResolvedKlassNode implements KlassNode {
         this.fields = new ArrayList<>();
         this.name = node.name;
         this.access = node.access;
+        this.mutable = true;
     }
 
     @Override
@@ -55,18 +57,15 @@ public class ResolvedKlassNode implements KlassNode {
     @Override
     public void resolveHierarchy() {
         if (node.superName != null) {
-            this.parent = hierarchy.findClass(node.superName);
+            this.parent = hierarchy.resolveClass(node.superName);
         }
 
         if (node.interfaces != null) {
             for (String interfaze : node.interfaces) {
-                final KlassNode resolved = hierarchy.findClass(interfaze);
+                final KlassNode resolved = hierarchy.resolveClass(interfaze);
                 this.interfaces.add(resolved);
             }
         }
-
-        hierarchy.resolveKlassEdges(this);
-
         /*
          * Resolve the fields and overwrite any parent
          * field which is being added.
@@ -132,8 +131,15 @@ public class ResolvedKlassNode implements KlassNode {
             this.hierarchy.addMethod(method);
         }
         System.out.println("Finished adding " + this.name + " methods");
-
+        this.hierarchy.resolveKlassEdges(this);
         this.resolvedHierarchy = true;
+    }
+
+    @Override
+    public void lock() {
+        this.mutable = false;
+        this.methods.values().forEach(FunctionNode::lock);
+        this.fields.forEach(FieldNode::lock);
     }
 
     @Override
@@ -156,7 +162,7 @@ public class ResolvedKlassNode implements KlassNode {
 
         if (node.visibleTypeAnnotations != null) {
             for (AnnotationNode annotationNode : node.visibleTypeAnnotations) {
-                final Annotation annotation = new Annotation(hierarchy, annotationNode, Annotation.AnnotationType.VISIBLE);
+                final Annotation annotation = new Annotation(hierarchy, annotationNode, Annotation.AnnotationType.TYPE_VISIBLE);
                 annotation.resolve();
 
                 this.annotations.add(annotation);
@@ -174,14 +180,12 @@ public class ResolvedKlassNode implements KlassNode {
 
         if (node.invisibleTypeAnnotations != null) {
             for (AnnotationNode annotationNode : node.invisibleTypeAnnotations) {
-                final Annotation annotation = new Annotation(hierarchy, annotationNode, Annotation.AnnotationType.INVISIBLE);
+                final Annotation annotation = new Annotation(hierarchy, annotationNode, Annotation.AnnotationType.TYPE_INVISIBLE);
                 annotation.resolve();
 
                 this.annotations.add(annotation);
             }
         }
-
-        this.hierarchy.resolveKlassEdges(this);
 
         for (FunctionNode method : this.methods.values()) {
             method.resolveHierarchy();
@@ -226,6 +230,9 @@ public class ResolvedKlassNode implements KlassNode {
 
     @Override
     public void setFields(@Nullable List<FieldNode> nodes) {
+        if (!mutable)
+            throw new IllegalStateException("Cannot set fields on a locked class");
+
         for (FieldNode field : this.getFields()) {
             field.setParent(null);
         }
@@ -235,18 +242,27 @@ public class ResolvedKlassNode implements KlassNode {
 
     @Override
     public void addMethod(FunctionNode node) {
+        if (!mutable)
+            throw new IllegalStateException("Cannot add methods on a locked class");
+
         assert node.getOwner() != null : "Cannot add a method that does not a parent. Please re-assign in the function node itself by calling FunctionNode#setParent(KlassNode)";
         this.methods.put(node.getOriginalDescriptor(), node);
     }
 
     @Override
     public void removeMethod(FunctionNode node) {
+        if (!mutable)
+            throw new IllegalStateException("Cannot remove methods on a locked class");
+
         assert node.getOwner() == this : "Cannot remove a method from a class that is not its parent";
         this.methods.remove(node.getOriginalDescriptor());
     }
 
     @Override
     public void addField(FieldNode node) {
+        if (!mutable)
+            throw new IllegalStateException("Cannot add fields on a locked class");
+
         assert node.getParent() != null : "Cannot add a field that has a parent. Please re-assign in the field node itself by calling FieldNode#setParent(KlassNode)";
 
         node.setParent(this);
@@ -255,6 +271,9 @@ public class ResolvedKlassNode implements KlassNode {
 
     @Override
     public void removeField(FieldNode node) {
+        if (!mutable)
+            throw new IllegalStateException("Cannot remove fields on a locked class");
+
         assert node.getParent() == this : "Cannot remove a field from a class that is not its parent";
         this.fields.remove(node);
     }
@@ -266,6 +285,9 @@ public class ResolvedKlassNode implements KlassNode {
 
     @Override
     public void setName(final @NotNull String name) {
+        if (!mutable)
+            throw new IllegalStateException("Cannot set name on a locked class");
+
         this.name = name;
     }
 
@@ -276,6 +298,9 @@ public class ResolvedKlassNode implements KlassNode {
 
     @Override
     public void setParent(KlassNode klass) {
+        if (!mutable)
+            throw new IllegalStateException("Cannot set parent on a locked class");
+
         this.parent = klass;
 
         // Update hierarchy
@@ -291,6 +316,9 @@ public class ResolvedKlassNode implements KlassNode {
 
     @Override
     public void setInterfaces(List<KlassNode> klasses) {
+        if (!mutable)
+            throw new IllegalStateException("Cannot set interfaces on a locked class");
+
         this.interfaces = klasses;
 
         // Update hierarchy
@@ -311,8 +339,6 @@ public class ResolvedKlassNode implements KlassNode {
         for (FunctionNode method : methods.values()) {
             this.node.methods.add(method.dump());
         }
-
-        
     }
 
     @Override

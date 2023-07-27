@@ -58,6 +58,9 @@ public class ResolvedMutableFunctionNode extends ResolvedAbstractFunctionNode {
 
     @Override
     public void setName(String name) {
+        if (!mutable)
+            throw new IllegalStateException("Cannot modify name of immutable function node");
+
         if (parent == null) {
             this.name = name;
         } else {

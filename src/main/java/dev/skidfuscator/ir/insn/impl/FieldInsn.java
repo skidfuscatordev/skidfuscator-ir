@@ -6,6 +6,7 @@ import dev.skidfuscator.ir.field.invoke.StaticFieldInvoke;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.insn.AbstractInsn;
 import dev.skidfuscator.ir.insn.InstructionList;
+import dev.skidfuscator.ir.method.FunctionNode;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
@@ -42,6 +43,11 @@ public class FieldInsn extends AbstractInsn<FieldInsnNode> {
         this.node.desc = invoke.getTarget().getType().getInternalName();
 
         return this.node;
+    }
+
+    public FieldNode getTarget() {
+        this._checkResolve();
+        return this.invoke.getTarget();
     }
 
     public String getName() {

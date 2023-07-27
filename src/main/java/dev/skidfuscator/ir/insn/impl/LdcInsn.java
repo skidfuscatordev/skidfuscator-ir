@@ -1,14 +1,13 @@
 package dev.skidfuscator.ir.insn.impl;
 
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
-import dev.skidfuscator.ir.insn.ConstantInsn;
 import dev.skidfuscator.ir.type.TypeWrapper;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 
 //TODO: I dont know how i should implement ldc with type, even more when it comes to array type
-public class LdcInsn extends ConstantInsn {
+public class LdcInsn extends AbstractConstantInsn<LdcInsnNode> {
     private final LdcInsnNode node;
 
     public LdcInsn(Hierarchy hierarchy, LdcInsnNode node) {
@@ -27,7 +26,7 @@ public class LdcInsn extends ConstantInsn {
     }
 
     @Override
-    public AbstractInsnNode dump() {
+    public LdcInsnNode dump() {
         this.node.cst = this.constant instanceof TypeWrapper type ? type.dump() : this.constant;
         return super.dump();
     }

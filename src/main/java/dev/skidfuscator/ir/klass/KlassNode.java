@@ -22,6 +22,8 @@ public interface KlassNode {
 
     void resolveHierarchy();
 
+    void lock();
+
     /**
      * Resolve the KlassNode. This should be invoked in a BFS
      * fashion from top-down hierarchy tree. The first Klass

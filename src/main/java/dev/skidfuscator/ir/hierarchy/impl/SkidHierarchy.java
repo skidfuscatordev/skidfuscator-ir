@@ -16,7 +16,6 @@ import dev.skidfuscator.ir.klass.impl.ResolvedKlassNode;
 import dev.skidfuscator.ir.util.ClassDescriptor;
 import dev.skidfuscator.ir.util.ClassHelper;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.MethodNode;
 
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -74,20 +73,19 @@ public class SkidHierarchy implements Hierarchy {
 
     }
 
-    /**
-     * Resolve classes in a typical BFS top down strategy.
-     * This allows for the construction of method groups
-     * based on their parents, making it easier to have
-     * less conflicts for branches for methods.
-     *
-     * @param classes Collection of classes to resolve
-     */
+    @Override
+    public Iterable<KlassNode> iterateKlasses() {
+        return Collections.unmodifiableCollection(classEquivalence.values());
+    }
+
+    @Override
     public void resolveClasses(final Collection<ClassNode> classes) {
         classes.forEach(this::create);
         new HashSet<>(classEquivalence.values())
                 .stream()
                 .filter(e -> !e.isResolvedHierarchy())
                 .forEach(KlassNode::resolveHierarchy);
+        final Set<String> application = classes.stream().map(e -> e.name).collect(Collectors.toSet());
         final Set<KlassNode> resolved = new HashSet<>();
 
         final KlassNode root = findClass("java/lang/Object");
@@ -109,7 +107,10 @@ public class SkidHierarchy implements Hierarchy {
 
             if (!node.isResolvedInternal())
                 node.resolveInternal();
-            node.resolveInstructions();
+
+            if (application.contains(node.getName()))
+                node.resolveInstructions();
+            System.out.println("/!\\ Resolved instructions " + node.getName());
             resolved.add(node);
 
             queue.addAll(children);
@@ -124,6 +125,21 @@ public class SkidHierarchy implements Hierarchy {
         }
 
         final KlassNode node = classEquivalence.get(name);
+
+        return node;
+    }
+
+    @Override
+    public KlassNode resolveClass(String name) {
+        KlassNode node = findClass(name);
+
+        if (node != null) {
+            return node;
+        }
+
+        node = new UnresolvedKlassNode(rootClass, name);
+        classEquivalence.put(name, node);
+        klassGraph.addVertex(node);
 
         return node;
     }

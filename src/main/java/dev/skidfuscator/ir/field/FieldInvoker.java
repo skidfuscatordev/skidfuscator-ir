@@ -9,7 +9,7 @@ public interface FieldInvoker<T> {
 
     boolean isAssign();
 
-    void replace(final Insn... insns);
+    void replace(final Insn<?>... insns);
 
     T get();
 

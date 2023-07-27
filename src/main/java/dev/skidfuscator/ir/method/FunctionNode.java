@@ -2,6 +2,7 @@ package dev.skidfuscator.ir.method;
 
 import dev.skidfuscator.ir.hierarchy.HierarchyResolvable;
 import dev.skidfuscator.ir.insn.InstructionList;
+import dev.skidfuscator.ir.insn.TryCatchBlock;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.util.Descriptor;
 import org.objectweb.asm.tree.MethodNode;
@@ -9,6 +10,8 @@ import org.objectweb.asm.tree.MethodNode;
 import java.util.List;
 
 public interface FunctionNode extends HierarchyResolvable {
+
+    void lock();
 
     Descriptor getOriginalDescriptor();
 
@@ -43,6 +46,13 @@ public interface FunctionNode extends HierarchyResolvable {
      * @return The list of instructions
      */
     InstructionList getInstructions();
+
+    /**
+     * Retrieves the try catch blocks of the function.
+     *
+     * @return The list of try catch blocks
+     */
+    List<TryCatchBlock> getTryCatchBlocks();
 
     /**
      * Resolves all the invocations of the function.

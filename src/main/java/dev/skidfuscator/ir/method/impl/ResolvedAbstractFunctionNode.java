@@ -1,6 +1,7 @@
 package dev.skidfuscator.ir.method.impl;
 
 import dev.skidfuscator.ir.insn.InstructionList;
+import dev.skidfuscator.ir.insn.TryCatchBlock;
 import dev.skidfuscator.ir.method.FunctionNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.insn.Insn;
@@ -21,12 +22,13 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
     protected MethodNode node;
 
     protected boolean resolved;
+    protected boolean mutable;
 
     protected KlassNode owner;
     protected InstructionList instructions;
     protected List<FunctionInvoker<?>> invokers;
     protected int access;
-
+    private List<TryCatchBlock> tryCatchBlocks;
     protected List<KlassNode> exceptions;
 
     public ResolvedAbstractFunctionNode(
@@ -36,6 +38,7 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
 
         this.originalDescriptor = descriptor;
         this.hierarchy = hierarchy;
+        this.mutable = true;
 
         if (node != null) {
             this.node = node;
@@ -47,6 +50,13 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
         this.exceptions = new ArrayList<>();
         this.invokers = new ArrayList<>();
         this.instructions = new InstructionList(this, new ArrayList<>());
+        this.tryCatchBlocks = new ArrayList<>();
+    }
+
+    @Override
+    public void lock() {
+        this.mutable = false;
+        this.instructions.lock();
     }
 
     @Override
@@ -212,6 +222,22 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
             instruction.resolve();
         }
 
+        if (!mutable) {
+            this.instructions.lock();
+        }
+
+        for (TryCatchBlockNode tryCatchBlock : this.node.tryCatchBlocks) {
+            tryCatchBlocks.add(new TryCatchBlock(
+                    hierarchy,
+                    instructions,
+                    tryCatchBlock
+            ));
+        }
+
+        for (TryCatchBlock tryCatchBlock : tryCatchBlocks) {
+            tryCatchBlock.resolve();
+        }
+
         this.resolved = true;
     }
 
@@ -230,8 +256,13 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
         this.node.access = this.access;
 
         this.node.instructions = new InsnList();
-        for (Insn instruction : this.instructions) {
+        for (Insn<?> instruction : this.instructions) {
             this.node.instructions.add(instruction.dump());
+        }
+
+        this.node.tryCatchBlocks = new ArrayList<>();
+        for (TryCatchBlock tryCatchBlock : this.tryCatchBlocks) {
+            this.node.tryCatchBlocks.add(tryCatchBlock.dump());
         }
 
         return node;
@@ -263,6 +294,12 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
     }
 
     @Override
+    public List<TryCatchBlock> getTryCatchBlocks() {
+        _checkResolve();
+        return Collections.unmodifiableList(tryCatchBlocks);
+    }
+
+    @Override
     public List<KlassNode> getExceptions() {
         _checkResolve();
         return exceptions;
@@ -275,6 +312,9 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
 
     @Override
     public void setOwner(KlassNode node) {
+        if (!mutable)
+            throw new IllegalStateException("Cannot set owner of a non-mutable method descriptor!");
+
         // Properly de-assign
         if (this.owner != null) {
             this.owner.removeMethod(this);

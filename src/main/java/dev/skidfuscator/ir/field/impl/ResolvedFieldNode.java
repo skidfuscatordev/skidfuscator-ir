@@ -17,6 +17,7 @@ import java.util.List;
 public class ResolvedFieldNode implements FieldNode {
     private final Hierarchy hierarchy;
     private final org.objectweb.asm.tree.FieldNode node;
+    private boolean mutable;
     private String name;
     private KlassNode parent;
     private Type type;
@@ -29,9 +30,15 @@ public class ResolvedFieldNode implements FieldNode {
         this.node = node;
         this.name = node.name;
         this.defaultValue = node.value;
+        this.mutable = true;
         this.type = Type.getObjectType(node.desc);
         this.invokers = new ArrayList<>();
         this.annotations = new ArrayList<>();
+    }
+
+    @Override
+    public void lock() {
+        this.mutable = false;
     }
 
     @Override
@@ -47,7 +54,7 @@ public class ResolvedFieldNode implements FieldNode {
 
         if (node.visibleTypeAnnotations != null) {
             for (AnnotationNode annotationNode : node.visibleTypeAnnotations) {
-                final Annotation annotation = new Annotation(hierarchy, annotationNode, Annotation.AnnotationType.VISIBLE);
+                final Annotation annotation = new Annotation(hierarchy, annotationNode, Annotation.AnnotationType.TYPE_VISIBLE);
                 annotation.resolve();
 
                 this.annotations.add(annotation);
@@ -65,7 +72,7 @@ public class ResolvedFieldNode implements FieldNode {
 
         if (node.invisibleTypeAnnotations != null) {
             for (AnnotationNode annotationNode : node.invisibleTypeAnnotations) {
-                final Annotation annotation = new Annotation(hierarchy, annotationNode, Annotation.AnnotationType.INVISIBLE);
+                final Annotation annotation = new Annotation(hierarchy, annotationNode, Annotation.AnnotationType.TYPE_INVISIBLE);
                 annotation.resolve();
 
                 this.annotations.add(annotation);
@@ -122,6 +129,9 @@ public class ResolvedFieldNode implements FieldNode {
 
     @Override
     public void setName(String name) {
+        if (!mutable)
+            throw new IllegalStateException("Cannot modify locked field");
+
         this.name = name;
     }
 
@@ -131,6 +141,9 @@ public class ResolvedFieldNode implements FieldNode {
     }
 
     public void setParent(KlassNode parent) {
+        if (!mutable)
+            throw new IllegalStateException("Cannot modify locked field");
+
         this.parent = parent;
     }
 
@@ -146,6 +159,9 @@ public class ResolvedFieldNode implements FieldNode {
 
     @Override
     public void setDefault(final Object obj) {
+        if (!mutable)
+            throw new IllegalStateException("Cannot modify locked field");
+
         this.defaultValue = obj;
     }
 
@@ -156,7 +172,7 @@ public class ResolvedFieldNode implements FieldNode {
 
     @Override
     public void addInvoke(FieldInvoker<?> invoker) {
-        System.out.println("Adding invoker " + invoker + " to " + this);
+        //System.out.println("Adding invoker " + invoker + " to " + this);
         this.invokers.add(invoker);
     }
 

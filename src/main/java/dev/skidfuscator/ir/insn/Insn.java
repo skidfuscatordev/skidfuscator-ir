@@ -5,6 +5,8 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 public interface Insn<T extends AbstractInsnNode> {
     void resolve();
 
+    void lock();
+
     int getOpcode();
 
     T dump();

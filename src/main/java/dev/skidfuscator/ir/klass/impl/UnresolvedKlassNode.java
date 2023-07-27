@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,6 +37,11 @@ public class UnresolvedKlassNode implements KlassNode {
 
     @Override
     public void resolveHierarchy() {
+
+    }
+
+    @Override
+    public void lock() {
 
     }
 
@@ -81,11 +87,8 @@ public class UnresolvedKlassNode implements KlassNode {
     }
 
     @Override
-    public @NotNull List<FunctionNode> getMethods() {
-        throw new IllegalStateException(String.format(
-                "Cannot compute methods of unresolved class %s",
-                name
-        ));
+    public @NotNull Collection<FunctionNode> getMethods() {
+        return root.getMethods();
     }
 
     @Override

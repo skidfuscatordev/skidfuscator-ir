@@ -19,12 +19,21 @@ public class Annotation {
     private final AnnotationNode node;
     private final AnnotationType type;
     private transient KlassNode owner;
+    private boolean mutable;
     private final Map<String, AnnotationValue<?>> values = new HashMap<>();
 
     public Annotation(Hierarchy hierarchy, AnnotationNode node, AnnotationType type) {
         this.hierarchy = hierarchy;
         this.node = node;
         this.type = type;
+        this.mutable = true;
+    }
+
+    /**
+     * Locks the annotation and prevents further edits
+     */
+    public void lock() {
+        this.mutable = false;
     }
 
     /**
@@ -44,6 +53,10 @@ public class Annotation {
      * @return Annotation Value subclass with the getter and the setter
      */
     public <T> void setValue(String name, T value) {
+        if (!mutable) {
+            throw new IllegalStateException("Cannot modify locked annotation");
+        }
+
         int i;
 
         if (values.containsKey(name)) {
@@ -122,7 +135,16 @@ public class Annotation {
      * can directly virtually edit the annotation
      */
     public void resolve() {
-        this.owner = hierarchy.findClass(Type.getType(node.desc).getClassName().replace(".", "/"));
+        final String className = Type.getType(node.desc).getClassName().replace(".", "/");
+        this.owner = hierarchy.findClass(className);
+
+        if (owner == null) {
+            throw new IllegalStateException(String.format(
+                    "Failed to find class %s for annotation %s",
+                    className,
+                    node.desc
+            ));
+        }
 
         if (node.values == null || node.values.size() == 0) {
             return;
@@ -156,15 +178,20 @@ public class Annotation {
                                 .stream()
                                 .filter(e -> e.getName().equals(finalName))
                                 .findFirst()
-                                .orElseThrow(() -> new IllegalStateException(
-                                        "Failed to find method for "
-                                                + finalName + " of value "
-                                                + node.values.get(finalI)
-                                                + " (parent: " + owner.getMethods().stream()
-                                                .map(e -> e.getName() + "#" + e.getDesc())
-                                                .collect(Collectors.joining("\n"))
-                                                + ")"
-                                ))
+                                .orElseGet(() ->  {
+                                    new IllegalStateException(
+                                            "Failed to find method for "
+                                                    + finalName + " of value "
+                                                    + node.values.get(finalI)
+                                                    + " (parent: " + owner.getMethods().stream()
+                                                    .map(e -> e.getName() + "#" + e.getDesc())
+                                                    .collect(Collectors.joining("\n"))
+                                                    + ")"
+                                    ).printStackTrace();
+
+                                    lock();
+                                    return null;
+                                })
                 ));
             }
         }

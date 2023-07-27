@@ -7,11 +7,18 @@ import dev.skidfuscator.ir.util.ClassDescriptor;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 public interface Hierarchy {
+    /**
+     * Iterates over all classes in the hierarchy
+     *
+     * @return the iterable of classes
+     */
+    Iterable<KlassNode> iterateKlasses();
+
     /**
      * Resolve classes in a typical BFS top down strategy.
      * This allows for the construction of method groups
@@ -29,6 +36,16 @@ public interface Hierarchy {
      * @return the KlassNode object representing the found class
      */
     KlassNode findClass(final String name);
+
+    /**
+     * Finds a class with the given name, if the
+     * class is not found, a blank placeholder will
+     * be created.
+     *
+     * @param name the name of the class to find
+     * @return the KlassNode object representing the found class
+     */
+    KlassNode resolveClass(final String name);
 
     /**
      * Finds the class with the specified name.

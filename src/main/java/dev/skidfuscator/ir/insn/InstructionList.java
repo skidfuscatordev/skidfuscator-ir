@@ -1,5 +1,6 @@
 package dev.skidfuscator.ir.insn;
 
+import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.insn.impl.LabelInsn;
 import dev.skidfuscator.ir.method.FunctionNode;
 import org.jetbrains.annotations.NotNull;
@@ -11,11 +12,17 @@ public class InstructionList implements Iterable<Insn<?>> {
     private final FunctionNode node;
     private final List<Insn<?>> instructions;
     private final Map<LabelNode, LabelInsn> labels;
+    private boolean mutable;
 
     public InstructionList(FunctionNode node, List<Insn<?>> instructions) {
         this.node = node;
         this.instructions = instructions;
+        this.mutable = true;
         this.labels = new HashMap<>();
+    }
+
+    public void lock() {
+        this.mutable = false;
     }
 
     public LabelInsn getLabel(final LabelNode node) {
@@ -34,6 +41,10 @@ public class InstructionList implements Iterable<Insn<?>> {
 
 
     public void add(final Insn<?> insn) {
+        if (!this.mutable) {
+            throw new IllegalStateException("Instruction list is not mutable");
+        }
+
         insn.setParent(this);
         this.instructions.add(insn);
 
@@ -55,6 +66,10 @@ public class InstructionList implements Iterable<Insn<?>> {
     }
 
     public void insert(final int index, final Insn<?> insn) {
+        if (!this.mutable) {
+            throw new IllegalStateException("Instruction list is not mutable");
+        }
+
         insn.setParent(this);
         this.instructions.add(index, insn);
 
@@ -64,6 +79,10 @@ public class InstructionList implements Iterable<Insn<?>> {
     }
 
     public void remove(final Insn<?> insn) {
+        if (!this.mutable) {
+            throw new IllegalStateException("Instruction list is not mutable");
+        }
+
         insn.setParent(null);
         this.instructions.remove(insn);
 

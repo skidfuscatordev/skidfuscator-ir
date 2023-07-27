@@ -7,12 +7,14 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 public abstract class AbstractInsn<T extends AbstractInsnNode> implements Insn<T> {
     protected final Hierarchy hierarchy;
     protected T node;
+    private boolean mutable;
     private boolean resolved;
     private InstructionList parent;
 
     public AbstractInsn(Hierarchy hierarchy, T node) {
         this.hierarchy = hierarchy;
         this.node = node;
+        this.mutable = true;
     }
 
     public T node() {
@@ -20,7 +22,16 @@ public abstract class AbstractInsn<T extends AbstractInsnNode> implements Insn<T
     }
 
     @Override
+    public void lock() {
+        this.mutable = false;
+    }
+
+    @Override
     public T dump() {
+        if (!mutable) {
+            throw new IllegalStateException("Cannot dump immutable instruction!");
+        }
+
         return node;
     }
 
@@ -39,11 +50,19 @@ public abstract class AbstractInsn<T extends AbstractInsnNode> implements Insn<T
     }
 
     public void setParent(InstructionList parent) {
+        if (!mutable) {
+            throw new IllegalStateException("Cannot set parent of immutable instruction!");
+        }
+
         this.parent = parent;
     }
 
     @Override
-    public void replace(Insn... node) {
+    public void replace(Insn<?>... node) {
+        if (!mutable) {
+            throw new IllegalStateException("Cannot replace immutable instruction!");
+        }
+
         final int index = this.getParent().indexOf(this);
         this.getParent().remove(this);
 

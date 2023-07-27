@@ -8,6 +8,8 @@ import java.util.List;
 public interface FieldNode {
     KlassNode getParent();
 
+    void lock();
+
     String getName();
 
     void setName(final String name);
