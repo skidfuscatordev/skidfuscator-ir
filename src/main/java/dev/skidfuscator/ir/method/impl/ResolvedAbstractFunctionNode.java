@@ -8,9 +8,11 @@ import dev.skidfuscator.ir.insn.Insn;
 import dev.skidfuscator.ir.insn.impl.*;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.method.FunctionInvoker;
+import dev.skidfuscator.ir.type.TypeWrapper;
 import dev.skidfuscator.ir.util.Descriptor;
 import org.apache.commons.lang3.stream.Streams;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 import java.util.ArrayList;
@@ -79,6 +81,15 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
     public void resolveHierarchy() {
         if (node == null)
             return;
+
+        if (this.node.localVariables != null) {
+            for (LocalVariableNode localVariable : this.node.localVariables) {
+                final TypeWrapper wrapper = new TypeWrapper(Type.getType(localVariable.desc), hierarchy);
+                wrapper.resolveHierarchy();
+
+                localVariable.desc = wrapper.dump().getDescriptor();
+            }
+        }
 
         this.access = node.access;
         //Test implementation
@@ -278,6 +289,7 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
 
         this.node.name = this.getName();
         this.node.desc = this.getDesc();
+        System.out.printf("Dumping %s%s with access %s%n", this.node.name, this.node.desc, this.access);
         this.node.access = this.access;
 
         this.node.instructions = new InsnList();

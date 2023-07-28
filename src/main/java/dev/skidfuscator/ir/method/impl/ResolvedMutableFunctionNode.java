@@ -2,21 +2,23 @@ package dev.skidfuscator.ir.method.impl;
 
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.method.FunctionNode;
+import dev.skidfuscator.ir.type.TypeWrapper;
 import dev.skidfuscator.ir.util.Descriptor;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.MethodNode;
 
 public class ResolvedMutableFunctionNode extends ResolvedAbstractFunctionNode {
     private FunctionNode parent;
     private String name;
     // TODO: Add support for types
-    private String desc;
+    private TypeWrapper desc;
 
     public ResolvedMutableFunctionNode(Hierarchy hierarchy, Descriptor descriptor, MethodNode node, FunctionNode parent) {
         super(hierarchy, descriptor, node);
         this.parent = parent;
 
         this.name = super.getName();
-        this.desc = super.getDesc();
+        this.desc = new TypeWrapper(Type.getMethodType(super.getDesc()), hierarchy);
     }
 
     @Override
@@ -41,10 +43,19 @@ public class ResolvedMutableFunctionNode extends ResolvedAbstractFunctionNode {
             } catch (IllegalStateException e) {
                 // no-op
             }
+        }
 
+        if (!this.desc.isResolved()) {
+            this.desc.resolveHierarchy();
         }
 
         super.resolveHierarchy();
+    }
+
+    @Override
+    public void resolveInternal() {
+        // TODO: fix this shit
+        super.resolveInternal();
     }
 
     @Override
@@ -66,6 +77,8 @@ public class ResolvedMutableFunctionNode extends ResolvedAbstractFunctionNode {
 
     @Override
     public String getDesc() {
-        return parent == null ? desc : parent.getDesc();
+        return parent == null
+                ? desc.isResolved() ? desc.dump().getDescriptor() : super.getDesc()
+                : parent.getDesc();
     }
 }
