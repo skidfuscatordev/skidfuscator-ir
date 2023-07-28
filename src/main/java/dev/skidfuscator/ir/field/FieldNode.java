@@ -12,13 +12,15 @@ public interface FieldNode {
 
     String getName();
 
+    String getDesc();
+
     void setName(final String name);
 
     void setParent(final KlassNode node);
 
-    void resolve();
+    void resolveHierachy();
 
-    void dump();
+    org.objectweb.asm.tree.FieldNode dump();
 
     Type getType();
 
@@ -28,9 +30,9 @@ public interface FieldNode {
 
     boolean isStatic();
 
-    List<FieldInvoker<?>> getInvokers();
+    List<FieldInvoker<?, ?>> getInvokers();
 
-    void addInvoke(final FieldInvoker<?> invoker);
+    void addInvoke(final FieldInvoker<?, ?> invoker);
 
-    void removeInvoke(final FieldInvoker<?> invoker);
+    void removeInvoke(final FieldInvoker<?, ?> invoker);
 }

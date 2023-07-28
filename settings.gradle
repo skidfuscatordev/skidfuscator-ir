@@ -1,4 +1,4 @@
 rootProject.name = 'skidfuscator-ir'
-include 'dev.skidfuscator.ir'
-include 'dev.skidfuscator.ir.jvm'
+include 'examples:demo-renamer'
+findProject(':examples:demo-renamer')?.name = 'demo-renamer'
 

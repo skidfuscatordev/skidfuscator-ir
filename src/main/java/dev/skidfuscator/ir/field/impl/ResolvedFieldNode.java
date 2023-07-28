@@ -5,6 +5,7 @@ import dev.skidfuscator.ir.field.FieldInvoker;
 import dev.skidfuscator.ir.field.FieldNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.KlassNode;
+import dev.skidfuscator.ir.type.TypeWrapper;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
@@ -20,10 +21,11 @@ public class ResolvedFieldNode implements FieldNode {
     private boolean mutable;
     private String name;
     private KlassNode parent;
-    private Type type;
+    private TypeWrapper type;
     private Object defaultValue;
-    private List<FieldInvoker<?>> invokers;
+    private List<FieldInvoker<?, ?>> invokers;
     private List<Annotation> annotations;
+    private boolean resolvedHierachy;
 
     public ResolvedFieldNode(Hierarchy hierarchy, org.objectweb.asm.tree.FieldNode node) {
         this.hierarchy = hierarchy;
@@ -32,7 +34,7 @@ public class ResolvedFieldNode implements FieldNode {
         this.defaultValue = node.value;
         this.mutable = true;
         //System.out.println("Type: " + node.desc + " " + Type.getType(node.desc).getDescriptor());
-        this.type = Type.getType(node.desc);
+        this.type = new TypeWrapper(Type.getType(node.desc), hierarchy);
         this.invokers = new ArrayList<>();
         this.annotations = new ArrayList<>();
     }
@@ -43,7 +45,11 @@ public class ResolvedFieldNode implements FieldNode {
     }
 
     @Override
-    public void resolve() {
+    public void resolveHierachy() {
+        this.type.resolveHierarchy();
+        System.out.printf("Resolved field %s with type %s --> %s\n",
+                this.name, this.type.getOriginalType().getDescriptor(), this.type.getDesc());
+
         if (node.visibleAnnotations != null) {
             for (AnnotationNode annotationNode : node.visibleAnnotations) {
                 final Annotation annotation = new Annotation(hierarchy, annotationNode, Annotation.AnnotationType.VISIBLE);
@@ -79,12 +85,19 @@ public class ResolvedFieldNode implements FieldNode {
                 this.annotations.add(annotation);
             }
         }
+
+        this.resolvedHierachy = true;
     }
 
     @Override
-    public void dump() {
+    public org.objectweb.asm.tree.FieldNode dump() {
+        if (!this.resolvedHierachy)
+            throw new IllegalStateException(String.format(
+                    "Field %s has not resolved hierarchy yet!", this.name
+            ));
+
         this.node.name = name;
-        this.node.desc = type.getDescriptor();
+        this.node.desc = this.getType().getDescriptor();
         this.node.value = defaultValue;
 
         this.node.visibleAnnotations = null;
@@ -121,6 +134,8 @@ public class ResolvedFieldNode implements FieldNode {
                 }
             }
         }
+
+        return this.node;
     }
 
     @Override
@@ -150,7 +165,12 @@ public class ResolvedFieldNode implements FieldNode {
 
     @Override
     public Type getType() {
-        return type;
+        return type.isResolved() ? type.dump() : type.getOriginalType();
+    }
+
+    @Override
+    public String getDesc() {
+        return type.isResolved() ? type.dump().getDescriptor() : node.desc;
     }
 
     @Override
@@ -167,18 +187,18 @@ public class ResolvedFieldNode implements FieldNode {
     }
 
     @Override
-    public List<FieldInvoker<?>> getInvokers() {
+    public List<FieldInvoker<?, ?>> getInvokers() {
         return Collections.unmodifiableList(invokers);
     }
 
     @Override
-    public void addInvoke(FieldInvoker<?> invoker) {
+    public void addInvoke(FieldInvoker<?, ?> invoker) {
         //System.out.println("Adding invoker " + invoker + " to " + this);
         this.invokers.add(invoker);
     }
 
     @Override
-    public void removeInvoke(FieldInvoker<?> invoker) {
+    public void removeInvoke(FieldInvoker<?, ?> invoker) {
         this.invokers.remove(invoker);
     }
 
@@ -189,6 +209,6 @@ public class ResolvedFieldNode implements FieldNode {
 
     @Override
     public String toString() {
-        return parent + "#" + name + type.getDescriptor() + " = " + defaultValue;
+        return parent + "#" + name + type.dump().getDescriptor() + " = " + defaultValue;
     }
 }

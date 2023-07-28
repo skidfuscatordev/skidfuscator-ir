@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class Descriptor {
     public static Descriptor of(FieldNode fieldNode) {
-        return new Descriptor(fieldNode.getName(), fieldNode.getType().getDescriptor());
+        return new Descriptor(fieldNode.getName(), fieldNode.getDesc());
     }
     public static Descriptor of(MethodNode methodNode) {
         return new Descriptor(methodNode.name, methodNode.desc);
@@ -36,6 +36,10 @@ public class Descriptor {
 
     private String getParam() {
         return param;
+    }
+
+    static void test() {
+
     }
 
     @Override

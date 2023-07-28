@@ -6,21 +6,19 @@ import dev.skidfuscator.ir.insn.Insn;
 import dev.skidfuscator.ir.insn.impl.FieldInsn;
 import org.jetbrains.annotations.NotNull;
 
-public class StaticFieldInvoke implements FieldInvoker<FieldInsn> {
-    private final FieldInsn insn;
+public abstract class AbstractFieldInvoke<T, P> implements FieldInvoker<T, P> {
     private FieldNode target;
+    protected final T caller;
 
-    public StaticFieldInvoke(@NotNull final FieldInsn insn) {
-        assert insn != null : "Insn cannot be null!";
-
-        this.insn = insn;
+    public AbstractFieldInvoke(T insn) {
+        this.caller = insn;
     }
 
     @Override
     public void setTarget(@NotNull final FieldNode target) {
         assert target != null : String.format(
-                "Target cannot be null! (Aimed for %s#%s%s)",
-                insn
+                "Target cannot be null! (Aimed for %s)",
+                caller
         );
 
         // Force proper removal
@@ -49,27 +47,21 @@ public class StaticFieldInvoke implements FieldInvoker<FieldInsn> {
     }
 
     @Override
-    public boolean isAssign() {
-        return insn.isAssign();
+    public abstract boolean isAssign();
+
+    @Override
+    public abstract void replace(P... insns);
+
+    @Override
+    public T get() {
+        return caller;
     }
 
     @Override
-    public void replace(Insn... insns) {
-        insn.replace(insns);
-    }
-
-    @Override
-    public FieldInsn get() {
-        return insn;
-    }
-
-    @Override
-    public Class<FieldInsn> getType() {
-        return FieldInsn.class;
-    }
+    public abstract Class<T> getType();
 
     @Override
     public String toString() {
-        return insn.toString();
+        return caller.toString();
     }
 }

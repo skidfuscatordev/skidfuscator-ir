@@ -9,7 +9,6 @@ import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.method.impl.ResolvedMutableFunctionNode;
 import dev.skidfuscator.ir.util.Descriptor;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
@@ -134,7 +133,7 @@ public class ResolvedKlassNode implements KlassNode {
         if (parent != null) {
             //System.out.println("\n-----------\nResolving parent " + parent.getName() + " fields for " + this.name);
             for (final FunctionNode method : this.parent.getMethods()) {
-                if (method.isConstructor())
+                if (method.isConstructor() || method.isClassInit())
                     continue;
 
                 final FunctionNode parentFunction = this.methods.get(method.getOriginalDescriptor());
@@ -159,7 +158,7 @@ public class ResolvedKlassNode implements KlassNode {
         for (KlassNode implementation : this.interfaces) {
             //System.out.println("Resolving implementation " + implementation.getName() + " fields for " + this.name);
             for (final FunctionNode method : implementation.getMethods()) {
-                if (method.isConstructor())
+                if (method.isConstructor() || method.isClassInit())
                     continue;
 
                 final FunctionNode parentFunction = this.methods.get(method.getOriginalDescriptor());
@@ -179,6 +178,10 @@ public class ResolvedKlassNode implements KlassNode {
 
         for (FunctionNode method : this.methods.values()) {
             method.resolveHierarchy();
+        }
+
+        for (FieldNode field : this.fields.values()) {
+            field.resolveHierachy();
         }
 
         this.resolvedInternally = true;
@@ -293,10 +296,17 @@ public class ResolvedKlassNode implements KlassNode {
     @Override
     public FieldNode getField(String name, String desc) {
         final Descriptor descriptor = new Descriptor(name, desc);
-        final FieldNode node = this.fields.get(descriptor);
+        FieldNode node = this.fields.get(descriptor);
 
         if (node != null) {
             return node;
+        }
+
+        if (parent != null) {
+            node = parent.getField(name, desc);
+            if (node != null) {
+                return node;
+            }
         }
 
         if (strict) {
@@ -418,8 +428,22 @@ public class ResolvedKlassNode implements KlassNode {
         this.node.name = name;
         this.node.access = access;
 
+        this.node.superName = parent == null ? null : parent.getName();
+        this.node.interfaces = new ArrayList<>();
+        for (KlassNode impl : this.interfaces) {
+            this.node.interfaces.add(impl.getName());
+        }
+
+        this.node.fields.clear();
+        for (FieldNode field : fields.values()) {
+            this.node.fields.add(field.dump());
+        }
+
         this.node.methods.clear();
         for (FunctionNode method : methods.values()) {
+            if (method.isSynthetic())
+                continue;
+
             this.node.methods.add(method.dump());
         }
     }

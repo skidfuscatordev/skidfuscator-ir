@@ -212,6 +212,13 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
                 );
             }
 
+            else if (instruction instanceof LineNumberNode) {
+                insn = new LineNumberInsn(
+                        hierarchy,
+                        (LineNumberNode) instruction
+                );
+            }
+
             else
                 throw new IllegalStateException("Unknown instruction " + instruction.getClass().getSimpleName());
 
@@ -245,6 +252,15 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
 
         for (TryCatchBlock tryCatchBlock : tryCatchBlocks) {
             tryCatchBlock.resolve();
+        }
+
+        if (owner.getName().contains("ha") && node.name.equals("<clinit>")) {
+            System.out.println(String.format(
+                    "Resolved %s of %s with instructions: \n%s",
+                    this,
+                    this.getOwner(),
+                    this.instructions.print()
+            ));
         }
 
         this.resolved = true;
@@ -369,6 +385,11 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
     @Override
     public boolean isConstructor() {
         return !resolved ? this.getOriginalDescriptor().getName().equals("<init>") : this.getName().equals("<init>");
+    }
+
+    @Override
+    public boolean isClassInit() {
+        return !resolved ? this.getOriginalDescriptor().getName().equals("<clinit>") : this.getName().equals("<clinit>");
     }
 
     private void _checkResolve() {

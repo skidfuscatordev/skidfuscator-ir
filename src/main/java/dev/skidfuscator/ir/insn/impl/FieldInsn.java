@@ -2,20 +2,19 @@ package dev.skidfuscator.ir.insn.impl;
 
 import dev.skidfuscator.ir.field.FieldInvoker;
 import dev.skidfuscator.ir.field.FieldNode;
-import dev.skidfuscator.ir.field.invoke.StaticFieldInvoke;
+import dev.skidfuscator.ir.field.invoke.AbstractFieldInvoke;
+import dev.skidfuscator.ir.field.invoke.InstructionFieldInvoke;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.insn.AbstractInsn;
 import dev.skidfuscator.ir.insn.InstructionList;
 import dev.skidfuscator.ir.klass.KlassNode;
-import dev.skidfuscator.ir.method.FunctionNode;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 
 import java.util.stream.Collectors;
 
 public class FieldInsn extends AbstractInsn<FieldInsnNode> {
-    private FieldInvoker<FieldInsn> invoke;
+    private FieldInvoker<?, ?> invoke;
     private boolean synthetic;
 
     public FieldInsn(Hierarchy hierarchy, FieldInsnNode node) {
@@ -24,7 +23,7 @@ public class FieldInsn extends AbstractInsn<FieldInsnNode> {
 
     @Override
     public void resolve() {
-        this.invoke = new StaticFieldInvoke(this);
+        this.invoke = new InstructionFieldInvoke(this);
 
         final KlassNode owner = hierarchy.resolveClass(node.owner);
         if (owner == null)
@@ -53,9 +52,18 @@ public class FieldInsn extends AbstractInsn<FieldInsnNode> {
     public FieldInsnNode dump() {
         this.node.owner = invoke.getTarget().getParent().getName();
         this.node.name = invoke.getTarget().getName();
-        this.node.desc = invoke.getTarget().getType().getDescriptor();
+        this.node.desc = invoke.getTarget().getDesc();
 
         return this.node;
+    }
+
+    public void setInvoker(FieldInvoker<?, ?> invoke) {
+        final FieldInvoker<?, ?> old = this.invoke;
+        final FieldNode target = old.getTarget();
+        target.removeInvoke(old);
+
+        this.invoke = invoke;
+        this.invoke.setTarget(target);
     }
 
     public void setTarget(final FieldNode target) {

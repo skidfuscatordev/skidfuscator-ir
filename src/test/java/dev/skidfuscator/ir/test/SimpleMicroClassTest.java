@@ -135,7 +135,7 @@ public class SimpleMicroClassTest {
         System.out.println("------------------\n");
 
         // Has one invoker in class
-        for (FieldInvoker<?> invoker : fieldNode.getInvokers()) {
+        for (FieldInvoker<?, ?> invoker : fieldNode.getInvokers()) {
             System.out.println(((FieldInsn) invoker.get()).getParent().getNode() + "\n|\n\\->" + invoker + "\n");
         }
 

@@ -23,6 +23,7 @@ public class TypeWrapper implements HierarchyResolvable {
     private final Hierarchy hierarchy;
 
     private String desc = "";
+    private boolean resolved = false;
     private final List<KlassNode> classes = new LinkedList<>();
 
     public TypeWrapper(Type type, Hierarchy hierarchy) {
@@ -42,6 +43,11 @@ public class TypeWrapper implements HierarchyResolvable {
         } else {
             resolve0(type);
         }
+        resolved = true;
+    }
+
+    public boolean isResolved() {
+        return resolved;
     }
 
     private void resolve0(Type type) {
@@ -81,13 +87,25 @@ public class TypeWrapper implements HierarchyResolvable {
         }
     }
 
+    public Type getOriginalType() {
+        return type;
+    }
+
     public String getDesc() {
         return desc;
     }
 
     public Type dump() {
-        if (classes.isEmpty())
+        if (!resolved) {
+            throw new IllegalStateException(String.format(
+                    "Unresolved type %s",
+                    type.getDescriptor()
+            ));
+        }
+
+        if (classes.isEmpty()) {
             return Type.getType(desc);
+        }
 
         final String[] types = classes.stream().map(klassNode -> "L" + klassNode.getName() + ";").toArray(String[]::new);
         //System.out.println(String.format("DESC: %s TYPES: %s", desc, Arrays.toString(types)));

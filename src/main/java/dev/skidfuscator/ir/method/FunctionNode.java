@@ -137,4 +137,12 @@ public interface FunctionNode extends HierarchyResolvable {
      *          false otherwise
      */
     boolean isConstructor();
+
+    /**
+     * Determines if the function is a class init.
+     *
+     * @return  True if the function is a class init,
+     *          false otherwise
+     */
+    boolean isClassInit();
 }

@@ -8,6 +8,7 @@ import org.objectweb.asm.tree.MethodNode;
 public class ResolvedMutableFunctionNode extends ResolvedAbstractFunctionNode {
     private FunctionNode parent;
     private String name;
+    // TODO: Add support for types
     private String desc;
 
     public ResolvedMutableFunctionNode(Hierarchy hierarchy, Descriptor descriptor, MethodNode node, FunctionNode parent) {
