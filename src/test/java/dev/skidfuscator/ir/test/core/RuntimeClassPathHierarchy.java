@@ -23,16 +23,16 @@ public class RuntimeClassPathHierarchy extends SkidHierarchy {
         if (node == null) {
             try {
                 final String path = name.replace(".", "/");
-                System.out.println("Loading " + path);
+                //System.out.println("Loading " + path);
                 final ClassNode attempt = ClassHelper.create(path);
                 node = create(attempt);
-                System.out.println("Created " + path);
+                //System.out.println("Created " + path);
                 if (!node.isResolvedHierarchy())
                     node.resolveHierarchy();
-                System.out.println("Resolved " + path);
+                //System.out.println("Resolved " + path);
                 if (!node.isResolvedInternal())
                     node.resolveInternal();
-                System.out.println("Loaded " + path);
+                //System.out.println("Loaded " + path);
                 return node;
             } catch (IOException e) {
                 e.printStackTrace();

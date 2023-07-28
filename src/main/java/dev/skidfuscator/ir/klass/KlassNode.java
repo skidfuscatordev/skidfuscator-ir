@@ -114,11 +114,22 @@ public interface KlassNode {
     }
 
     /**
-     * Sets fields.
-     *
-     * @param nodes the nodes
+     * Gets field by name and descriptor.
+     * @param name the name
+     * @param desc the desc
+     * @return the method
      */
-    void setFields(@Nullable final List<FieldNode> nodes);
+    FieldNode getField(String name, String desc);
+
+    /**
+     * Gets field by name and descriptor.
+     * @param nameAndDesc the descriptor
+     * @return the method
+     */
+    default FieldNode getField(String nameAndDesc) {
+        final String[] splits = nameAndDesc.split("\\(");
+        return getField(splits[0], "(" + splits[1]);
+    }
 
     /**
      * Add method.
@@ -138,7 +149,7 @@ public interface KlassNode {
      * @return  List of wrapped fields
      */
     @NotNull
-    List<FieldNode> getFields();
+    Collection<FieldNode> getFields();
 
     /**
      * Adds a field

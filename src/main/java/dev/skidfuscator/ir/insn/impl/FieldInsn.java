@@ -6,10 +6,13 @@ import dev.skidfuscator.ir.field.invoke.StaticFieldInvoke;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.insn.AbstractInsn;
 import dev.skidfuscator.ir.insn.InstructionList;
+import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.method.FunctionNode;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
+
+import java.util.stream.Collectors;
 
 public class FieldInsn extends AbstractInsn<FieldInsnNode> {
     private FieldInvoker<FieldInsn> invoke;
@@ -23,16 +26,26 @@ public class FieldInsn extends AbstractInsn<FieldInsnNode> {
     public void resolve() {
         this.invoke = new StaticFieldInvoke(this);
 
-        final FieldNode target = hierarchy.findField(node);
-
-        if (target == null) {
+        final KlassNode owner = hierarchy.resolveClass(node.owner);
+        if (owner == null)
             throw new IllegalStateException(String.format(
-                    "Could not find target for %s.%s%s",
+                    "Could not find owner for %s.%s%s",
                     node.owner, node.name, node.desc
             ));
+
+        try {
+            this.setTarget(owner.getField(node.name, node.desc));
+        } catch (IllegalStateException e) {
+            throw new IllegalStateException(String.format(
+                    "Could not find target for %s.%s%s, available feilds: \n%s",
+                    node.owner, node.name, node.desc,
+                    owner.getFields()
+                            .stream()
+                            .map(Object::toString)
+                            .collect(Collectors.joining("\n"))
+            ), e);
         }
 
-        this.invoke.setTarget(target);
         super.resolve();
     }
 
@@ -40,9 +53,13 @@ public class FieldInsn extends AbstractInsn<FieldInsnNode> {
     public FieldInsnNode dump() {
         this.node.owner = invoke.getTarget().getParent().getName();
         this.node.name = invoke.getTarget().getName();
-        this.node.desc = invoke.getTarget().getType().getInternalName();
+        this.node.desc = invoke.getTarget().getType().getDescriptor();
 
         return this.node;
+    }
+
+    public void setTarget(final FieldNode target) {
+        this.invoke.setTarget(target);
     }
 
     public FieldNode getTarget() {
@@ -55,7 +72,7 @@ public class FieldInsn extends AbstractInsn<FieldInsnNode> {
     }
 
     public String getType() {
-        return invoke.getTarget().getType().getInternalName();
+        return invoke.getTarget().getType().getDescriptor();
     }
 
     public boolean isAssign() {
@@ -72,7 +89,7 @@ public class FieldInsn extends AbstractInsn<FieldInsnNode> {
             this.invoke.getTarget().removeInvoke(this.invoke);
             this.synthetic = true;
         } else if (this.synthetic) {
-            System.out.println("Adding invoke " + this.invoke.getTarget() + " to " + parent);
+            //System.out.println("Adding invoke " + this.invoke.getTarget() + " to " + parent);
             this.invoke.getTarget().addInvoke(this.invoke);
         }
 

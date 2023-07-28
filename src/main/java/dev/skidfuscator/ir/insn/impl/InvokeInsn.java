@@ -25,17 +25,16 @@ public class InvokeInsn extends AbstractInsn<MethodInsnNode> {
     @Override
     public void resolve() {
         this.invoker = new StaticFunctionInvoke(this);
-        final FunctionNode target = hierarchy.findMethod(node);
+        final KlassNode owner = hierarchy.resolveClass(node.owner);
+        if (owner == null)
+            throw new IllegalStateException(String.format(
+                    "Could not find owner for %s.%s%s",
+                    node.owner, node.name, node.desc
+            ));
 
-        if (target == null) {
-            final KlassNode owner = hierarchy.findClass(node.owner);
-
-            if (owner == null)
-                throw new IllegalStateException(String.format(
-                        "Could not find owner for %s.%s%s",
-                        node.owner, node.name, node.desc
-                ));
-
+        try {
+            this.setTarget(owner.getMethod(node.name, node.desc));
+        } catch (Throwable e) {
             throw new IllegalStateException(String.format(
                     "Could not find target for %s.%s%s, available methods: \n%s",
                     node.owner, node.name, node.desc,
@@ -43,10 +42,8 @@ public class InvokeInsn extends AbstractInsn<MethodInsnNode> {
                             .stream()
                             .map(Object::toString)
                             .collect(Collectors.joining("\n"))
-            ));
+            ), e);
         }
-
-        this.setTarget(target);
 
         super.resolve();
     }

@@ -15,6 +15,45 @@ import org.objectweb.asm.tree.ClassNode;
  * @author Bibl (don't ban me pls)
  */
 public class ClassHelper {
+	public static ClassNode BOOLEAN;
+	public static ClassNode BYTE;
+	public static ClassNode SHORT;
+	public static ClassNode CHAR;
+	public static ClassNode INT;
+	public static ClassNode LONG;
+	public static ClassNode FLOAT;
+	public static ClassNode DOUBLE;
+	public static ClassNode VOID;
+
+	static {
+		BOOLEAN = new ClassNode();
+		BOOLEAN.name = "Z";
+
+		BYTE = new ClassNode();
+		BYTE.name = "B";
+
+		SHORT = new ClassNode();
+		SHORT.name = "S";
+
+		CHAR = new ClassNode();
+		CHAR.name = "C";
+
+		INT = new ClassNode();
+		INT.name = "I";
+
+		LONG = new ClassNode();
+		LONG.name = "J";
+
+		FLOAT = new ClassNode();
+		FLOAT.name = "F";
+
+		DOUBLE = new ClassNode();
+		DOUBLE.name = "D";
+
+		VOID = new ClassNode();
+		VOID.name = "V";
+	}
+
 
 	public static Collection<ClassNode> parseClasses(Class<?>... a) throws IOException {
 		List<ClassNode> list = new ArrayList<>();

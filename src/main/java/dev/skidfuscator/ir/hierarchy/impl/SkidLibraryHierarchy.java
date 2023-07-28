@@ -16,6 +16,35 @@ public class SkidLibraryHierarchy extends SkidHierarchy {
         libraries.add(library);
     }
 
+    /*@Override
+    public KlassNode findClass(String name) {
+        KlassNode klassNode = super.findClass(name);
+
+        if (klassNode != null) {
+            return klassNode;
+        }
+
+        ClassNode classNode = null;
+
+        for (LibrarySource library : libraries) {
+            classNode = library.getClass(name);
+
+            if (classNode != null) {
+                klassNode = create(classNode);
+                if (!klassNode.isResolvedHierarchy())
+                    klassNode.resolveHierarchy();
+                if (!klassNode.isResolvedInternal())
+                    klassNode.resolveInternal();
+                klassNode.resolveInstructions();
+                klassNode.lock();
+
+                return klassNode;
+            }
+        }
+
+        return null;
+    }*/
+
     @Override
     public void resolveClasses(Collection<ClassNode> classes) {
         for (LibrarySource library : libraries) {
@@ -24,7 +53,7 @@ public class SkidLibraryHierarchy extends SkidHierarchy {
                     continue;
                 }
 
-                create(value);
+                create(value, false);
             }
         }
 

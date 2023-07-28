@@ -30,7 +30,8 @@ public class InstructionList implements Iterable<Insn<?>> {
     }
 
     public Insn<?> getFirst() {
-        assert !this.instructions.isEmpty() : "Instruction list is empty";
+        if (this.instructions.isEmpty())
+            return null;
 
         return this.instructions.get(0);
     }
@@ -109,6 +110,15 @@ public class InstructionList implements Iterable<Insn<?>> {
 
     public FunctionNode getNode() {
         return node;
+    }
+
+    public String print() {
+        StringBuilder builder = new StringBuilder("\n");
+        for (Insn<?> insn : instructions) {
+            builder.append(insn.toString());
+            builder.append("\n");
+        }
+        return builder.toString();
     }
 
     @NotNull

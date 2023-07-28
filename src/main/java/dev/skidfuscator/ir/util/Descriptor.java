@@ -1,10 +1,15 @@
 package dev.skidfuscator.ir.util;
 
+import dev.skidfuscator.ir.field.FieldNode;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.util.Objects;
 
 public class Descriptor {
+    public static Descriptor of(FieldNode fieldNode) {
+        return new Descriptor(fieldNode.getName(), fieldNode.getType().getDescriptor());
+    }
     public static Descriptor of(MethodNode methodNode) {
         return new Descriptor(methodNode.name, methodNode.desc);
     }
@@ -13,10 +18,12 @@ public class Descriptor {
     }
     private final String name;
     private final String desc;
+    private final String param;
 
     public Descriptor(String name, String desc) {
         this.name = name;
         this.desc = desc;
+        this.param = desc.split("\\)")[0].substring(1);
     }
 
     public String getName() {
@@ -25,6 +32,10 @@ public class Descriptor {
 
     public String getDesc() {
         return desc;
+    }
+
+    private String getParam() {
+        return param;
     }
 
     @Override

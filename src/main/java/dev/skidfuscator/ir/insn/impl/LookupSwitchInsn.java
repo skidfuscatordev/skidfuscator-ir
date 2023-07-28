@@ -6,14 +6,14 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.ToIntFunction;
+import java.util.stream.Collectors;
 
 public class LookupSwitchInsn extends AbstractInsn<LookupSwitchInsnNode> {
-    private Map<Integer, LabelInsn> keyMap;
+    private List<Integer> keys;
+    private List<LabelInsn> labels;
     private LabelInsn dflt;
     public LookupSwitchInsn(Hierarchy hierarchy, LookupSwitchInsnNode node) {
         super(hierarchy, node);
@@ -21,34 +21,31 @@ public class LookupSwitchInsn extends AbstractInsn<LookupSwitchInsnNode> {
 
     @Override
     public void resolve() {
-        this.keyMap = new HashMap<>();
-
-        for (int i = 0; i < this.node.labels.size(); i++) {
-            final int key = this.node.keys.get(i);
-            final LabelNode label = this.node.labels.get(i);
-
-            keyMap.put(key, this.getParent().getLabel(label));
-        }
+        this.keys = new ArrayList<>(this.node.keys);
+        this.labels = new ArrayList<>(
+                this.node.labels.stream().map(e -> this.getParent().getLabel(e)).collect(Collectors.toList())
+        );
+        this.dflt = this.getParent().getLabel(this.node.dflt);
     }
 
     @Override
     public LookupSwitchInsnNode dump() {
-        this.node.labels.clear();
+        /*this.node.labels.clear();
         this.node.keys.clear();
-        this.keyMap.entrySet().stream()
-                .sorted(Comparator.comparingInt(Map.Entry::getKey))
-                .forEach(e -> {
-                    this.node.keys.add(e.getKey());
-                    this.node.labels.add(e.getValue().dump());
-                });
-        this.node.dflt = this.dflt.dump();
+        this.node.keys.addAll(this.keys);
+        this.node.labels.addAll(this.labels.stream().map(LabelInsn::dump).collect(Collectors.toList()));
+        this.node.dflt = this.dflt.dump();*/
 
         return node;
     }
 
 
-    public Map<Integer, LabelInsn> getKeyMap() {
-        return keyMap;
+    public List<Integer> getKeys() {
+        return keys;
+    }
+
+    public List<LabelInsn> getLabels() {
+        return labels;
     }
 
     public LabelInsn getDflt() {

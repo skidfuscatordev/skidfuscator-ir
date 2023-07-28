@@ -17,14 +17,14 @@ public class MultiANewArrayInsn extends AbstractInsn<MultiANewArrayInsnNode> {
 
     @Override
     public void resolve() {
-        this.target = hierarchy.findClass(Type.getObjectType(node.desc).getElementType().getInternalName());
+        this.target = hierarchy.findClass(Type.getType(node.desc).getElementType().getInternalName());
 
         super.resolve();
     }
 
     @Override
     public MultiANewArrayInsnNode dump() {
-        this.node.desc = "[".repeat(node.dims) + "L" + target.getName() + ";"; //I have no idea
+        //this.node.desc = "[".repeat(node.dims) + "L" + target.getName() + ";"; //I have no idea
         return super.dump();
     }
 }

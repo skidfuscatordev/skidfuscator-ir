@@ -1,23 +1,32 @@
 package dev.skidfuscator.ir.klass.impl;
 
+import dev.skidfuscator.ir.field.impl.ResolvedFieldNode;
+import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.method.FunctionNode;
 import dev.skidfuscator.ir.field.FieldNode;
 import dev.skidfuscator.ir.klass.KlassNode;
+import dev.skidfuscator.ir.method.impl.ResolvedImmutableFunctionNode;
+import dev.skidfuscator.ir.util.Descriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class UnresolvedKlassNode implements KlassNode {
+    private final Hierarchy hierarchy;
     private final KlassNode root;
     private final String name;
+    private final Map<Descriptor, FunctionNode> ghostMethods;
+    private final Map<Descriptor, FieldNode> ghostFields;
 
-    public UnresolvedKlassNode(KlassNode root, String name) {
+    public UnresolvedKlassNode(final Hierarchy hierarchy, final KlassNode root, String name) {
+        this.hierarchy = hierarchy;
         this.root = root;
         this.name = name;
+        this.ghostMethods = new HashMap<>();
+        this.ghostFields = new HashMap<>();
     }
 
     @Override
@@ -93,24 +102,77 @@ public class UnresolvedKlassNode implements KlassNode {
 
     @Override
     public @NotNull FunctionNode getMethod(String name, String desc) {
-        throw new IllegalStateException(String.format(
-                "Cannot get method of unresolved class %s",
-                name
-        ));
+        FunctionNode node = root.getMethod(name, desc);
+
+        if (hierarchy.getConfig().isGeneratePhantomMethods() && node == null) {
+            final Descriptor descriptor = new Descriptor(name, desc);
+            node = ghostMethods.get(descriptor);
+
+            if (node != null)
+                return node;
+
+            node = new ResolvedImmutableFunctionNode(
+                    hierarchy,
+                    descriptor,
+                    null
+            );
+            node.setOwner(this);
+            this.ghostMethods.put(descriptor, node);
+
+            return node;
+        }
+
+        if (node == null) {
+            throw new IllegalStateException(String.format(
+                    "Cannot get method of unresolved class %s",
+                    name
+            ));
+        }
+
+        return node;
+    }
+
+    @Override
+    public @NotNull FieldNode getField(String name, String desc) {
+        FieldNode node = null;
+        try {
+            node = root.getField(name, desc);
+        } catch (IllegalStateException e) {
+            if (hierarchy.getConfig().isGeneratePhantomFields()) {
+                final Descriptor descriptor = new Descriptor(name, desc);
+                node = ghostFields.get(descriptor);
+
+                if (node != null)
+                    return node;
+
+                node = new ResolvedFieldNode(
+                        hierarchy,
+                        new org.objectweb.asm.tree.FieldNode(
+                                Opcodes.ACC_PUBLIC,
+                                name,
+                                desc,
+                                null,
+                                null
+                        )
+                );
+                this.ghostFields.put(descriptor, node);
+
+                return node;
+            } else {
+                throw new IllegalStateException(String.format(
+                        "Cannot get field of unresolved class %s",
+                        name
+                ), e);
+            }
+        }
+
+        return node;
     }
 
     @Override
     public @NotNull List<FieldNode> getFields() {
         throw new IllegalStateException(String.format(
                 "Cannot compute fields of unresolved class %s",
-                name
-        ));
-    }
-
-    @Override
-    public void setFields(@Nullable List<FieldNode> nodes) {
-        throw new IllegalStateException(String.format(
-                "Cannot set fields of unresolved class %s",
                 name
         ));
     }

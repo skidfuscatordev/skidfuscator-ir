@@ -12,6 +12,8 @@ repositories {
 
 dependencies {
     api 'org.jgrapht:jgrapht-core:1.5.2'
+    api 'org.jgrapht:jgrapht-ext:1.5.2'
+    api 'org.jgrapht:jgrapht-io:1.5.2'
     api 'org.ow2.asm:asm:9.5'
     api 'org.ow2.asm:asm-tree:9.5'
     api 'org.ow2.asm:asm-commons:9.5'

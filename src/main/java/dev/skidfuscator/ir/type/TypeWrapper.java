@@ -5,6 +5,7 @@ import dev.skidfuscator.ir.hierarchy.HierarchyResolvable;
 import dev.skidfuscator.ir.klass.KlassNode;
 import org.objectweb.asm.Type;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -50,14 +51,31 @@ public class TypeWrapper implements HierarchyResolvable {
                 desc += "[".repeat(type.getDimensions());
                 if (element.getSort() == Type.OBJECT) {
                     desc += "%s"; //className?
-                    classes.add(hierarchy.findClass(type.getElementType().getInternalName()));
+
+                    final KlassNode klassNode = hierarchy.resolveClass(element.getInternalName());
+                    if (klassNode == null) {
+                        throw new IllegalStateException(String.format(
+                                "Could not find class for type %s",
+                                element.getInternalName()
+                        ));
+                    }
+
+                    classes.add(klassNode);
                 } else {
                     desc += element.getInternalName();
                 }
             }
             case Type.OBJECT -> {
                 desc += "%s"; //className?
-                classes.add(hierarchy.findClass(type.getInternalName()));
+
+                final KlassNode klassNode = hierarchy.resolveClass(type.getInternalName());
+                if (klassNode == null) {
+                    throw new IllegalStateException(String.format(
+                            "Could not find class for type %s",
+                            type.getInternalName()
+                    ));
+                }
+                classes.add(klassNode);
             }
             default -> desc += type.getInternalName();
         }
@@ -68,8 +86,11 @@ public class TypeWrapper implements HierarchyResolvable {
     }
 
     public Type dump() {
-        return !classes.isEmpty() ? Type.getType(desc.formatted(
-                (Object[]) classes.stream().map(klassNode -> "L" + klassNode.getName() + ";").toArray(String[]::new)
-        )) : Type.getType(desc);
+        if (classes.isEmpty())
+            return Type.getType(desc);
+
+        final String[] types = classes.stream().map(klassNode -> "L" + klassNode.getName() + ";").toArray(String[]::new);
+        //System.out.println(String.format("DESC: %s TYPES: %s", desc, Arrays.toString(types)));
+        return Type.getType(desc.formatted((Object[]) types));
     }
 }

@@ -13,6 +13,12 @@ import java.util.Iterator;
 
 public interface Hierarchy {
     /**
+     *
+     * @return
+     */
+    HierarchyConfig getConfig();
+
+    /**
      * Iterates over all classes in the hierarchy
      *
      * @return the iterable of classes

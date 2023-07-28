@@ -20,7 +20,7 @@ public class JumpInsn extends AbstractInsn<JumpInsnNode> {
 
     @Override
     public JumpInsnNode dump() {
-        this.node.label = label.dump();
+        //this.node.label = label.dump();
 
         return super.dump();
     }

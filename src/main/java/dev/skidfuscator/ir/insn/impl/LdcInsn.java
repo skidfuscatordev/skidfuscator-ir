@@ -26,8 +26,13 @@ public class LdcInsn extends AbstractConstantInsn<LdcInsnNode> {
     }
 
     @Override
+    public Object getConstant() {
+        return super.getConstant() instanceof TypeWrapper type ? type.dump() : this.constant;
+    }
+
+    @Override
     public LdcInsnNode dump() {
-        this.node.cst = this.constant instanceof TypeWrapper type ? type.dump() : this.constant;
+        this.node.cst = this.getConstant();
         return super.dump();
     }
 

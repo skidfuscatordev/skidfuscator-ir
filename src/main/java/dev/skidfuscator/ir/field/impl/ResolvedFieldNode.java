@@ -31,7 +31,8 @@ public class ResolvedFieldNode implements FieldNode {
         this.name = node.name;
         this.defaultValue = node.value;
         this.mutable = true;
-        this.type = Type.getObjectType(node.desc);
+        //System.out.println("Type: " + node.desc + " " + Type.getType(node.desc).getDescriptor());
+        this.type = Type.getType(node.desc);
         this.invokers = new ArrayList<>();
         this.annotations = new ArrayList<>();
     }
@@ -83,7 +84,7 @@ public class ResolvedFieldNode implements FieldNode {
     @Override
     public void dump() {
         this.node.name = name;
-        this.node.desc = type.getInternalName();
+        this.node.desc = type.getDescriptor();
         this.node.value = defaultValue;
 
         this.node.visibleAnnotations = null;
@@ -188,6 +189,6 @@ public class ResolvedFieldNode implements FieldNode {
 
     @Override
     public String toString() {
-        return parent + "#" + name + type.getInternalName() + " = " + defaultValue;
+        return parent + "#" + name + type.getDescriptor() + " = " + defaultValue;
     }
 }

@@ -26,26 +26,21 @@ public class ResolvedMutableFunctionNode extends ResolvedAbstractFunctionNode {
     @Override
     public void resolveHierarchy() {
         if (owner.getParent() != null) {
-            final FunctionNode parent = owner.getParent().getMethod(
-                    originalDescriptor.getName(),
-                    originalDescriptor.getDesc()
-            );
+            try {
+                final FunctionNode parent = owner.getParent().getMethod(
+                        originalDescriptor.getName(),
+                        originalDescriptor.getDesc()
+                );
 
-            // TODO: Create a root definition cache
-            /*if (parent == null) {
-                throw new IllegalStateException(String.format(
-                        "Could not find parent method %s%s in %s",
-                        descriptor.getName(),
-                        descriptor.getDesc(),
-                        owner.getParent().getName()
-                ));
-            }*/
+                this.parent = parent;
 
-            this.parent = parent;
-
-            if (parent != null && !parent.isResolved()) {
-                parent.resolveHierarchy();
+                if (parent != null && !parent.isResolved()) {
+                    parent.resolveHierarchy();
+                }
+            } catch (IllegalStateException e) {
+                // no-op
             }
+
         }
 
         super.resolveHierarchy();

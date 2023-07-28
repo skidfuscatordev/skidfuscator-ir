@@ -28,6 +28,7 @@ public class TryCatchBlock {
         this.hierarchy = hierarchy;
         this.list = list;
         this.node = node;
+        this.annotations = new ArrayList<>();
     }
 
     public void resolve() {

@@ -16,26 +16,32 @@ import java.util.*;
 
 public class ArraySpecialKlassNode implements KlassNode {
     private final Hierarchy hierarchy;
+    private final KlassNode parent;
+    private final int dimensions;
     private final Map<Descriptor, FunctionNode> methods;
 
-    public ArraySpecialKlassNode(Hierarchy hierarchy) {
+    public ArraySpecialKlassNode(Hierarchy hierarchy, int dimensions, KlassNode parent) {
         this.hierarchy = hierarchy;
+        this.parent = parent;
+        this.dimensions = dimensions;
         this.methods = new HashMap<>();
 
         final Descriptor descriptor = new Descriptor("clone", "()Ljava/lang/Object;");
+        final FunctionNode cloneFunction = new ResolvedImmutableFunctionNode(
+                hierarchy,
+                descriptor,
+                new MethodNode(
+                        Opcodes.ACC_PUBLIC,
+                        "clone",
+                        "()Ljava/lang/Object;",
+                        null,
+                        null
+                )
+        );
+        cloneFunction.setOwner(this);
         methods.put(
                 descriptor,
-                new ResolvedImmutableFunctionNode(
-                        hierarchy,
-                        descriptor,
-                        new MethodNode(
-                                Opcodes.ACC_PUBLIC,
-                                "clone",
-                                "()Ljava/lang/Object;",
-                                null,
-                                null
-                        )
-                )
+                cloneFunction
         );
     }
 
@@ -71,7 +77,7 @@ public class ArraySpecialKlassNode implements KlassNode {
 
     @Override
     public @NotNull Type asType() {
-        return Type.getObjectType("L" + this.getName() + ";");
+        return Type.getType("[".repeat(this.dimensions) + parent.asType().getInternalName());
     }
 
     @Override
@@ -92,9 +98,10 @@ public class ArraySpecialKlassNode implements KlassNode {
     }
 
     @Override
-    public void setFields(@Nullable List<FieldNode> nodes) {
-        throw new IllegalStateException("Cannot modify fields of an array class");
+    public @NotNull FieldNode getField(String name, String desc) {
+        throw new IllegalStateException("Cannot get field of an array class");
     }
+
 
     @Override
     public void addMethod(FunctionNode node) {
@@ -118,7 +125,7 @@ public class ArraySpecialKlassNode implements KlassNode {
 
     @Override
     public @NotNull String getName() {
-        return "array";
+        return "[".repeat(this.dimensions) + this.parent.getName();
     }
 
     @Override
@@ -158,6 +165,6 @@ public class ArraySpecialKlassNode implements KlassNode {
 
     @Override
     public String toString() {
-        return "array";
+        return this.getName();
     }
 }

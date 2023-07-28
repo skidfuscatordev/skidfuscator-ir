@@ -1,5 +1,6 @@
 package dev.skidfuscator.ir.hierarchy.impl;
 
+import dev.skidfuscator.ir.hierarchy.HierarchyConfig;
 import dev.skidfuscator.ir.klass.impl.ArraySpecialKlassNode;
 import dev.skidfuscator.ir.method.FunctionNode;
 import dev.skidfuscator.ir.field.FieldNode;
@@ -15,13 +16,22 @@ import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.impl.ResolvedKlassNode;
 import dev.skidfuscator.ir.util.ClassDescriptor;
 import dev.skidfuscator.ir.util.ClassHelper;
+import org.jgrapht.nio.GraphExporter;
+import org.jgrapht.nio.dot.DOTExporter;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class SkidHierarchy implements Hierarchy {
+    private final HierarchyConfig config;
+
     /**
      * This will, has and will ALWAYS base itself on
      * LEGACY names. This means any name modification
@@ -32,9 +42,11 @@ public class SkidHierarchy implements Hierarchy {
      * - Safe re-parenting
      */
     protected final Map<String, KlassNode> classEquivalence;
+    protected final Map<String, KlassNode> programClassEquivalence;
     private final KlassGraph klassGraph;
     private final KlassNode rootClass;
     private final KlassNode arrayClass;
+    private final KlassNode primitiveArrayClass;
 
 
     /**
@@ -60,22 +72,38 @@ public class SkidHierarchy implements Hierarchy {
      */
     private final Map<ClassDescriptor, FieldNode> fieldEquivalence;
 
-
     public SkidHierarchy() {
+        this(HierarchyConfig.Builder
+                .of()
+                .generatePhantomMethods()
+                .generatePhantomClasses()
+                .generatePhantomFields()
+                .build()
+        );
+    }
+
+    public SkidHierarchy(final HierarchyConfig config) {
+        this.config = config;
         this.classEquivalence = new HashMap<>();
+        this.programClassEquivalence = new HashMap<>();
         this.functionEquivalence = new HashMap<>();
         this.fieldEquivalence = new HashMap<>();
         this.klassGraph = new KlassGraph();
         this.functionGraph = new FunctionGraph();
 
-        this.rootClass = this.create(ClassHelper.create(Object.class));
-        this.arrayClass = new ArraySpecialKlassNode(this);
+        this.rootClass = this.create(ClassHelper.create(Object.class), false);
+        this.arrayClass = new ArraySpecialKlassNode(this, 1, rootClass);
+        this.primitiveArrayClass = new ArraySpecialKlassNode(this, 0, rootClass);
+    }
 
+    @Override
+    public HierarchyConfig getConfig() {
+        return config;
     }
 
     @Override
     public Iterable<KlassNode> iterateKlasses() {
-        return Collections.unmodifiableCollection(classEquivalence.values());
+        return Collections.unmodifiableCollection(programClassEquivalence.values());
     }
 
     @Override
@@ -85,14 +113,52 @@ public class SkidHierarchy implements Hierarchy {
                 .stream()
                 .filter(e -> !e.isResolvedHierarchy())
                 .forEach(KlassNode::resolveHierarchy);
-        final Set<String> application = classes.stream().map(e -> e.name).collect(Collectors.toSet());
+
+        classes.stream()
+                .map(e -> e.name)
+                .map(classEquivalence::get)
+                .forEach(e -> {
+                    programClassEquivalence.put(e.getName(), e);
+                });
+
         final Set<KlassNode> resolved = new HashSet<>();
 
         final KlassNode root = findClass("java/lang/Object");
         final Queue<KlassNode> queue = new LinkedBlockingQueue<>();
         queue.add(root);
 
-        while (!queue.isEmpty()) {
+        /*final File file = new File("graph.dot");
+        System.out.println("Exporting graph to " + file.getAbsolutePath());
+        try {
+            application.stream().map(e -> classEquivalence.get(e)).forEach(e -> {
+                resolveKlassEdges(e);
+            });
+            final DOTExporter<KlassNode, KlassInheritanceEdge> exporter = new DOTExporter<>(
+                    new Function<KlassNode, String>() {
+                        @Override
+                        public String apply(KlassNode klassNode) {
+                            return klassNode.getName()
+                                    .replace("/", "_")
+                                    .replace("$", "__")
+                                    .replace("-", "___");
+                        }
+                    }
+            );
+            exporter.exportGraph(klassGraph, new FileOutputStream(file));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
+
+        for (KlassNode node : programClassEquivalence.values()) {
+            if (!node.isResolvedInternal())
+                node.resolveInternal();
+        }
+
+        for (KlassNode node : programClassEquivalence.values()) {
+            node.resolveInstructions();
+        }
+
+        /*while (!queue.isEmpty()) {
             final KlassNode node = queue.poll();
 
             // Prevent double resolution or cyclic dependency
@@ -114,17 +180,38 @@ public class SkidHierarchy implements Hierarchy {
             resolved.add(node);
 
             queue.addAll(children);
-        }
+        }*/
     }
 
     @Override
     public KlassNode findClass(String name) {
         // Hotload the parent
+        final KlassNode node = classEquivalence.get(name);
+
+        //System.out.println("Finding " + name + " " + node);
         if (name.startsWith("[")) {
+            final String baseName = name.substring(name.lastIndexOf("[") + 1);
+            final Type type = Type.getType(name).getElementType();
+            final String parsedName = type.getClassName().replace(".", "/");
+
+            //System.out.println("Base name " + parsedName + " for " + name + "");
+            KlassNode arrayClass = findClass(parsedName);
+
+            if (arrayClass == null) {
+                return type.getSort() != Type.OBJECT ? this.primitiveArrayClass : this.arrayClass;
+            }
+
+            final int dimensions = name.lastIndexOf("[") + 1;
+
+            arrayClass = new ArraySpecialKlassNode(
+                    this,
+                    dimensions,
+                    arrayClass
+            );
+            classEquivalence.put(name, arrayClass);
+
             return arrayClass;
         }
-
-        final KlassNode node = classEquivalence.get(name);
 
         return node;
     }
@@ -137,7 +224,8 @@ public class SkidHierarchy implements Hierarchy {
             return node;
         }
 
-        node = new UnresolvedKlassNode(rootClass, name);
+        System.err.println("WARN! Unresolved " + name);
+        node = new UnresolvedKlassNode(this, rootClass, name);
         classEquivalence.put(name, node);
         klassGraph.addVertex(node);
 
@@ -164,6 +252,10 @@ public class SkidHierarchy implements Hierarchy {
     }
 
     public KlassNode create(final ClassNode classNode) {
+        return create(classNode, true);
+    }
+
+    public KlassNode create(final ClassNode classNode, final boolean strict) {
         KlassNode klassNode = classEquivalence.get(classNode.name);
 
         if (klassNode != null && !(klassNode instanceof UnresolvedKlassNode)) {
@@ -173,7 +265,7 @@ public class SkidHierarchy implements Hierarchy {
             ));
         }
 
-        klassNode = new ResolvedKlassNode(this, classNode);
+        klassNode = new ResolvedKlassNode(this, classNode, strict);
         classEquivalence.put(classNode.name, klassNode);
         klassGraph.addVertex(klassNode);
 

@@ -36,7 +36,7 @@ public class StaticFieldInvoke implements FieldInvoker<FieldInsn> {
         // 2. add self to invoke list of target
         this.target = target;
 
-        System.out.println(String.format("Setting target for %s to %s", insn, target));
+        //System.out.println(String.format("Setting target for %s to %s", insn, target));
         target.addInvoke(this);
     }
 

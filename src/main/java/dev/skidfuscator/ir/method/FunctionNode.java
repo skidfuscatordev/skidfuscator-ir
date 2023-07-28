@@ -124,6 +124,13 @@ public interface FunctionNode extends HierarchyResolvable {
     boolean isStatic();
 
     /**
+     * Determines if the function is private.
+     *
+     * @return True if the function is private,
+     */
+    boolean isPrivate();
+
+    /**
      * Determines if the function is a constructor.
      *
      * @return  True if the function is a constructor,

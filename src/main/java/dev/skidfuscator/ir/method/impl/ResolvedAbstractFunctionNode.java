@@ -9,6 +9,7 @@ import dev.skidfuscator.ir.insn.impl.*;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.method.FunctionInvoker;
 import dev.skidfuscator.ir.util.Descriptor;
+import org.apache.commons.lang3.stream.Streams;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
@@ -100,7 +101,7 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
             ));
         }
         if (node == null) {
-            resolved = true;
+            //System.err.println("WARN! Function " + this + " is synthetic!");
             return;
         }
 
@@ -219,7 +220,15 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
         }
 
         for (Insn<?> instruction : instructions) {
-            instruction.resolve();
+            try {
+                instruction.resolve();
+            } catch (IllegalStateException e) {
+                throw new IllegalStateException(String.format(
+                        "Failed to resolve instruction %s of %s",
+                        instruction.getClass().getName(),
+                        this
+                ), e);
+            }
         }
 
         if (!mutable) {
@@ -315,6 +324,13 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
         if (!mutable)
             throw new IllegalStateException("Cannot set owner of a non-mutable method descriptor!");
 
+        if (node == null) {
+            throw new IllegalArgumentException(String.format(
+                    "Cannot set owner of %s to null!",
+                    this.getOriginalDescriptor()
+            ));
+        }
+
         // Properly de-assign
         if (this.owner != null) {
             this.owner.removeMethod(this);
@@ -343,6 +359,11 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
     @Override
     public boolean isStatic() {
         return (this.access & Opcodes.ACC_STATIC) != 0;
+    }
+
+    @Override
+    public boolean isPrivate() {
+        return (this.access & Opcodes.ACC_PRIVATE) != 0;
     }
 
     @Override

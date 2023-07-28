@@ -117,7 +117,7 @@ public class SimpleMicroClassTest {
 
     @Test
     public void testFieldResolve() {
-        final FieldNode fieldNode = microKlassNode.getFields().get(0);
+        final FieldNode fieldNode = microKlassNode.getFields().iterator().next();
 
         final FunctionNode initNode = microKlassNode.getMethod("<init>()V");
 
