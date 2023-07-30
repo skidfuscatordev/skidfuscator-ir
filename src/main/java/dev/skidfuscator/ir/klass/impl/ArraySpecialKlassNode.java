@@ -26,23 +26,6 @@ public class ArraySpecialKlassNode implements KlassNode {
         this.dimensions = dimensions;
         this.methods = new HashMap<>();
 
-        final Descriptor descriptor = new Descriptor("clone", "()Ljava/lang/Object;");
-        final FunctionNode cloneFunction = new ResolvedImmutableFunctionNode(
-                hierarchy,
-                descriptor,
-                new MethodNode(
-                        Opcodes.ACC_PUBLIC,
-                        "clone",
-                        "()Ljava/lang/Object;",
-                        null,
-                        null
-                )
-        );
-        cloneFunction.setOwner(this);
-        methods.put(
-                descriptor,
-                cloneFunction
-        );
     }
 
     @Override
@@ -57,7 +40,24 @@ public class ArraySpecialKlassNode implements KlassNode {
 
     @Override
     public void resolveHierarchy() {
-        throw new IllegalStateException("Cannot set hierarchy of an array class");
+        final Descriptor descriptor = new Descriptor("clone", "()Ljava/lang/Object;");
+        final FunctionNode cloneFunction = new ResolvedImmutableFunctionNode(
+                hierarchy,
+                descriptor,
+                new MethodNode(
+                        Opcodes.ACC_PUBLIC,
+                        "clone",
+                        "()Ljava/lang/Object;",
+                        null,
+                        null
+                )
+        );
+        cloneFunction.setOwner(this);
+        this.hierarchy.addMethod(cloneFunction);
+        methods.put(
+                descriptor,
+                cloneFunction
+        );
     }
 
     @Override
@@ -125,7 +125,7 @@ public class ArraySpecialKlassNode implements KlassNode {
 
     @Override
     public @NotNull String getName() {
-        return "[".repeat(this.dimensions) + this.parent.getName();
+        return "[".repeat(this.dimensions) + "L" + this.parent.getName() + ";";
     }
 
     @Override

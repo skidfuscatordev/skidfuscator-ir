@@ -33,6 +33,14 @@ public class TypeWrapper implements HierarchyResolvable {
 
     @Override
     public void resolveHierarchy() {
+        if (resolved) {
+            throw new IllegalStateException(String.format(
+                    "Type %s is already resolved",
+                    type.getDescriptor()
+            ));
+        }
+        resolved = true;
+
         if (type.getSort() == Type.METHOD) {
             desc += "(";
             for (Type argumentType : type.getArgumentTypes()) {
@@ -43,7 +51,8 @@ public class TypeWrapper implements HierarchyResolvable {
         } else {
             resolve0(type);
         }
-        resolved = true;
+
+        //System.out.printf("Resolved type %s --> %s\n", type.getDescriptor(), desc);
     }
 
     public boolean isResolved() {
@@ -70,6 +79,7 @@ public class TypeWrapper implements HierarchyResolvable {
                 } else {
                     desc += element.getInternalName();
                 }
+                break;
             }
             case Type.OBJECT -> {
                 desc += "%s"; //className?
@@ -82,6 +92,7 @@ public class TypeWrapper implements HierarchyResolvable {
                     ));
                 }
                 classes.add(klassNode);
+                break;
             }
             default -> desc += type.getInternalName();
         }
@@ -108,7 +119,7 @@ public class TypeWrapper implements HierarchyResolvable {
         }
 
         final String[] types = classes.stream().map(klassNode -> "L" + klassNode.getName() + ";").toArray(String[]::new);
-        //System.out.println(String.format("DESC: %s TYPES: %s", desc, Arrays.toString(types)));
+        System.out.println(String.format("OG: %s DESC: %s TYPES: %s", type.getDescriptor(), desc, Arrays.toString(types)));
         return Type.getType(desc.formatted((Object[]) types));
     }
 }

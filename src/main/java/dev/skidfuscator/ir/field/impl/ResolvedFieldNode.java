@@ -47,8 +47,8 @@ public class ResolvedFieldNode implements FieldNode {
     @Override
     public void resolveHierachy() {
         this.type.resolveHierarchy();
-        System.out.printf("Resolved field %s with type %s --> %s\n",
-                this.name, this.type.getOriginalType().getDescriptor(), this.type.getDesc());
+        //System.out.printf("Resolved field %s with type %s --> %s\n",
+        //        this.name, this.type.getOriginalType().getDescriptor(), this.type.getDesc());
 
         if (node.visibleAnnotations != null) {
             for (AnnotationNode annotationNode : node.visibleAnnotations) {
@@ -87,6 +87,11 @@ public class ResolvedFieldNode implements FieldNode {
         }
 
         this.resolvedHierachy = true;
+    }
+
+    @Override
+    public boolean isResolvedHierachy() {
+        return resolvedHierachy;
     }
 
     @Override
@@ -209,6 +214,8 @@ public class ResolvedFieldNode implements FieldNode {
 
     @Override
     public String toString() {
-        return parent + "#" + name + type.dump().getDescriptor() + " = " + defaultValue;
+        return type.isResolved()
+                ? parent + "#" + name + type.dump().getDescriptor()
+                : "UNRESOLVED " + parent + "#" + name + node.desc;
     }
 }

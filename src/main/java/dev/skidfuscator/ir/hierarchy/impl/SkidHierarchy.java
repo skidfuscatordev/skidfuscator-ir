@@ -93,7 +93,9 @@ public class SkidHierarchy implements Hierarchy {
 
         this.rootClass = this.create(ClassHelper.create(Object.class), false);
         this.arrayClass = new ArraySpecialKlassNode(this, 1, rootClass);
+        this.arrayClass.resolveHierarchy();
         this.primitiveArrayClass = new ArraySpecialKlassNode(this, 0, rootClass);
+        this.primitiveArrayClass.resolveHierarchy();
     }
 
     @Override
@@ -194,7 +196,7 @@ public class SkidHierarchy implements Hierarchy {
             final Type type = Type.getType(name).getElementType();
             final String parsedName = type.getClassName().replace(".", "/");
 
-            //System.out.println("Base name " + parsedName + " for " + name + "");
+            System.out.println("Base name " + parsedName + " for " + name + "");
             KlassNode arrayClass = findClass(parsedName);
 
             if (arrayClass == null) {
@@ -208,7 +210,12 @@ public class SkidHierarchy implements Hierarchy {
                     dimensions,
                     arrayClass
             );
+            System.out.printf("Created array class %s for %s%n", arrayClass, name);
+
             classEquivalence.put(name, arrayClass);
+            arrayClass.resolveHierarchy();
+
+            System.out.printf("Resolved array class %s for %s%n", arrayClass, name);
 
             return arrayClass;
         }
@@ -289,8 +296,17 @@ public class SkidHierarchy implements Hierarchy {
             functionEquivalence.put(descriptor, node);
             functionGraph.addVertex(node);
         } else {
-            throw new IllegalStateException("Method already exists: " + descriptor);
+            throw new IllegalStateException(String.format(
+                    "Attempting to recreate resolved method %s (prev: %s)",
+                    descriptor,
+                    functionEquivalence.get(descriptor).getClass().getName()
+            ));
         }
+    }
+
+    @Override
+    public FunctionGraph getFunctionGraph() {
+        return functionGraph;
     }
 
     public FieldNode create(final KlassNode parent, final org.objectweb.asm.tree.FieldNode node) {

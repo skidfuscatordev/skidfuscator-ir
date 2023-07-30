@@ -33,7 +33,12 @@ public class FieldInsn extends AbstractInsn<FieldInsnNode> {
             ));
 
         try {
-            this.setTarget(owner.getField(node.name, node.desc));
+            final FieldNode fieldNode = owner.getField(node.name, node.desc);
+
+            if (!fieldNode.isResolvedHierachy())
+                fieldNode.resolveHierachy();
+
+            this.setTarget(fieldNode);
         } catch (IllegalStateException e) {
             throw new IllegalStateException(String.format(
                     "Could not find target for %s.%s%s, available feilds: \n%s",
@@ -48,11 +53,19 @@ public class FieldInsn extends AbstractInsn<FieldInsnNode> {
         super.resolve();
     }
 
+
     @Override
     public FieldInsnNode dump() {
         this.node.owner = invoke.getTarget().getParent().getName();
         this.node.name = invoke.getTarget().getName();
         this.node.desc = invoke.getTarget().getDesc();
+
+        if (node.name.contains("_inlined_")) {
+            System.out.println(String.format(
+                    "Found synthetic field %s.%s%s",
+                    node.owner, node.name, node.desc
+            ));
+        }
 
         return this.node;
     }

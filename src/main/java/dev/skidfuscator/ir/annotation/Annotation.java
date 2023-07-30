@@ -136,7 +136,7 @@ public class Annotation {
      */
     public void resolve() {
         final String className = Type.getType(node.desc).getClassName().replace(".", "/");
-        this.owner = hierarchy.findClass(className);
+        this.owner = hierarchy.resolveClass(className);
 
         if (owner == null) {
             throw new IllegalStateException(String.format(

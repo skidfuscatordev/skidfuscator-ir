@@ -8,6 +8,7 @@ import dev.skidfuscator.ir.util.Descriptor;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.util.List;
+import java.util.Set;
 
 public interface FunctionNode extends HierarchyResolvable {
 
@@ -18,6 +19,22 @@ public interface FunctionNode extends HierarchyResolvable {
     boolean isSynthetic();
 
     boolean isResolved();
+
+    Set<FunctionNode> getParents();
+
+    void addParent(final FunctionNode functionNode);
+
+    void removeParent(final FunctionNode functionNode);
+
+    boolean hasParent(final FunctionNode functionNode);
+
+    Set<FunctionNode> getChildren();
+
+    void addChild(final FunctionNode functionNode);
+
+    void removeChild(final FunctionNode functionNode);
+
+    boolean hasChild(final FunctionNode functionNode);
 
     /**
      * Resolves the function, parsing through

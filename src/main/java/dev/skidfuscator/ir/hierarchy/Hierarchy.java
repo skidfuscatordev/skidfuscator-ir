@@ -1,5 +1,6 @@
 package dev.skidfuscator.ir.hierarchy;
 
+import dev.skidfuscator.ir.method.FunctionGraph;
 import dev.skidfuscator.ir.method.FunctionNode;
 import dev.skidfuscator.ir.field.FieldNode;
 import dev.skidfuscator.ir.klass.KlassNode;
@@ -92,6 +93,8 @@ public interface Hierarchy {
     default FunctionNode findMethod(final MethodInsnNode node) {
         return findMethod(node.owner, node.name, node.desc);
     }
+
+    FunctionGraph getFunctionGraph();
 
     /**
      * Finds the field with the specified name.

@@ -59,8 +59,12 @@ public class Main {
         for (KlassNode node : hierarchy.iterateKlasses()) {
             System.out.printf("Renaming %s\n", node.getName());
             node.setName("Renamed_" + node.getName());
+        }
+
+        for (KlassNode node : hierarchy.iterateKlasses()) {
             node.dump();
         }
+
         inputJar.save();
     }
 }

@@ -48,6 +48,16 @@ public class SimpleMicroClassTest {
         // self <init>()
         // void test1()
         // void test2()
+        /*microKlassNode.getMethods()
+                .stream()
+                .filter(e -> !e.isResolved())
+                .forEach(e -> {
+                    throw new IllegalStateException(String.format(
+                            "Method %s#%s is not resolved!",
+                            e.getOwner().getName(),
+                            e.getName() + e.getDesc()
+                    ));
+                });*/
         final Collection<FunctionNode> methods = microKlassNode.getMethods()
                 .stream()
                 .filter(e -> !e.isSynthetic())

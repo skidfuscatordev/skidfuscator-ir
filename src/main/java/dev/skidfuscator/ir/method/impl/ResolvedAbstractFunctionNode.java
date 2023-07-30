@@ -1,5 +1,6 @@
 package dev.skidfuscator.ir.method.impl;
 
+import dev.skidfuscator.ir.hierarchy.method.FunctionInheritanceEdge;
 import dev.skidfuscator.ir.insn.InstructionList;
 import dev.skidfuscator.ir.insn.TryCatchBlock;
 import dev.skidfuscator.ir.method.FunctionNode;
@@ -10,14 +11,11 @@ import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.method.FunctionInvoker;
 import dev.skidfuscator.ir.type.TypeWrapper;
 import dev.skidfuscator.ir.util.Descriptor;
-import org.apache.commons.lang3.stream.Streams;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
     protected final Hierarchy hierarchy;
@@ -75,6 +73,89 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
     @Override
     public boolean isSynthetic() {
         return false;
+    }
+
+    @Override
+    public Set<FunctionNode> getParents() {
+        return Collections.unmodifiableSet(hierarchy.getFunctionGraph().parentsOf(this));
+    }
+
+    @Override
+    public void addParent(FunctionNode functionNode) {
+        if (functionNode == this) {
+            throw new IllegalStateException(String.format(
+                    "Cannot add a null function as a parent of %s",
+                    this.toString()
+            ));
+        }
+
+        if (this.hasParent(functionNode)) {
+            throw new IllegalStateException(String.format(
+                    "Cannot add %s as a parent of %s because it is already a parent",
+                    functionNode.toString(),
+                    this.toString()
+            ));
+        }
+
+        hierarchy.getFunctionGraph().addEdge(
+                this,
+                functionNode,
+                new FunctionInheritanceEdge(functionNode, this)
+        );
+    }
+
+    @Override
+    public void removeParent(FunctionNode functionNode) {
+        hierarchy.getFunctionGraph().removeEdge(
+                hierarchy.getFunctionGraph().getEdge(functionNode, this)
+        );
+    }
+
+    @Override
+    public boolean hasParent(FunctionNode functionNode) {
+        return this.getParents().contains(functionNode);
+    }
+
+    @Override
+    public Set<FunctionNode> getChildren() {
+        return Collections.unmodifiableSet(
+                hierarchy.getFunctionGraph().childrenOf(this)
+        );
+    }
+
+    @Override
+    public void addChild(FunctionNode functionNode) {
+        if (functionNode == this) {
+            throw new IllegalStateException(String.format(
+                    "Cannot add a null function as a child of %s",
+                    this.toString()
+            ));
+        }
+
+        if (this.hasChild(functionNode)) {
+            throw new IllegalStateException(String.format(
+                    "Cannot add a child that already exists for %s",
+                    this.toString()
+            ));
+        }
+
+        this.hierarchy.getFunctionGraph().addEdge(
+                functionNode,
+                this,
+                new FunctionInheritanceEdge(this, functionNode)
+        );
+    }
+
+    @Override
+    public void removeChild(FunctionNode functionNode) {
+        this.hierarchy.getFunctionGraph().removeEdge(
+                hierarchy.getFunctionGraph().getEdge(functionNode, this)
+        );
+    }
+
+    @Override
+    public boolean hasChild(FunctionNode functionNode) {
+        return this.getChildren().contains(functionNode);
     }
 
     @Override
@@ -326,7 +407,6 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
 
     @Override
     public InstructionList getInstructions() {
-        _checkResolve();
         return instructions;
     }
 
@@ -384,6 +464,10 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
         return this.originalDescriptor.getDesc();
     }
 
+    public String getSignature() {
+        return this.node == null ? "" : this.node.signature;
+    }
+
     @Override
     public boolean isStatic() {
         return (this.access & Opcodes.ACC_STATIC) != 0;
@@ -404,12 +488,12 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
         return !resolved ? this.getOriginalDescriptor().getName().equals("<clinit>") : this.getName().equals("<clinit>");
     }
 
-    private void _checkResolve() {
+    protected void _checkResolve() {
         assert resolved : String.format(
                 "Function %s#%s%s needs to be resolved!",
                 owner.getName(),
-                node.name,
-                node.desc
+                originalDescriptor.getName(),
+                originalDescriptor.getDesc()
         );
     }
 
