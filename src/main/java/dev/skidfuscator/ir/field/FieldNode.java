@@ -8,11 +8,19 @@ import java.util.List;
 public interface FieldNode {
     KlassNode getParent();
 
+    void lock();
+
+    String getName();
+
+    String getDesc();
+
+    void setName(final String name);
+
     void setParent(final KlassNode node);
 
-    void resolve();
+    void resolveHierachy();
 
-    void dump();
+    org.objectweb.asm.tree.FieldNode dump();
 
     String getName();
 
@@ -22,9 +30,11 @@ public interface FieldNode {
 
     void setDefault(final Object obj);
 
-    List<FieldInvoker<?>> getInvokers();
+    boolean isStatic();
 
-    void addInvoker(final FieldInvoker<?> invoker);
+    List<FieldInvoker<?, ?>> getInvokers();
 
-    void removeInvoker(final FieldInvoker<?> invoker);
+    void addInvoke(final FieldInvoker<?, ?> invoker);
+
+    void removeInvoke(final FieldInvoker<?, ?> invoker);
 }

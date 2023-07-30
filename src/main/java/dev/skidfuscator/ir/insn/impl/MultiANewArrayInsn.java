@@ -7,24 +7,24 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MultiANewArrayInsnNode;
 
-public class MultiANewArrayInsn extends AbstractInsn {
+public class MultiANewArrayInsn extends AbstractInsn<MultiANewArrayInsnNode> {
 
-    private final MultiANewArrayInsnNode node;
     private KlassNode target;
 
     public MultiANewArrayInsn(Hierarchy hierarchy, MultiANewArrayInsnNode node) {
         super(hierarchy, node);
-        this.node = node;
     }
 
     @Override
     public void resolve() {
-        this.target = hierarchy.findClass(Type.getObjectType(node.desc).getElementType().getInternalName());
+        this.target = hierarchy.findClass(Type.getType(node.desc).getElementType().getInternalName());
+
+        super.resolve();
     }
 
     @Override
-    public AbstractInsnNode dump() {
-        this.node.desc = "[".repeat(node.dims) + "L" + target.getName() + ";"; //I have no idea
-        return node;
+    public MultiANewArrayInsnNode dump() {
+        //this.node.desc = "[".repeat(node.dims) + "L" + target.getName() + ";"; //I have no idea
+        return super.dump();
     }
 }

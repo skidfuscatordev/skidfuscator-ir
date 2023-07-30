@@ -1,12 +1,14 @@
-package dev.skidfuscator.ir.insn;
+package dev.skidfuscator.ir.insn.impl;
 
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
+import dev.skidfuscator.ir.insn.AbstractInsn;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnNode;
 
-public abstract class ConstantInsn extends AbstractInsn {
+public abstract class AbstractConstantInsn<T extends AbstractInsnNode> extends AbstractInsn<T> {
     protected Object constant;
 
-    public ConstantInsn(Hierarchy hierarchy, AbstractInsnNode node) {
+    public AbstractConstantInsn(Hierarchy hierarchy, T node) {
         super(hierarchy, node);
     }
 

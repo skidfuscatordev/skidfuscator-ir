@@ -5,6 +5,7 @@ import dev.skidfuscator.ir.hierarchy.HierarchyResolvable;
 import dev.skidfuscator.ir.klass.KlassNode;
 import org.objectweb.asm.Type;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class TypeWrapper implements HierarchyResolvable {
     private final Hierarchy hierarchy;
 
     private String desc = "";
+    private boolean resolved = false;
     private final List<KlassNode> classes = new LinkedList<>();
 
     public TypeWrapper(Type type, Hierarchy hierarchy) {
@@ -30,7 +32,7 @@ public class TypeWrapper implements HierarchyResolvable {
     }
 
     @Override
-    public void resolve() {
+    public void resolveHierarchy() {
         if (type.getSort() == Type.METHOD) {
             desc += "(";
             for (Type argumentType : type.getArgumentTypes()) {
@@ -41,6 +43,11 @@ public class TypeWrapper implements HierarchyResolvable {
         } else {
             resolve0(type);
         }
+        resolved = true;
+    }
+
+    public boolean isResolved() {
+        return resolved;
     }
 
     private void resolve0(Type type) {
@@ -50,34 +57,58 @@ public class TypeWrapper implements HierarchyResolvable {
                 desc += "[".repeat(type.getDimensions());
                 if (element.getSort() == Type.OBJECT) {
                     desc += "%s"; //className?
-                    classes.add(hierarchy.findClass(type.getElementType().getInternalName()));
+
+                    final KlassNode klassNode = hierarchy.resolveClass(element.getInternalName());
+                    if (klassNode == null) {
+                        throw new IllegalStateException(String.format(
+                                "Could not find class for type %s",
+                                element.getInternalName()
+                        ));
+                    }
+
+                    classes.add(klassNode);
                 } else {
                     desc += element.getInternalName();
                 }
             }
             case Type.OBJECT -> {
                 desc += "%s"; //className?
-                classes.add(hierarchy.findClass(type.getInternalName()));
+
+                final KlassNode klassNode = hierarchy.resolveClass(type.getInternalName());
+                if (klassNode == null) {
+                    throw new IllegalStateException(String.format(
+                            "Could not find class for type %s",
+                            type.getInternalName()
+                    ));
+                }
+                classes.add(klassNode);
             }
             default -> desc += type.getInternalName();
         }
     }
 
-    public Type dump() {
-        return !classes.isEmpty() ? Type.getType(desc.formatted(
-                (Object[]) classes.stream().map(klassNode -> "L" + klassNode.getName() + ";").toArray(String[]::new)
-        )) : Type.getType(desc);
+    public Type getOriginalType() {
+        return type;
     }
 
     public String getDesc() {
         return desc;
     }
 
-    public String getOriginalDesc() {
-        return type.getDescriptor();
-    }
+    public Type dump() {
+        if (!resolved) {
+            throw new IllegalStateException(String.format(
+                    "Unresolved type %s",
+                    type.getDescriptor()
+            ));
+        }
 
-    public Type getType() {
-        return type;
+        if (classes.isEmpty()) {
+            return Type.getType(desc);
+        }
+
+        final String[] types = classes.stream().map(klassNode -> "L" + klassNode.getName() + ";").toArray(String[]::new);
+        //System.out.println(String.format("DESC: %s TYPES: %s", desc, Arrays.toString(types)));
+        return Type.getType(desc.formatted((Object[]) types));
     }
 }

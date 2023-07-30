@@ -1,11 +1,12 @@
 package dev.skidfuscator.ir.klass;
 
-import dev.skidfuscator.ir.FunctionNode;
+import dev.skidfuscator.ir.method.FunctionNode;
 import dev.skidfuscator.ir.field.FieldNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -15,8 +16,13 @@ import java.util.List;
  * access etc.
  */
 public interface KlassNode {
+    boolean isResolvedHierarchy();
+
+    boolean isResolvedInternal();
 
     void resolveHierarchy();
+
+    void lock();
 
     /**
      * Resolve the KlassNode. This should be invoked in a BFS
@@ -25,6 +31,11 @@ public interface KlassNode {
      * class.
      */
     void resolveInternal();
+
+    /**
+     * Resolve the instructions of the methods of the KlassNode.
+     */
+    void resolveInstructions();
 
     /**
      * @return  Returns self as a Type
@@ -82,27 +93,43 @@ public interface KlassNode {
      * @return  List of wrapped methods
      */
     @NotNull
-    List<FunctionNode> getMethods();
+    Collection<FunctionNode> getMethods();
 
     /**
-     * @return  List of wrapped fields
+     * Gets method by name and descriptor.
+     * @param name the name
+     * @param desc the desc
+     * @return the method
      */
-    @NotNull
-    List<FieldNode> getFields();
+    FunctionNode getMethod(String name, String desc);
 
     /**
-     * Sets methods.
-     *
-     * @param nodes the nodes
+     * Gets method by name and descriptor.
+     * @param nameAndDesc the descriptor
+     * @return the method
      */
-    void setMethods(@Nullable final List<FunctionNode> nodes);
+    default FunctionNode getMethod(String nameAndDesc) {
+        final String[] splits = nameAndDesc.split("\\(");
+        return getMethod(splits[0], "(" + splits[1]);
+    }
 
     /**
-     * Sets fields.
-     *
-     * @param nodes the nodes
+     * Gets field by name and descriptor.
+     * @param name the name
+     * @param desc the desc
+     * @return the method
      */
-    void setFields(@Nullable final List<FieldNode> nodes);
+    FieldNode getField(String name, String desc);
+
+    /**
+     * Gets field by name and descriptor.
+     * @param nameAndDesc the descriptor
+     * @return the method
+     */
+    default FieldNode getField(String nameAndDesc) {
+        final String[] splits = nameAndDesc.split("\\(");
+        return getField(splits[0], "(" + splits[1]);
+    }
 
     /**
      * Add method.
@@ -122,7 +149,7 @@ public interface KlassNode {
      * @return  List of wrapped fields
      */
     @NotNull
-    List<FieldNode> getFields();
+    Collection<FieldNode> getFields();
 
     /**
      * Adds a field
