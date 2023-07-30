@@ -117,6 +117,7 @@ public class UnresolvedKlassNode implements KlassNode {
                     null
             );
             node.setOwner(this);
+            this.hierarchy.addMethod(node);
             this.ghostMethods.put(descriptor, node);
 
             return node;
@@ -232,6 +233,8 @@ public class UnresolvedKlassNode implements KlassNode {
                 name
         ));
     }
+
+
 
     @Override
     public String toString() {

@@ -20,4 +20,14 @@ public class ResolvedImmutableFunctionNode extends ResolvedAbstractFunctionNode 
         // Remove back sorting logic
         this.owner = node;
     }
+
+    @Override
+    protected void _checkResolve() {
+        throw new IllegalStateException(String.format(
+                "Cannot resolve function node %s.%s%s as it is immutable",
+                this.getOwner().getName(),
+                this.getName(),
+                this.getDesc()
+        ));
+    }
 }

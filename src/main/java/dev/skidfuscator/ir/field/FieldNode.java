@@ -20,6 +20,8 @@ public interface FieldNode {
 
     void resolveHierachy();
 
+    boolean isResolvedHierachy();
+
     org.objectweb.asm.tree.FieldNode dump();
 
     Type getType();

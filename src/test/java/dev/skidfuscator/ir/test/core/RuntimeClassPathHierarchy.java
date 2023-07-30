@@ -17,7 +17,7 @@ public class RuntimeClassPathHierarchy extends SkidHierarchy {
     }
 
     @Override
-    public KlassNode findClass(String name) {
+    public KlassNode resolveClass(String name) {
         KlassNode node = super.findClass(name);
 
         if (node == null) {
@@ -25,13 +25,13 @@ public class RuntimeClassPathHierarchy extends SkidHierarchy {
                 final String path = name.replace(".", "/");
                 //System.out.println("Loading " + path);
                 final ClassNode attempt = ClassHelper.create(path);
-                node = create(attempt);
+                node = create(attempt, false);
                 //System.out.println("Created " + path);
-                if (!node.isResolvedHierarchy())
-                    node.resolveHierarchy();
+                //if (!node.isResolvedHierarchy())
+                //    node.resolveHierarchy();
                 //System.out.println("Resolved " + path);
-                if (!node.isResolvedInternal())
-                    node.resolveInternal();
+                //if (!node.isResolvedInternal())
+                //    node.resolveInternal();
                 //System.out.println("Loaded " + path);
                 return node;
             } catch (IOException e) {

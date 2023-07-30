@@ -19,6 +19,7 @@ public class TypeInsn extends AbstractInsn<TypeInsnNode> {
     @Override
     public void resolve() {
         String desc = node.desc;
+        System.out.printf("TypeInsn: %s\n", desc);
         switch (node.desc) {
             case "I":
             case "Z":
@@ -45,7 +46,7 @@ public class TypeInsn extends AbstractInsn<TypeInsnNode> {
 
     @Override
     public TypeInsnNode dump() {
-        this.node.desc = /*"L" +*/ target.dump().getDescriptor() /*+ ";"*/;
+        this.node.desc = /*"L" +*/ target.dump().getInternalName() /*+ ";"*/;
         return super.dump();
     }
 

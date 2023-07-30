@@ -97,6 +97,7 @@ public interface KlassNode {
 
     /**
      * Gets method by name and descriptor.
+     *
      * @param name the name
      * @param desc the desc
      * @return the method

@@ -82,7 +82,7 @@ public class ResolvedKlassNode implements KlassNode {
                             method.desc
                     ),
                     method,
-                    this.methods.get(Descriptor.of(method))
+                    new HashSet<>()
             );
             function.setOwner(this);
         }
@@ -106,8 +106,12 @@ public class ResolvedKlassNode implements KlassNode {
     @Override
     public void resolveInternal() {
         assert !resolvedInternally : String.format("Class %s is already resolved!", this.name);
-        if (parent != null && !parent.isResolvedInternal()) {
-            parent.resolveInternal();
+        if (parent != null) {
+            if (!parent.isResolvedHierarchy())
+                parent.resolveHierarchy();
+
+            if (!parent.isResolvedInternal())
+                parent.resolveInternal();
         }
 
         for (KlassNode impl : this.interfaces) {
@@ -132,24 +136,9 @@ public class ResolvedKlassNode implements KlassNode {
          */
         if (parent != null) {
             //System.out.println("\n-----------\nResolving parent " + parent.getName() + " fields for " + this.name);
-            for (final FunctionNode method : this.parent.getMethods()) {
-                if (method.isConstructor() || method.isClassInit())
-                    continue;
-
-                final FunctionNode parentFunction = this.methods.get(method.getOriginalDescriptor());
-                if (parentFunction != null && !parentFunction.isPrivate() && !parentFunction.isStatic())
-                    continue;
-
-                //System.out.println("\\\n \\==> PARENT " + method.getOriginalDescriptor() + " to " + this.name);
-                final FunctionNode function = new ResolvedMutableFunctionNode(
-                        hierarchy,
-                        method.getOriginalDescriptor(),
-                        null,
-                        method
-                );
-                function.setOwner(this);
+            for (final FunctionNode parentFunction : this.parent.getMethods()) {
+                inheritFunction(parentFunction);
             }
-
             //System.out.println("Success! Resolved parent " + parent.getName() + " fields for " + this.name);
         }
 
@@ -157,34 +146,21 @@ public class ResolvedKlassNode implements KlassNode {
         //System.out.println("Resolving " + this.name + " implementations");
         for (KlassNode implementation : this.interfaces) {
             //System.out.println("Resolving implementation " + implementation.getName() + " fields for " + this.name);
-            for (final FunctionNode method : implementation.getMethods()) {
-                if (method.isConstructor() || method.isClassInit())
-                    continue;
-
-                final FunctionNode parentFunction = this.methods.get(method.getOriginalDescriptor());
-                if (parentFunction != null && !parentFunction.isPrivate() && !parentFunction.isStatic())
-                    continue;
-
-                //System.out.println("\\\n \\==> INTERFACE " + method.getOriginalDescriptor() + " to " + this.name);
-                final FunctionNode function = new ResolvedMutableFunctionNode(
-                        hierarchy,
-                        method.getOriginalDescriptor(),
-                        null,
-                        method
-                );
-                function.setOwner(this);
+            for (final FunctionNode parentFunction : implementation.getMethods()) {
+                inheritFunction(parentFunction);
             }
         }
 
+        this.resolvedInternally = true;
+
         for (FunctionNode method : this.methods.values()) {
+            System.out.printf("Resolving %s\n", method);
             method.resolveHierarchy();
         }
 
         for (FieldNode field : this.fields.values()) {
             field.resolveHierachy();
         }
-
-        this.resolvedInternally = true;
 
         //System.out.println("Success! Resolved " + this.name + " implementations");
 
@@ -229,10 +205,48 @@ public class ResolvedKlassNode implements KlassNode {
                     System.err.println(
                             String.format("Failed to resolve annotation %s on %s", annotation.getNode().desc, this.name)
                     );
+                    e.printStackTrace();
                 }
 
             }
         }
+    }
+
+    private void inheritFunction(final FunctionNode parentFunction) {
+        // Don't inherit constructors or class initializers
+        if (parentFunction.isConstructor() || parentFunction.isClassInit())
+            return;
+
+        final FunctionNode childFunction = this.methods.get(parentFunction.getOriginalDescriptor());
+
+        // Don't inherit private functions or functions that have already been inherited
+        if (parentFunction.isPrivate()) {
+            return;
+        }
+
+        if (childFunction != null) {
+            // Don't inherit static functions which are defined
+            // in the child class
+            if (childFunction.isStatic()) {
+                return;
+            }
+
+            // Inherit the function if it is not private
+            childFunction.addParent(parentFunction);
+            return;
+        }
+
+        // Inherit the function if it is not private
+        // and it is not defined in the child class
+        // as a wrapper synthetic function
+        final FunctionNode function = new ResolvedMutableFunctionNode(
+                hierarchy,
+                parentFunction.getOriginalDescriptor(),
+                null,
+                new HashSet<>()
+        );
+        function.setOwner(this);
+        hierarchy.addMethod(function);
     }
 
     @Override
@@ -281,7 +295,8 @@ public class ResolvedKlassNode implements KlassNode {
                 null
         );
         functionNode.setOwner(this);
-        this.methods.put(descriptor, functionNode);
+        functionNode.resolveHierarchy();
+        hierarchy.addMethod(functionNode);
 
         return this.methods.get(descriptor);
     }
@@ -339,6 +354,10 @@ public class ResolvedKlassNode implements KlassNode {
             throw new IllegalStateException("Cannot add methods on a locked class");
 
         assert node.getOwner() != null : "Cannot add a method that does not a parent. Please re-assign in the function node itself by calling FunctionNode#setParent(KlassNode)";
+        this.addMethod0(node);
+    }
+
+    private void addMethod0(final FunctionNode node) {
         this.methods.put(node.getOriginalDescriptor(), node);
     }
 
