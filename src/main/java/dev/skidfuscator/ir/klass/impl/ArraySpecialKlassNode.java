@@ -134,6 +134,11 @@ public class ArraySpecialKlassNode implements KlassNode {
     }
 
     @Override
+    public String getSignature() {
+        return parent.getSignature();
+    }
+
+    @Override
     public KlassNode getParent() {
         return null;
     }

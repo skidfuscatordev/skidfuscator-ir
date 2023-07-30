@@ -5,6 +5,7 @@ import dev.skidfuscator.ir.field.FieldInvoker;
 import dev.skidfuscator.ir.field.FieldNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.KlassNode;
+import dev.skidfuscator.ir.signature.SignatureWrapper;
 import dev.skidfuscator.ir.type.TypeWrapper;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -22,6 +23,7 @@ public class ResolvedFieldNode implements FieldNode {
     private String name;
     private KlassNode parent;
     private TypeWrapper type;
+    private SignatureWrapper signatureWrapper;
     private Object defaultValue;
     private List<FieldInvoker<?, ?>> invokers;
     private List<Annotation> annotations;
@@ -35,6 +37,8 @@ public class ResolvedFieldNode implements FieldNode {
         this.mutable = true;
         //System.out.println("Type: " + node.desc + " " + Type.getType(node.desc).getDescriptor());
         this.type = new TypeWrapper(Type.getType(node.desc), hierarchy);
+        this.signatureWrapper = new SignatureWrapper(node.signature, hierarchy);
+
         this.invokers = new ArrayList<>();
         this.annotations = new ArrayList<>();
     }
@@ -47,6 +51,11 @@ public class ResolvedFieldNode implements FieldNode {
     @Override
     public void resolveHierachy() {
         this.type.resolveHierarchy();
+
+        if (!this.signatureWrapper.isResolved()) {
+            this.signatureWrapper.resolveHierarchy();
+        }
+
         //System.out.printf("Resolved field %s with type %s --> %s\n",
         //        this.name, this.type.getOriginalType().getDescriptor(), this.type.getDesc());
 
@@ -103,6 +112,7 @@ public class ResolvedFieldNode implements FieldNode {
 
         this.node.name = name;
         this.node.desc = this.getType().getDescriptor();
+        this.node.signature = this.getSignature();
         this.node.value = defaultValue;
 
         this.node.visibleAnnotations = null;
@@ -171,6 +181,11 @@ public class ResolvedFieldNode implements FieldNode {
     @Override
     public Type getType() {
         return type.isResolved() ? type.dump() : type.getOriginalType();
+    }
+
+    @Override
+    public String getSignature() {
+        return signatureWrapper.isResolved() ? signatureWrapper.dump() : node.signature;
     }
 
     @Override

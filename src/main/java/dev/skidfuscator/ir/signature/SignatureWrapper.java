@@ -24,12 +24,16 @@ public class SignatureWrapper implements HierarchyResolvable {
 
     @Override
     public void resolveHierarchy() {
+        if (signature == null)
+            return;
+
         if (resolved) {
             throw new IllegalStateException(String.format(
                     "Signature %s is already resolved",
                     signature
             ));
         }
+        resolved = true;
 
         String current = signature;
         while (current.contains("L") && current.contains(";")) {

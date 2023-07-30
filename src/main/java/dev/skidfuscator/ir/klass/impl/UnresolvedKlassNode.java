@@ -18,6 +18,7 @@ public class UnresolvedKlassNode implements KlassNode {
     private final Hierarchy hierarchy;
     private final KlassNode root;
     private final String name;
+
     private final Map<Descriptor, FunctionNode> ghostMethods;
     private final Map<Descriptor, FieldNode> ghostFields;
 
@@ -200,6 +201,11 @@ public class UnresolvedKlassNode implements KlassNode {
                 "Cannot set name of unresolved class %s",
                 name
         ));
+    }
+
+    @Override
+    public String getSignature() {
+        throw new UnsupportedOperationException();
     }
 
     @Override

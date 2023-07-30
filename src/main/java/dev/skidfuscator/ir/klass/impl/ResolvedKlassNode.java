@@ -7,6 +7,7 @@ import dev.skidfuscator.ir.field.FieldNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.method.impl.ResolvedMutableFunctionNode;
+import dev.skidfuscator.ir.signature.SignatureWrapper;
 import dev.skidfuscator.ir.util.Descriptor;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.Opcodes;
@@ -28,6 +29,9 @@ public class ResolvedKlassNode implements KlassNode {
     private List<KlassNode> interfaces;
     private List<Annotation> annotations;
     private String name;
+
+    private SignatureWrapper signatureWrapper;
+
     private int access;
     private Map<Descriptor, FunctionNode> methods;
     private Map<Descriptor, FieldNode> fields;
@@ -41,6 +45,7 @@ public class ResolvedKlassNode implements KlassNode {
         this.methods = new HashMap<>();
         this.fields = new HashMap<>();
         this.name = node.name;
+        this.signatureWrapper = new SignatureWrapper(node.signature, hierarchy);
         this.access = node.access;
         this.mutable = true;
         this.strict = strict;
@@ -60,6 +65,10 @@ public class ResolvedKlassNode implements KlassNode {
     public void resolveHierarchy() {
         if (node.superName != null) {
             this.parent = hierarchy.resolveClass(node.superName);
+        }
+
+        if (!this.signatureWrapper.isResolved()) {
+            this.signatureWrapper.resolveHierarchy();
         }
 
         if (node.interfaces != null) {
@@ -404,6 +413,11 @@ public class ResolvedKlassNode implements KlassNode {
     }
 
     @Override
+    public String getSignature() {
+        return signatureWrapper.isResolved() ? signatureWrapper.dump() : node.signature;
+    }
+
+    @Override
     public KlassNode getParent() {
         return parent;
     }
@@ -445,6 +459,7 @@ public class ResolvedKlassNode implements KlassNode {
     @Override
     public void dump() {
         this.node.name = name;
+        this.node.signature = getSignature();
         this.node.access = access;
 
         this.node.superName = parent == null ? null : parent.getName();
