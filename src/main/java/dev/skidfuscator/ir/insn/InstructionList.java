@@ -92,6 +92,12 @@ public class InstructionList implements Iterable<Insn<?>> {
         }
     }
 
+    public void clear() {
+        for (Insn<?> insn : new ArrayList<>(this.instructions)) {
+            remove(insn);
+        }
+    }
+
     public int indexOf(final Insn<?> insn) {
         return this.instructions.indexOf(insn);
     }

@@ -154,7 +154,7 @@ public class ResolvedKlassNode implements KlassNode {
         this.resolvedInternally = true;
 
         for (FunctionNode method : this.methods.values()) {
-            System.out.printf("Resolving %s\n", method);
+            //System.out.printf("Resolving %s\n", method);
             method.resolveHierarchy();
         }
 

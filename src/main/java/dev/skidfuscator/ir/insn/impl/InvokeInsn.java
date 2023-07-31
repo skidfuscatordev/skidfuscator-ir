@@ -20,11 +20,12 @@ public class InvokeInsn extends AbstractInsn<MethodInsnNode> {
 
     public InvokeInsn(Hierarchy hierarchy, MethodInsnNode node) {
         super(hierarchy, node);
+
+        this.invoker = new StaticFunctionInvoke(this);
     }
 
     @Override
     public void resolve() {
-        this.invoker = new StaticFunctionInvoke(this);
         final KlassNode owner = hierarchy.resolveClass(node.owner);
         if (owner == null)
             throw new IllegalStateException(String.format(

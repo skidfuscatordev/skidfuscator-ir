@@ -5,13 +5,16 @@ import dev.skidfuscator.ir.insn.AbstractInsn;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.method.FunctionNode;
 import dev.skidfuscator.ir.method.dynamic.DynamicHandle;
+import dev.skidfuscator.ir.type.TypeWrapper;
 import org.objectweb.asm.Handle;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InvokeDynamicInsnNode;
 
 public class InvokeDynamicInsn extends AbstractInsn<InvokeDynamicInsnNode> {
     private String name;
     private String desc;
+    private TypeWrapper descWrapper;
     private DynamicHandle bsm;
     private Object[] bsmArgs;
     public InvokeDynamicInsn(Hierarchy hierarchy, InvokeDynamicInsnNode node) {
@@ -39,6 +42,8 @@ public class InvokeDynamicInsn extends AbstractInsn<InvokeDynamicInsnNode> {
         );
         this.name = node.name;
         this.desc = node.desc;
+        this.descWrapper = new TypeWrapper(Type.getMethodType(node.desc), hierarchy);
+        this.descWrapper.resolveHierarchy();
         this.bsmArgs = node.bsmArgs;
 
         super.resolve();
@@ -63,11 +68,11 @@ public class InvokeDynamicInsn extends AbstractInsn<InvokeDynamicInsnNode> {
     }
 
     public String getDesc() {
-        return desc;
+        return this.descWrapper.isResolved() ? descWrapper.dump().getDescriptor() : desc;
     }
 
-    public void setDesc(String desc) {
-        this.desc = desc;
+    public TypeWrapper getDescWrapper() {
+        return descWrapper;
     }
 
     public DynamicHandle getBsm() {

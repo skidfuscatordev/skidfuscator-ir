@@ -119,7 +119,7 @@ public class TypeWrapper implements HierarchyResolvable {
         }
 
         final String[] types = classes.stream().map(klassNode -> "L" + klassNode.getName() + ";").toArray(String[]::new);
-        System.out.println(String.format("OG: %s DESC: %s TYPES: %s", type.getDescriptor(), desc, Arrays.toString(types)));
+        //System.out.println(String.format("OG: %s DESC: %s TYPES: %s", type.getDescriptor(), desc, Arrays.toString(types)));
         return Type.getType(desc.formatted((Object[]) types));
     }
 }
