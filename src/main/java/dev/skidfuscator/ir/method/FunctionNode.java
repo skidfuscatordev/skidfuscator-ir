@@ -5,6 +5,8 @@ import dev.skidfuscator.ir.insn.InstructionList;
 import dev.skidfuscator.ir.insn.TryCatchBlock;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.util.Descriptor;
+import dev.skidfuscator.ir.variable.LocalVariable;
+import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.util.List;
@@ -70,6 +72,13 @@ public interface FunctionNode extends HierarchyResolvable {
      * @return The list of try catch blocks
      */
     List<TryCatchBlock> getTryCatchBlocks();
+
+    /**
+     * Retrieves the local variables of the function.
+     *
+     * @return The list of local variables
+     */
+    List<LocalVariable> getLocalVariables();
 
     /**
      * Resolves all the invocations of the function.

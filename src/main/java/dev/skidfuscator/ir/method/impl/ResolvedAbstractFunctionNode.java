@@ -11,11 +11,13 @@ import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.method.FunctionInvoker;
 import dev.skidfuscator.ir.type.TypeWrapper;
 import dev.skidfuscator.ir.util.Descriptor;
+import dev.skidfuscator.ir.variable.LocalVariable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
     protected final Hierarchy hierarchy;
@@ -31,6 +33,7 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
     protected int access;
     private List<TryCatchBlock> tryCatchBlocks;
     protected List<KlassNode> exceptions;
+    protected List<LocalVariable> localVariables;
 
     public ResolvedAbstractFunctionNode(
             final Hierarchy hierarchy,
@@ -52,6 +55,9 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
         this.invokers = new ArrayList<>();
         this.instructions = new InstructionList(this, new ArrayList<>());
         this.tryCatchBlocks = new ArrayList<>();
+        this.localVariables = node != null && node.localVariables != null
+                ? node.localVariables.stream().map(localVariableNode -> new LocalVariable(localVariableNode, hierarchy)).collect(Collectors.toList())
+                : List.of();
     }
 
     @Override
@@ -163,13 +169,8 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
         if (node == null)
             return;
 
-        if (this.node.localVariables != null) {
-            for (LocalVariableNode localVariable : this.node.localVariables) {
-                final TypeWrapper wrapper = new TypeWrapper(Type.getType(localVariable.desc), hierarchy);
-                wrapper.resolveHierarchy();
-
-                localVariable.desc = wrapper.dump().getDescriptor();
-            }
+        for (LocalVariable localVariable : localVariables) {
+            localVariable.resolveHierarchy();
         }
 
         this.access = node.access;
@@ -196,6 +197,8 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
             //System.err.println("WARN! Function " + this + " is synthetic!");
             return;
         }
+
+
 
         for (AbstractInsnNode instruction : this.node.instructions) {
             final Insn<?> insn;
@@ -370,7 +373,7 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
 
         this.node.name = this.getName();
         this.node.desc = this.getDesc();
-        //System.out.printf("Dumping %s%s with access %s%n", this.node.name, this.node.desc, this.access);
+        this.node.signature = this.getSignature();
         this.node.access = this.access;
 
         this.node.instructions = new InsnList();
@@ -381,6 +384,11 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
         this.node.tryCatchBlocks = new ArrayList<>();
         for (TryCatchBlock tryCatchBlock : this.tryCatchBlocks) {
             this.node.tryCatchBlocks.add(tryCatchBlock.dump());
+        }
+
+        this.node.localVariables = new ArrayList<>();
+        for (LocalVariable localVariable : localVariables) {
+            this.node.localVariables.add(localVariable.dump());
         }
 
         return node;
@@ -414,6 +422,12 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
     public List<TryCatchBlock> getTryCatchBlocks() {
         _checkResolve();
         return Collections.unmodifiableList(tryCatchBlocks);
+    }
+
+    @Override
+    public List<LocalVariable> getLocalVariables() {
+        _checkResolve();
+        return Collections.unmodifiableList(localVariables);
     }
 
     @Override

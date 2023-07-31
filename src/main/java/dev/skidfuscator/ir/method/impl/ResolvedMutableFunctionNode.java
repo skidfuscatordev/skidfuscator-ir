@@ -3,25 +3,28 @@ package dev.skidfuscator.ir.method.impl;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.method.FunctionNode;
+import dev.skidfuscator.ir.signature.SignatureWrapper;
 import dev.skidfuscator.ir.type.TypeWrapper;
 import dev.skidfuscator.ir.util.Descriptor;
+import dev.skidfuscator.ir.variable.LocalVariable;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.MethodNode;
 
+import java.util.List;
 import java.util.Set;
 
 public class ResolvedMutableFunctionNode extends ResolvedAbstractFunctionNode {
     private String name;
     // TODO: Add support for types
     private TypeWrapper desc;
-    private TypeWrapper sig;
+    private SignatureWrapper sig;
 
     public ResolvedMutableFunctionNode(Hierarchy hierarchy, Descriptor descriptor, MethodNode node, Set<FunctionNode> parent) {
         super(hierarchy, descriptor, node);
 
         this.name = super.getName();
         this.desc = new TypeWrapper(Type.getMethodType(super.getDesc()), hierarchy);
-        //this.sig = new TypeWrapper(Type.getMethodType(super.getSignature()), hierarchy);
+        this.sig = new SignatureWrapper(super.getSignature(), hierarchy);
     }
 
     @Override
@@ -35,6 +38,10 @@ public class ResolvedMutableFunctionNode extends ResolvedAbstractFunctionNode {
             this.desc.resolveHierarchy();
         }
 
+        if (!this.sig.isResolved()) {
+            this.sig.resolveHierarchy();
+        }
+
         super.resolveHierarchy();
     }
 
@@ -43,7 +50,6 @@ public class ResolvedMutableFunctionNode extends ResolvedAbstractFunctionNode {
         // TODO: fix this shit
         super.resolveInternal();
     }
-
 
     @Override
     public String getName() {
@@ -67,5 +73,10 @@ public class ResolvedMutableFunctionNode extends ResolvedAbstractFunctionNode {
     @Override
     public String getDesc() {
         return desc.isResolved() ? desc.dump().getDescriptor() : super.getDesc();
+    }
+
+    @Override
+    public String getSignature() {
+        return sig.isResolved() ? sig.dump() : super.getSignature();
     }
 }

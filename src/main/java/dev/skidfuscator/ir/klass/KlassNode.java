@@ -59,6 +59,15 @@ public interface KlassNode {
      */
     void setName(@NotNull final String name);
 
+
+    /**
+     * Retrieves the signature of the class.
+     *
+     * @return The signature of the class
+     */
+    String getSignature();
+
+
     /**
      * @return  Gets the super class wrapper
      */

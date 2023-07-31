@@ -26,6 +26,8 @@ public interface FieldNode {
 
     Type getType();
 
+    String getSignature();
+
     Object getDefault();
 
     void setDefault(final Object obj);
