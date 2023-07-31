@@ -191,7 +191,7 @@ public class SkidHierarchy implements Hierarchy {
         final KlassNode node = classEquivalence.get(name);
 
         //System.out.println("Finding " + name + " " + node);
-        if (name.startsWith("[")) {
+        if (node == null && name.startsWith("[")) {
             final String baseName = name.substring(name.lastIndexOf("[") + 1);
             final Type type = Type.getType(name).getElementType();
             final String parsedName = type.getClassName().replace(".", "/");
@@ -210,9 +210,10 @@ public class SkidHierarchy implements Hierarchy {
                     dimensions,
                     arrayClass
             );
-            System.out.printf("Created array class %s for %s%n", arrayClass, name);
 
             classEquivalence.put(name, arrayClass);
+            System.out.printf("Created array class %s for %s%n", arrayClass, name);
+
             arrayClass.resolveHierarchy();
 
             System.out.printf("Resolved array class %s for %s%n", arrayClass, name);

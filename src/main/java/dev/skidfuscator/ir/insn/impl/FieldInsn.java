@@ -19,12 +19,12 @@ public class FieldInsn extends AbstractInsn<FieldInsnNode> {
 
     public FieldInsn(Hierarchy hierarchy, FieldInsnNode node) {
         super(hierarchy, node);
+
+        this.invoke = new InstructionFieldInvoke(this);
     }
 
     @Override
     public void resolve() {
-        this.invoke = new InstructionFieldInvoke(this);
-
         final KlassNode owner = hierarchy.resolveClass(node.owner);
         if (owner == null)
             throw new IllegalStateException(String.format(
@@ -56,16 +56,9 @@ public class FieldInsn extends AbstractInsn<FieldInsnNode> {
 
     @Override
     public FieldInsnNode dump() {
-        this.node.owner = invoke.getTarget().getParent().getName();
+        this.node.owner = invoke.getTarget().getParent().asType().getInternalName();
         this.node.name = invoke.getTarget().getName();
         this.node.desc = invoke.getTarget().getDesc();
-
-        if (node.name.contains("_inlined_")) {
-            System.out.println(String.format(
-                    "Found synthetic field %s.%s%s",
-                    node.owner, node.name, node.desc
-            ));
-        }
 
         return this.node;
     }
@@ -106,6 +99,14 @@ public class FieldInsn extends AbstractInsn<FieldInsnNode> {
         // Unique scenario: when instruction does not have
         // a parent, remove it from the invocation list
         // only re-add when the parent is set
+
+        if (invoke == null) {
+            throw new IllegalStateException(String.format(
+                    "Invoke is null for %s.%s%s",
+                    node.owner, node.name, node.desc
+            ));
+        }
+
         if (parent == null) {
             this.invoke.getTarget().removeInvoke(this.invoke);
             this.synthetic = true;

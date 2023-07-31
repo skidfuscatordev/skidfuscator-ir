@@ -19,7 +19,7 @@ public class TypeInsn extends AbstractInsn<TypeInsnNode> {
     @Override
     public void resolve() {
         String desc = node.desc;
-        System.out.printf("TypeInsn: %s\n", desc);
+        //System.out.printf("TypeInsn: %s\n", desc);
         switch (node.desc) {
             case "I":
             case "Z":

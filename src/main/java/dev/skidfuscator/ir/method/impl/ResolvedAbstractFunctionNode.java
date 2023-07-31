@@ -374,7 +374,6 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
         this.node.name = this.getName();
         this.node.desc = this.getDesc();
         this.node.signature = this.getSignature();
-        System.out.printf("Dumping %s%s with access %s%n", this.node.name, this.node.desc, this.access);
         this.node.access = this.access;
 
         this.node.instructions = new InsnList();
