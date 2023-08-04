@@ -12,6 +12,7 @@ import dev.skidfuscator.ir.method.FunctionInvoker;
 import dev.skidfuscator.ir.type.TypeWrapper;
 import dev.skidfuscator.ir.util.Descriptor;
 import dev.skidfuscator.ir.variable.LocalVariable;
+import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
