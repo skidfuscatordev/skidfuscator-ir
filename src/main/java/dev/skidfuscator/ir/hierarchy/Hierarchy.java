@@ -43,6 +43,7 @@ public interface Hierarchy {
      * @param name the name of the class to find
      * @return the KlassNode object representing the found class
      */
+    @Deprecated
     KlassNode findClass(final String name);
 
     /**
@@ -61,6 +62,7 @@ public interface Hierarchy {
      * @param node The ClassNode to search for.
      * @return The found ClassNode.
      */
+    @Deprecated
     default KlassNode findClass(final ClassNode node) {
         return findClass(node.name);
     }

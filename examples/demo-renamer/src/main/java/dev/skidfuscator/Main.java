@@ -18,6 +18,33 @@ public class Main {
         final String input = args[0];
         final File inputFile = new File(input);
 
+        // Load the JVM libs
+        final SkidLibraryHierarchy hierarchy = new SkidLibraryHierarchy();
+        loadLibs(hierarchy);
+
+        // Load the input jar
+        final ArchiveClassJar inputJar = new ArchiveClassJar(inputFile, false);
+        inputJar.load();
+
+        // Resolve the classes
+        hierarchy.resolveClasses(inputJar.getClasses().values());
+
+        // Rename all classes
+        for (KlassNode node : hierarchy.iterateKlasses()) {
+            System.out.printf("Renaming %s\n", node.getName());
+            node.setName("Renamed_" + node.getName());
+        }
+
+        // Dump the classes
+        for (KlassNode node : hierarchy.iterateKlasses()) {
+            node.dump();
+        }
+
+        // Save the jar
+        inputJar.save();
+    }
+
+    private static void loadLibs(final SkidLibraryHierarchy hierarchy) {
         final String home = System.getProperty("java.home");
         final File runtimeFile = new File(
                 home,
@@ -25,9 +52,6 @@ public class Main {
                         ? "jmods"
                         : "lib/rt.jar"
         );
-
-        final SkidLibraryHierarchy hierarchy = new SkidLibraryHierarchy();
-
         if (MiscHelper.isJmod()) {
             final File[] libFiles = runtimeFile.listFiles();
 
@@ -52,19 +76,5 @@ public class Main {
             );
             hierarchy.addLibrary(librarySource);
         }
-
-        final ArchiveClassJar inputJar = new ArchiveClassJar(inputFile, false);
-        inputJar.load();
-        hierarchy.resolveClasses(inputJar.getClasses().values());
-        for (KlassNode node : hierarchy.iterateKlasses()) {
-            System.out.printf("Renaming %s\n", node.getName());
-            node.setName("Renamed_" + node.getName());
-        }
-
-        for (KlassNode node : hierarchy.iterateKlasses()) {
-            node.dump();
-        }
-
-        inputJar.save();
     }
 }

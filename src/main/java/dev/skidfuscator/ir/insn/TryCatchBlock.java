@@ -37,7 +37,7 @@ public class TryCatchBlock {
         this.handler = list.getLabel(node.handler);
         this.type = this.node.type == null
             ? null
-            : this.hierarchy.findClass(this.node.type);
+            : this.hierarchy.resolveClass(this.node.type);
 
         if (node.visibleTypeAnnotations != null) {
             for (AnnotationNode annotationNode : node.visibleTypeAnnotations) {
