@@ -151,12 +151,14 @@ public class ResolvedKlassNode implements KlassNode {
         }
 
         if (this.node.permittedSubclasses != null) {
+            this.permittedSubclasses = new ArrayList<>();
             for (String permittedSubclass : this.node.permittedSubclasses) {
                 this.permittedSubclasses.add(hierarchy.resolveClass(permittedSubclass));
             }
         }
 
         if (this.node.nestMembers != null) {
+            this.nestMembers = new ArrayList<>();
             for (String nestMember : this.node.nestMembers) {
                 this.nestMembers.add(hierarchy.resolveClass(nestMember));
             }
@@ -205,8 +207,11 @@ public class ResolvedKlassNode implements KlassNode {
             field.resolveHierachy();
         }
 
-        for (RecordComponentNode recordComponent : this.node.recordComponents) {
-            this.recordComponents.add(new RecordComponent(recordComponent, hierarchy, strict));
+        if (this.node.recordComponents != null) {
+            this.recordComponents = new ArrayList<>();
+            for (RecordComponentNode recordComponent : this.node.recordComponents) {
+                this.recordComponents.add(new RecordComponent(recordComponent, hierarchy, strict));
+            }
         }
 
         //System.out.println("Success! Resolved " + this.name + " implementations");
