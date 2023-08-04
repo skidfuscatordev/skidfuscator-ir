@@ -480,6 +480,10 @@ public class ResolvedKlassNode implements KlassNode {
 
             this.node.methods.add(method.dump());
         }
+
+        for (Annotation annotation : this.annotations) {
+            annotation.dump();
+        }
     }
 
     @Override

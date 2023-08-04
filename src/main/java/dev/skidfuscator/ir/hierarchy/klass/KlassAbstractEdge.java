@@ -19,7 +19,7 @@ public abstract class KlassAbstractEdge implements KlassInheritanceEdge {
     }
 
     @Override
-    public KlassNode getInherits() {
+    public KlassNode getInherited() {
         return inherits;
     }
 

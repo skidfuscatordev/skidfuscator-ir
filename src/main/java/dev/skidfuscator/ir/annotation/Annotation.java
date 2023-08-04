@@ -197,6 +197,10 @@ public class Annotation {
         }
     }
 
+    public void dump() {
+        this.node.desc = owner.asType().getDescriptor();
+    }
+
     public static class AnnotationValue<T> {
         private final String name;
 

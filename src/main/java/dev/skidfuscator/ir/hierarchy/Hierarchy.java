@@ -1,5 +1,6 @@
 package dev.skidfuscator.ir.hierarchy;
 
+import dev.skidfuscator.ir.klass.KlassGraph;
 import dev.skidfuscator.ir.method.FunctionGraph;
 import dev.skidfuscator.ir.method.FunctionNode;
 import dev.skidfuscator.ir.field.FieldNode;
@@ -70,6 +71,8 @@ public interface Hierarchy {
      * @param klassNode the KlassNode to resolve the edges for
      */
     void resolveKlassEdges(final KlassNode klassNode);
+
+    KlassGraph getKlassGraph();
 
     /**
      * Adds and injects a method into the hierarchy

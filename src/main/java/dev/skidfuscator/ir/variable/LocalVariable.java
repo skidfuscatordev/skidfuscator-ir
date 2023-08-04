@@ -23,7 +23,7 @@ public class LocalVariable implements HierarchyResolvable {
     @Override
     public void resolveHierarchy() {
         if (!desc.isResolved()) {
-            sig.resolveHierarchy();
+            desc.resolveHierarchy();
         }
 
         if (!sig.isResolved()) {

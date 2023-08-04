@@ -45,6 +45,29 @@ public class InvokeDynamicInsn extends AbstractInsn<InvokeDynamicInsnNode> {
         this.descWrapper = new TypeWrapper(Type.getMethodType(node.desc), hierarchy);
         this.descWrapper.resolveHierarchy();
         this.bsmArgs = node.bsmArgs;
+        for (int i = 0; i < this.bsmArgs.length; i++) {
+            final Object arg = this.bsmArgs[i];
+            if (arg instanceof Type) {
+                final TypeWrapper type = new TypeWrapper((Type) arg, hierarchy);
+                type.resolveHierarchy();
+
+                this.bsmArgs[i] = type;
+            }
+
+            else if (arg instanceof Handle) {
+                final Handle h = (Handle) arg;
+                final FunctionNode f = hierarchy.findMethod(h.getOwner(), h.getName(), h.getDesc());
+                if (f == null) {
+                    throw new IllegalStateException(String.format(
+                            "Failed to resolve dynamic handle %s#%s%s",
+                            h.getOwner(),
+                            h.getName(),
+                            h.getDesc()
+                    ));
+                }
+                this.bsmArgs[i] = new DynamicHandle(h.getTag(), f);
+            }
+        }
 
         super.resolve();
     }
@@ -53,8 +76,20 @@ public class InvokeDynamicInsn extends AbstractInsn<InvokeDynamicInsnNode> {
     public InvokeDynamicInsnNode dump() {
         this.node.bsm = bsm.dump();
         this.node.name = name;
-        this.node.desc = desc;
-        this.node.bsmArgs = bsmArgs;
+        this.node.desc = descWrapper.dump().getDescriptor();
+        this.node.bsmArgs = new Object[this.bsmArgs.length];
+
+        for (int i = 0; i < this.bsmArgs.length; i++) {
+            final Object arg = this.bsmArgs[i];
+
+            if (arg instanceof TypeWrapper) {
+                this.node.bsmArgs[i] = ((TypeWrapper) arg).dump();
+            } else if (arg instanceof DynamicHandle) {
+                this.node.bsmArgs[i] = ((DynamicHandle) arg).dump();
+            } else {
+                this.node.bsmArgs[i] = arg;
+            }
+        }
 
         return super.dump();
     }

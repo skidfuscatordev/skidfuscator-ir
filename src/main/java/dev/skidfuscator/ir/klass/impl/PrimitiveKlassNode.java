@@ -7,25 +7,21 @@ import dev.skidfuscator.ir.method.FunctionNode;
 import dev.skidfuscator.ir.method.impl.ResolvedImmutableFunctionNode;
 import dev.skidfuscator.ir.util.Descriptor;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.util.*;
 
-public class ArraySpecialKlassNode implements KlassNode {
+public class PrimitiveKlassNode implements KlassNode {
     private final Hierarchy hierarchy;
-    private final KlassNode parent;
-    private final int dimensions;
+    private final Type parent;
     private final Map<Descriptor, FunctionNode> methods;
 
-    public ArraySpecialKlassNode(Hierarchy hierarchy, int dimensions, KlassNode parent) {
+    public PrimitiveKlassNode(Hierarchy hierarchy, Type parent) {
         this.hierarchy = hierarchy;
         this.parent = parent;
-        this.dimensions = dimensions;
         this.methods = new HashMap<>();
-
     }
 
     @Override
@@ -40,24 +36,6 @@ public class ArraySpecialKlassNode implements KlassNode {
 
     @Override
     public void resolveHierarchy() {
-        final Descriptor descriptor = new Descriptor("clone", "()Ljava/lang/Object;");
-        final FunctionNode cloneFunction = new ResolvedImmutableFunctionNode(
-                hierarchy,
-                descriptor,
-                new MethodNode(
-                        Opcodes.ACC_PUBLIC,
-                        descriptor.getName(),
-                        descriptor.getDesc(),
-                        null,
-                        null
-                )
-        );
-        cloneFunction.setOwner(this);
-        this.hierarchy.addMethod(cloneFunction);
-        methods.put(
-                descriptor,
-                cloneFunction
-        );
     }
 
     @Override
@@ -77,7 +55,7 @@ public class ArraySpecialKlassNode implements KlassNode {
 
     @Override
     public @NotNull Type asType() {
-        return Type.getType("[".repeat(this.dimensions) + parent.asType().getInternalName());
+        return parent;
     }
 
     @Override
@@ -125,7 +103,7 @@ public class ArraySpecialKlassNode implements KlassNode {
 
     @Override
     public @NotNull String getName() {
-        return "[".repeat(this.dimensions) + this.parent.asType().getDescriptor();
+        return parent.getInternalName();
     }
 
     @Override
@@ -135,7 +113,7 @@ public class ArraySpecialKlassNode implements KlassNode {
 
     @Override
     public String getSignature() {
-        return parent.getSignature();
+        return null;
     }
 
     @Override

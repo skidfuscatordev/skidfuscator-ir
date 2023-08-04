@@ -2,6 +2,7 @@ package dev.skidfuscator.ir.hierarchy.impl;
 
 import dev.skidfuscator.ir.hierarchy.HierarchyConfig;
 import dev.skidfuscator.ir.klass.impl.ArraySpecialKlassNode;
+import dev.skidfuscator.ir.klass.impl.PrimitiveKlassNode;
 import dev.skidfuscator.ir.method.FunctionNode;
 import dev.skidfuscator.ir.field.FieldNode;
 import dev.skidfuscator.ir.field.impl.ResolvedFieldNode;
@@ -28,6 +29,7 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SkidHierarchy implements Hierarchy {
     private final HierarchyConfig config;
@@ -46,7 +48,7 @@ public class SkidHierarchy implements Hierarchy {
     private final KlassGraph klassGraph;
     private final KlassNode rootClass;
     private final KlassNode arrayClass;
-    private final KlassNode primitiveArrayClass;
+    private final Map<Type, KlassNode> primitiveArrayClass;
 
 
     /**
@@ -94,8 +96,24 @@ public class SkidHierarchy implements Hierarchy {
         this.rootClass = this.create(ClassHelper.create(Object.class), false);
         this.arrayClass = new ArraySpecialKlassNode(this, 1, rootClass);
         this.arrayClass.resolveHierarchy();
-        this.primitiveArrayClass = new ArraySpecialKlassNode(this, 0, rootClass);
-        this.primitiveArrayClass.resolveHierarchy();
+
+        this.primitiveArrayClass = new HashMap<>();
+        Stream.of(
+                Type.BOOLEAN_TYPE,
+                Type.BYTE_TYPE,
+                Type.CHAR_TYPE,
+                Type.DOUBLE_TYPE,
+                Type.FLOAT_TYPE,
+                Type.SHORT_TYPE,
+                Type.INT_TYPE,
+                Type.LONG_TYPE
+        ).forEach(e -> {
+            final KlassNode node = new PrimitiveKlassNode(this, e);
+            classEquivalence.put(e.getDescriptor(), node);
+            klassGraph.addVertex(node);
+            this.primitiveArrayClass.put(e, new ArraySpecialKlassNode(this, 1, node));
+        });
+        this.primitiveArrayClass.values().forEach(KlassNode::resolveHierarchy);
     }
 
     @Override
@@ -106,6 +124,11 @@ public class SkidHierarchy implements Hierarchy {
     @Override
     public Iterable<KlassNode> iterateKlasses() {
         return Collections.unmodifiableCollection(programClassEquivalence.values());
+    }
+
+    @Override
+    public KlassGraph getKlassGraph() {
+        return klassGraph;
     }
 
     @Override
@@ -200,7 +223,7 @@ public class SkidHierarchy implements Hierarchy {
             KlassNode arrayClass = findClass(parsedName);
 
             if (arrayClass == null) {
-                return type.getSort() != Type.OBJECT ? this.primitiveArrayClass : this.arrayClass;
+                return type.getSort() != Type.OBJECT ? this.primitiveArrayClass.get(type) : this.arrayClass;
             }
 
             final int dimensions = name.lastIndexOf("[") + 1;
