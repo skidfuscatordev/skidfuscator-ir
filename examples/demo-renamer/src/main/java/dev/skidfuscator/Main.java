@@ -4,6 +4,7 @@ import dev.skidfuscator.archive.ArchiveClassJar;
 import dev.skidfuscator.ir.hierarchy.impl.SkidLibraryHierarchy;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.library.LibrarySource;
+import dev.skidfuscator.ir.method.FunctionNode;
 import dev.skidfuscator.util.MiscHelper;
 
 import java.io.File;
@@ -33,7 +34,16 @@ public class Main {
         for (KlassNode node : hierarchy.iterateKlasses()) {
             System.out.printf("Renaming %s\n", node.getName());
             node.setName("Renamed_" + node.getName());
+
+            for (FunctionNode method : node.getMethods()) {
+                if (method.isSynthetic() || method.getName().contains("__kek__") || !method.isMutable()) {
+                    continue;
+                }
+
+                method.setName("__kek__" + method.getName());
+            }
         }
+
 
         // Dump the classes
         for (KlassNode node : hierarchy.iterateKlasses()) {

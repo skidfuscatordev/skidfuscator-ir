@@ -7,11 +7,14 @@ import dev.skidfuscator.ir.signature.SignatureWrapper;
 import dev.skidfuscator.ir.type.TypeWrapper;
 import dev.skidfuscator.ir.util.Descriptor;
 import dev.skidfuscator.ir.variable.LocalVariable;
+import org.jgrapht.traverse.DepthFirstIterator;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.MethodNode;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public class ResolvedMutableFunctionNode extends ResolvedAbstractFunctionNode {
     private String name;
@@ -52,6 +55,18 @@ public class ResolvedMutableFunctionNode extends ResolvedAbstractFunctionNode {
     }
 
     @Override
+    public boolean isMutable() {
+        final Iterator<FunctionNode> iterator = new DepthFirstIterator<>(hierarchy.getFunctionGraph());
+        return Stream.iterate(iterator.next(), e -> iterator.hasNext(), e -> iterator.next())
+                .noneMatch(FunctionNode::isLocked);
+    }
+
+    @Override
+    public boolean isLocked() {
+        return !mutable;
+    }
+
+    @Override
     public String getName() {
         return name;
     }
@@ -61,13 +76,22 @@ public class ResolvedMutableFunctionNode extends ResolvedAbstractFunctionNode {
         if (!mutable)
             throw new IllegalStateException("Cannot modify name of immutable function node");
 
-        for (FunctionNode functionNode : hierarchy.getFunctionGraph().childrenOf(this)) {
-            functionNode.setName(name);
-        }
+        this.name = name;
 
-        for (FunctionNode functionNode : hierarchy.getFunctionGraph().parentsOf(this)) {
-            functionNode.setName(name);
-        }
+        final Iterator<FunctionNode> iterator = new DepthFirstIterator<>(hierarchy.getFunctionGraph());
+        Stream.iterate(iterator.next(), e -> iterator.hasNext(), e -> iterator.next())
+                .forEach(e -> {
+                    if (e instanceof ResolvedMutableFunctionNode) {
+                        final ResolvedMutableFunctionNode func = (ResolvedMutableFunctionNode) e;
+                        func.name = name;
+                    } else {
+                        throw new IllegalStateException(String.format(
+                           "Function %s is not of mutable state (type: %s)",
+                                e,
+                                e.getClass().getName()
+                        ));
+                    }
+                });
     }
 
     @Override

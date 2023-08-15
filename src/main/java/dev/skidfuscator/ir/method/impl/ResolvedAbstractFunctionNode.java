@@ -444,7 +444,7 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
     @Override
     public void setOwner(KlassNode node) {
         if (!mutable)
-            throw new IllegalStateException("Cannot set owner of a non-mutable method descriptor!");
+            throw new IllegalStateException("Cannot set owner of a locked method descriptor!");
 
         if (node == null) {
             throw new IllegalArgumentException(String.format(

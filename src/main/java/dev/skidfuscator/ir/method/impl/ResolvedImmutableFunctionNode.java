@@ -16,6 +16,16 @@ public class ResolvedImmutableFunctionNode extends ResolvedAbstractFunctionNode 
     }
 
     @Override
+    public boolean isMutable() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocked() {
+        return true;
+    }
+
+    @Override
     public void setOwner(KlassNode node) {
         // Remove back sorting logic
         this.owner = node;

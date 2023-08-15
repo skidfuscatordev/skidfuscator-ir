@@ -6,7 +6,6 @@ import dev.skidfuscator.ir.insn.TryCatchBlock;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.util.Descriptor;
 import dev.skidfuscator.ir.variable.LocalVariable;
-import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.util.List;
@@ -15,6 +14,8 @@ import java.util.Set;
 public interface FunctionNode extends HierarchyResolvable {
 
     void lock();
+
+    boolean isLocked();
 
     Descriptor getOriginalDescriptor();
 
@@ -141,6 +142,15 @@ public interface FunctionNode extends HierarchyResolvable {
      * @return The descriptor of the function
      */
     String getDesc();
+
+    /**
+     * Returns if the function can be modified (name, desc, etc)
+     * safely without conflict.
+     *
+     * @return  boolean returning whether the function can be
+     *          modified without consequences
+     */
+    boolean isMutable();
 
     /**
      * Determines if the function is static.
