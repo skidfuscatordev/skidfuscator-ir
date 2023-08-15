@@ -7,7 +7,9 @@ import dev.skidfuscator.ir.field.FieldNode;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.method.impl.ResolvedMutableFunctionNode;
+import dev.skidfuscator.ir.record.RecordComponent;
 import dev.skidfuscator.ir.signature.SignatureWrapper;
+import dev.skidfuscator.ir.type.TypeWrapper;
 import dev.skidfuscator.ir.util.Descriptor;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.Opcodes;
@@ -15,6 +17,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.RecordComponentNode;
 
 import java.util.*;
 
@@ -36,6 +39,15 @@ public class ResolvedKlassNode implements KlassNode {
     private Map<Descriptor, FunctionNode> methods;
     private Map<Descriptor, FieldNode> fields;
     private final boolean strict;
+
+    private List<KlassNode> permittedSubclasses;
+    private List<RecordComponent> recordComponents;
+    private List<KlassNode> innerClasses; //TODO
+    private List<KlassNode> nestMembers;
+
+    private KlassNode nestHost;
+    private KlassNode outerClass;
+    private TypeWrapper outerMethodDesc;
 
     public ResolvedKlassNode(Hierarchy hierarchy, ClassNode node, boolean strict) {
         this.hierarchy = hierarchy;
@@ -128,7 +140,6 @@ public class ResolvedKlassNode implements KlassNode {
                 impl.resolveInternal();
         }
 
-
         //System.out.println("Trying to find parent " + this.node.superName + " for " + this.name);
 
         if (this.node.superName != null && parent == null) {
@@ -137,6 +148,31 @@ public class ResolvedKlassNode implements KlassNode {
                     this.name,
                     this.node.superName
             ));
+        }
+
+        if (this.node.permittedSubclasses != null) {
+            this.permittedSubclasses = new ArrayList<>();
+            for (String permittedSubclass : this.node.permittedSubclasses) {
+                this.permittedSubclasses.add(hierarchy.resolveClass(permittedSubclass));
+            }
+        }
+
+        if (this.node.nestMembers != null) {
+            this.nestMembers = new ArrayList<>();
+            for (String nestMember : this.node.nestMembers) {
+                this.nestMembers.add(hierarchy.resolveClass(nestMember));
+            }
+        }
+
+        if (this.node.nestHostClass != null) {
+            this.nestHost = hierarchy.resolveClass(this.node.nestHostClass);
+        }
+
+        if (this.node.outerClass != null && this.node.outerMethodDesc != null) {
+            this.outerClass = hierarchy.resolveClass(this.node.outerClass);
+            this.outerMethodDesc = new TypeWrapper(Type.getType(this.node.outerMethodDesc), hierarchy);
+            if (!this.outerMethodDesc.isResolved())
+                this.outerMethodDesc.resolveHierarchy();
         }
 
         /*
@@ -169,6 +205,13 @@ public class ResolvedKlassNode implements KlassNode {
 
         for (FieldNode field : this.fields.values()) {
             field.resolveHierachy();
+        }
+
+        if (this.node.recordComponents != null) {
+            this.recordComponents = new ArrayList<>();
+            for (RecordComponentNode recordComponent : this.node.recordComponents) {
+                this.recordComponents.add(new RecordComponent(recordComponent, hierarchy, strict));
+            }
         }
 
         //System.out.println("Success! Resolved " + this.name + " implementations");
@@ -463,6 +506,10 @@ public class ResolvedKlassNode implements KlassNode {
         this.node.access = access;
 
         this.node.superName = parent == null ? null : parent.getName();
+        this.node.nestHostClass = this.nestHost.getName();
+        this.node.outerClass = this.outerClass.getName();
+        this.node.outerMethodDesc = this.outerMethodDesc.dump().getDescriptor();
+
         this.node.interfaces = new ArrayList<>();
         for (KlassNode impl : this.interfaces) {
             this.node.interfaces.add(impl.getName());
@@ -479,6 +526,20 @@ public class ResolvedKlassNode implements KlassNode {
                 continue;
 
             this.node.methods.add(method.dump());
+        }
+
+        this.node.permittedSubclasses = new ArrayList<>();
+        for (KlassNode permittedSubclass : this.permittedSubclasses) {
+            this.node.permittedSubclasses.add(permittedSubclass.getName());
+        }
+
+        this.node.nestMembers = new ArrayList<>();
+        for (KlassNode nestMember : this.nestMembers) {
+            this.node.nestMembers.add(nestMember.getName());
+        }
+
+        for (RecordComponent recordComponent : this.recordComponents) {
+            recordComponent.dump();
         }
 
         for (Annotation annotation : this.annotations) {

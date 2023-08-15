@@ -97,39 +97,13 @@ public class ClassHelper {
 	}
 
 	public static ClassNode create(InputStream in, int flags) throws IOException {
-		return create(readStream(in, true), flags);
+		try (in) {
+			return create(in.readAllBytes(), flags);
+		}
 	}
 
 	public static ClassNode create(InputStream in) throws IOException {
 		return create(in, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
-	}
-
-	/**
-	 * Reads the given input stream and returns its content as a byte array.
-	 *
-	 * @param inputStream an input stream.
-	 * @param close       true to close the input stream after reading.
-	 * @return the content of the given input stream.
-	 * @throws IOException if a problem occurs during reading.
-	 */
-	private static byte[] readStream(final InputStream inputStream, final boolean close)
-			throws IOException {
-		if (inputStream == null) {
-			throw new IOException("Class not found");
-		}
-		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-			byte[] data = new byte[4096];
-			int bytesRead;
-			while ((bytesRead = inputStream.read(data, 0, data.length)) != -1) {
-				outputStream.write(data, 0, bytesRead);
-			}
-			outputStream.flush();
-			return outputStream.toByteArray();
-		} finally {
-			if (close) {
-				inputStream.close();
-			}
-		}
 	}
 
 	public static ClassNode create(String name) throws IOException {
@@ -137,7 +111,7 @@ public class ClassHelper {
 	}
 
 	public static ClassNode create(String name, int flags) throws IOException {
-		return create(ClassLoader.getSystemResourceAsStream(name.replace(".", "/") + ".class"), flags);
+		return create(Objects.requireNonNull(ClassLoader.getSystemResourceAsStream(name.replace(".", "/") + ".class")), flags);
 	}
 
 	public static void dump(ClassNode cn, OutputStream outputStream) throws IOException {
