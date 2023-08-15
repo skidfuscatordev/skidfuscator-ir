@@ -4,9 +4,10 @@ plugins {
 }
 
 group 'dev.skidfuscator'
-version '1.0-SNAPSHOT'
+version '1.0.1-SNAPSHOT'
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
@@ -34,7 +35,11 @@ dependencies {
 
 java {
     toolchain {
+<<<<<<< Updated upstream
         languageVersion.set(JavaLanguageVersion.of(17))
+=======
+        languageVersion.set(JavaLanguageVersion.of(18))
+>>>>>>> Stashed changes
     }
 }
 

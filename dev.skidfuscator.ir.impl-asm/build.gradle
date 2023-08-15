@@ -1,0 +1,26 @@
+plugins {
+    id 'java-library'
+}
+
+group 'dev.skidfuscator'
+version '1.0.1-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    api 'org.ow2.asm:asm:9.5'
+    api 'org.ow2.asm:asm-tree:9.5'
+    api 'org.ow2.asm:asm-commons:9.5'
+    api 'org.ow2.asm:asm-analysis:9.5'
+    api 'org.jetbrains:annotations:24.0.0'
+    implementation project(path: ':dev.skidfuscator.ir.api')
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+test {
+    useJUnitPlatform()
+}
