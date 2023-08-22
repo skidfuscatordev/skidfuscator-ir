@@ -1,10 +1,12 @@
 package dev.skidfuscator.ir.klass;
 
 import dev.skidfuscator.ir.Field;
-import dev.skidfuscator.ir.Method;
+import dev.skidfuscator.ir.method.Method;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Klass extends KlassVisitor {
     private String name;
@@ -85,12 +87,88 @@ public class Klass extends KlassVisitor {
         }
     }
 
+    public boolean isInterface() {
+        return tags.contains(KlassTags.INTERFACE);
+    }
+
+    public void setInterface(boolean value) {
+        this._tag(KlassTags.INTERFACE, value);
+    }
+
+    public boolean isAbstract() {
+        return tags.contains(KlassTags.ABSTRACT);
+    }
+
+    public void setAbstract(boolean value) {
+        this._tag(KlassTags.ABSTRACT, value);
+    }
+
     public List<Method> getMethods() {
         return methods;
     }
 
     public List<Field> getFields() {
         return fields;
+    }
+
+    public boolean isPrimitive() {
+        return false;
+    }
+
+    public Field resolveField(final String name, final Klass type) {
+        final Set<Field> fields = this.fields.stream()
+                .filter(e -> e.getName().equals(name) && e.getType().equals(type))
+                .collect(Collectors.toSet());
+
+        if (fields.size() < 1) {
+            throw new IllegalStateException(String.format(
+                    "Field of name %s of type %s was not found in %s",
+                    name,
+                    type,
+                    this
+            ));
+        }
+
+        if (fields.size() > 1) {
+            throw new IllegalStateException(String.format(
+                    "Field of name %s of type %s has duplicate definitions in %s: %s",
+                    name,
+                    type,
+                    this,
+                    Arrays.toString(fields.toArray())
+            ));
+        }
+
+        return fields.iterator().next();
+    }
+
+    public Method resolveMethod(final String name, final List<Klass> args, final Klass returnType) {
+        final Set<Method> methods = this.methods.stream()
+                .filter(e -> e.getName().equals(name) && e.getArgs().equals(args) && e.getReturnType().equals(returnType))
+                .collect(Collectors.toSet());
+
+        if (methods.size() < 1) {
+            throw new IllegalStateException(String.format(
+                    "Method of name %s of args %s and return type %s was not found in %s",
+                    name,
+                    Arrays.toString(args.toArray()),
+                    returnType,
+                    this
+            ));
+        }
+
+        if (methods.size() > 1) {
+            throw new IllegalStateException(String.format(
+                    "Method of name %s of args %s and return type %s has duplicate definitions in %s: %s",
+                    name,
+                    Arrays.toString(args.toArray()),
+                    returnType,
+                    this,
+                    Arrays.toString(methods.toArray())
+            ));
+        }
+
+        return methods.iterator().next();
     }
 
     @Override

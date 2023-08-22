@@ -5,5 +5,7 @@ public enum KlassTags {
     PROTECTED,
     PRIVATE,
     STATIC,
-    FINAL
+    FINAL,
+    INTERFACE,
+    ABSTRACT
 }

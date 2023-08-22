@@ -1,50 +1,45 @@
 package dev.skidfuscator.ir.insn.impl;
 
 import dev.skidfuscator.ir.Field;
-import dev.skidfuscator.ir.insn.AbstractInstruction;
-import dev.skidfuscator.ir.insn.InstructionVisitor;
 
-public class GetFieldInstruction extends AbstractInstruction {
-    private Field target;
-
-    private GetFieldInstruction(Field target) {
-        this.target = target;
-    }
-
-    public Field getTarget() {
-        return target;
-    }
-
-    public void setTarget(Field target) {
-        this.target = target;
+public class GetFieldInstruction extends AbstractFieldInstruction {
+    private GetFieldInstruction(final Field target) {
+        super(target);
     }
 
     @Override
-    public void visit(InstructionVisitor visitor) {
+    public void copyTo(AbstractInstructionsVisitor visitor) {
         visitor.visitGetField(target);
     }
 
-    public static GetFieldInstructionBuilder of() {
-        return new GetFieldInstructionBuilder();
+    public static Builder of() {
+        return new Builder();
     }
 
-    public static final class GetFieldInstructionBuilder {
+    public static final class Builder extends AbstractFieldInstruction.Builder {
         private Field target;
 
-        private GetFieldInstructionBuilder() {
+        private Builder() {
         }
 
-        public GetFieldInstructionBuilder target(Field target) {
+        @Override
+        public Builder of() {
+            return GetFieldInstruction.of();
+        }
+
+        public Builder target(Field target) {
             this.target = target;
             return this;
         }
 
-        public GetFieldInstructionBuilder but() {
+        public Builder but() {
             return of().target(target);
         }
 
+        @Override
         public GetFieldInstruction build() {
-            return new GetFieldInstruction(target);
+            final GetFieldInstruction fieldInstruction = new GetFieldInstruction(target);
+            return fieldInstruction;
         }
     }
 }

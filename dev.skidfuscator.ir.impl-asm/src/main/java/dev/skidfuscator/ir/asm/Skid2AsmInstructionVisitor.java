@@ -1,15 +1,17 @@
 package dev.skidfuscator.ir.asm;
 
 import dev.skidfuscator.ir.Field;
-import dev.skidfuscator.ir.Method;
-import dev.skidfuscator.ir.insn.InstructionVisitor;
+import dev.skidfuscator.ir.asm.insn.Skid2AsmInvokeInstructionVisitor;
+import dev.skidfuscator.ir.insn.impl.InvokeInstruction;
+import dev.skidfuscator.ir.insn.impl.AbstractInstructionsVisitor;
+import dev.skidfuscator.ir.insn.impl.InvokeInstructionVisitor;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class AsmInstructionCreator extends InstructionVisitor {
+public class Skid2AsmInstructionVisitor extends AbstractInstructionsVisitor {
     private final MethodVisitor visitor;
-
-    public AsmInstructionCreator(MethodVisitor visitor) {
+    public Skid2AsmInstructionVisitor(MethodVisitor visitor) {
         this.visitor = visitor;
     }
 
@@ -44,19 +46,21 @@ public class AsmInstructionCreator extends InstructionVisitor {
 
     @Override
     public void visitIinc(int local, int increment) {
-        final int opcode = 0;
         visitor.visitIincInsn(local, increment);
 
         super.visitIinc(local, increment);
     }
 
     @Override
-    public void visitInvoke(Method target) {
-        super.visitInvoke(target);
+    public InvokeInstructionVisitor visitInvoke() {
+        return new Skid2AsmInvokeInstructionVisitor(visitor);
     }
 
     @Override
     public void visitLabel(int offset) {
+        // TODO: Add support for custom offsets
+        visitor.visitLabel(new Label());
+
         super.visitLabel(offset);
     }
 

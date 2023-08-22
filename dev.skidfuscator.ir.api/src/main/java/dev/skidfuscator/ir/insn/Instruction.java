@@ -1,5 +1,12 @@
 package dev.skidfuscator.ir.insn;
 
+import dev.skidfuscator.ir.insn.impl.AbstractInstructionsVisitor;
+import dev.skidfuscator.ir.verify.Assert;
+
 public interface Instruction {
-    void visit(final InstructionVisitor visitor);
+    default void assertNotNull(final Object var) {
+        Assert.nonNull(var, "Instruction is not initialized! Please visit it or use the builder!");
+    }
+
+    void copyTo(final AbstractInstructionsVisitor visitor);
 }

@@ -35,11 +35,7 @@ dependencies {
 
 java {
     toolchain {
-<<<<<<< Updated upstream
         languageVersion.set(JavaLanguageVersion.of(17))
-=======
-        languageVersion.set(JavaLanguageVersion.of(18))
->>>>>>> Stashed changes
     }
 }
 

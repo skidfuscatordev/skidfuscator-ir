@@ -1,38 +1,75 @@
 package dev.skidfuscator.ir.insn.impl;
 
-import dev.skidfuscator.ir.insn.AbstractInstruction;
 import dev.skidfuscator.ir.insn.IllegalInstructionException;
-import dev.skidfuscator.ir.insn.InstructionVisitor;
+import dev.skidfuscator.ir.insn.Instruction;
 import dev.skidfuscator.ir.primitive.Primitive;
+import dev.skidfuscator.ir.verify.Assert;
+import org.jetbrains.annotations.NotNull;
 
-public class ArithmeticInstruction extends AbstractInstruction {
+public class ArithmeticInstruction extends ArithmeticInstructionVisitor implements Instruction {
     private Primitive type;
     private Operation operation;
 
-    private ArithmeticInstruction(Primitive type, Operation operation) {
-        this.type = type;
-        this.operation = operation;
+    protected ArithmeticInstruction() {
     }
 
-    public Primitive getType() {
+    protected ArithmeticInstruction(ArithmeticInstructionVisitor parent) {
+        super(parent);
+    }
+
+    public @NotNull Primitive getType() {
+        assertNotNull(type);
         return type;
     }
 
     public void setType(Primitive type) {
+        Assert.nonNull(type, new IllegalInstructionException(
+                "Arithmetic instruction cannot have null type"
+        ));
         this.type = type;
     }
 
-    public Operation getOperation() {
+    public @NotNull Operation getOperation() {
+        assertNotNull(type);
         return operation;
     }
 
     public void setOperation(Operation operation) {
+        Assert.nonNull(operation, new IllegalInstructionException(
+                "Arithmetic instruction cannot have null operation"
+        ));
+        Assert.isTrue(operation.isAllowed(type), new IllegalInstructionException(
+                "Arithmetic operand %s does not allow %s", operation, type)
+        );
+
         this.operation = operation;
     }
 
+    /**
+     * Basic visitor pattern renamed to help with beginners
+     * without a CS degree. This is synonymous to visit.
+     *
+     * @param visitor Visitor being visited
+     */
     @Override
-    public void visit(InstructionVisitor visitor) {
-        visitor.visitArithmetic(type, operation);
+    public void copyTo(AbstractInstructionsVisitor visitor) {
+        copyTo(visitor.visitArithmetic());
+    }
+
+    public void copyTo(ArithmeticInstructionVisitor visitor) {
+        visitor.copyFrom(type, operation);
+    }
+
+    @Override
+    public void copyFrom(Primitive type, Operation operation) {
+        this.setType(type);
+        this.setOperation(operation);
+
+        super.copyFrom(type, operation);
+    }
+
+    public void copyFrom(ArithmeticInstruction visitor) {
+        visitor.copyTo(this);
     }
 
     public enum Operation {
@@ -84,18 +121,10 @@ public class ArithmeticInstruction extends AbstractInstruction {
         }
 
         public ArithmeticInstruction build() {
-            if (type == null) {
-                throw new IllegalInstructionException("Arithmetic instruction cannot have null type");
-            }
-            if (operation == null) {
-                throw new IllegalInstructionException("Arimetic instruction cannot have null operation");
-            }
+            final ArithmeticInstruction instruction = new ArithmeticInstruction();
+            instruction.copyFrom(type, operation);
 
-            if (!operation.isAllowed(type)) {
-                throw new IllegalInstructionException("Arithmetic operand %s does not allow %s", operation, type);
-            }
-
-            return new ArithmeticInstruction(type, operation);
+            return instruction;
         }
     }
 }

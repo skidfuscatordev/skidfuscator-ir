@@ -1,6 +1,6 @@
 package dev.skidfuscator.ir.klass;
 
-import dev.skidfuscator.ir.Method;
+import dev.skidfuscator.ir.method.Method;
 
 import java.util.List;
 import java.util.Set;

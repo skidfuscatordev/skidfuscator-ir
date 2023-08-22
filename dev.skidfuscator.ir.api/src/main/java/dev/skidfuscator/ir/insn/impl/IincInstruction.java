@@ -1,8 +1,5 @@
 package dev.skidfuscator.ir.insn.impl;
 
-import dev.skidfuscator.ir.insn.AbstractInstruction;
-import dev.skidfuscator.ir.insn.InstructionVisitor;
-
 public class IincInstruction extends AbstractInstruction {
     private int local;
     private int increase;
@@ -24,7 +21,7 @@ public class IincInstruction extends AbstractInstruction {
     }
 
     @Override
-    public void visit(InstructionVisitor visitor) {
+    public void copyTo(AbstractInstructionsVisitor visitor) {
         visitor.visitIinc(local, increase);
     }
 

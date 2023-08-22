@@ -1,11 +1,14 @@
 package dev.skidfuscator.ir.insn.impl;
 
-import dev.skidfuscator.ir.insn.AbstractInstruction;
 import dev.skidfuscator.ir.insn.IllegalInstructionException;
+import dev.skidfuscator.ir.insn.Instruction;
 import dev.skidfuscator.ir.primitive.Primitive;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,8 +47,48 @@ class ArithmeticInstructionTest {
 
     @Test
     void setOperation() {
-        instruction.setOperation(ArithmeticInstruction.Operation.ADD);
-        assertEquals(ArithmeticInstruction.Operation.ADD, instruction.getOperation());
+        instruction.setOperation(ArithmeticInstruction.Operation.XOR);
+        assertEquals(ArithmeticInstruction.Operation.XOR, instruction.getOperation());
+    }
+
+    @Test
+    void visitSetter() {
+        instruction.copyFrom(Primitive.BYTE, ArithmeticInstruction.Operation.OR);
+        assertEquals(Primitive.BYTE, instruction.getType());
+        assertEquals(ArithmeticInstruction.Operation.OR, instruction.getOperation());
+    }
+
+    @Test
+    void visitCopyToParent() {
+        final ArithmeticInstruction invoke = new ArithmeticInstruction();
+        instruction.copyTo(invoke);
+
+        assertEquals(instruction.getType(), invoke.getType());
+        assertEquals(instruction.getOperation(), invoke.getOperation());
+    }
+
+    @Test
+    void visitCopyToChild() {
+        final ArithmeticInstruction invoke = new ArithmeticInstruction();
+        invoke.copyFrom(instruction);
+
+        assertEquals(instruction.getType(), invoke.getType());
+        assertEquals(instruction.getOperation(), invoke.getOperation());
+    }
+
+    @Test
+    void visitCreate() {
+        final AbstractInstructionList list = new AbstractInstructionList(new ArrayList<>());
+        list.visitArithmetic().copyFrom(Primitive.BOOLEAN, ArithmeticInstruction.Operation.OR);
+
+        final List<Instruction> instructions = list.getInstructions();
+
+        assertEquals(1, instructions.size());
+        assertInstanceOf(ArithmeticInstruction.class, instructions.get(0));
+        final ArithmeticInstruction insn = (ArithmeticInstruction) instructions.get(0);
+
+        assertEquals(Primitive.BOOLEAN, insn.getType());
+        assertEquals(ArithmeticInstruction.Operation.OR, insn.getOperation());
     }
 
     @Test

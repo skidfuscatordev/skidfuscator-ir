@@ -5,21 +5,22 @@ import dev.skidfuscator.ir.klass.internal.PrimitiveArrayKlass;
 import dev.skidfuscator.ir.klass.internal.PrimitiveKlass;
 
 public enum Primitive {
-    BOOLEAN(new PrimitiveKlass("Z")),
+    VOID(PrimitiveKlass.VOID),
+    BOOLEAN(PrimitiveKlass.BOOLEAN),
     BOOLEAN_ARRAY(new PrimitiveArrayKlass("[Z")),
-    BYTE(new PrimitiveKlass("B")),
+    BYTE(PrimitiveKlass.BYTE),
     BYTE_ARRAY(new PrimitiveArrayKlass("[B")),
-    CHAR(new PrimitiveKlass("C")),
+    CHAR(PrimitiveKlass.CHAR),
     CHAR_ARRAY(new PrimitiveArrayKlass("[C")),
-    SHORT(new PrimitiveKlass("S")),
+    SHORT(PrimitiveKlass.SHORT),
     SHORT_ARRAY(new PrimitiveArrayKlass("[S")),
-    INT(new PrimitiveKlass("I")),
+    INT(PrimitiveKlass.INT),
     INT_ARRAY(new PrimitiveArrayKlass("[I")),
-    FLOAT(new PrimitiveKlass("F")),
+    FLOAT(PrimitiveKlass.FLOAT),
     FLOAT_ARRAY(new PrimitiveArrayKlass("[F")),
-    LONG(new PrimitiveKlass("J")),
+    LONG(PrimitiveKlass.LONG),
     LONG_ARRAY(new PrimitiveArrayKlass("[J")),
-    DOUBLE(new PrimitiveKlass("D")),
+    DOUBLE(PrimitiveKlass.DOUBLE),
     DOUBLE_ARRAY(new PrimitiveArrayKlass("[D"))
     ;
 
