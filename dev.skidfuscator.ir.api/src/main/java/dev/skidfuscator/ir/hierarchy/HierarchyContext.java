@@ -1,6 +1,6 @@
 package dev.skidfuscator.ir.hierarchy;
 
-import dev.skidfuscator.ir.klass.Klass;
+import dev.skidfuscator.ir.Klass;
 
 public interface HierarchyContext {
     /**

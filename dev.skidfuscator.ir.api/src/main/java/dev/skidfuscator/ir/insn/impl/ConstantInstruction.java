@@ -1,12 +1,16 @@
 package dev.skidfuscator.ir.insn.impl;
 
-public class ConstantInstruction extends AbstractInstruction {
+import dev.skidfuscator.ir.insn.Instruction;
+
+public class ConstantInstruction extends ConstantInstructionVisitor implements Instruction {
     private Object constant;
 
-    private ConstantInstruction(Object constant) {
-        this.constant = constant;
+    protected ConstantInstruction() {
     }
 
+    /**
+     * @return Constant provided by the instruction.
+     */
     public Object getConstant() {
         return constant;
     }
@@ -17,7 +21,22 @@ public class ConstantInstruction extends AbstractInstruction {
 
     @Override
     public void copyTo(AbstractInstructionsVisitor visitor) {
-        visitor.visitConstant(constant);
+        this.copyTo(visitor.visitConstant());
+    }
+
+    public void copyTo(final ConstantInstructionVisitor visitor) {
+        visitor.copyFrom(constant);
+    }
+
+    @Override
+    public void copyFrom(Object constant) {
+        this.setConstant(constant);
+
+        super.copyFrom(constant);
+    }
+
+    public void copyFrom(final ConstantInstruction visitor) {
+        visitor.copyTo(this);
     }
 
     public static ConstantInstructionBuilder of() {
@@ -40,7 +59,10 @@ public class ConstantInstruction extends AbstractInstruction {
         }
 
         public ConstantInstruction build() {
-            return new ConstantInstruction(constant);
+            final ConstantInstruction constantInstruction = new ConstantInstruction();
+            constantInstruction.setConstant(constant);
+
+            return constantInstruction;
         }
     }
 }

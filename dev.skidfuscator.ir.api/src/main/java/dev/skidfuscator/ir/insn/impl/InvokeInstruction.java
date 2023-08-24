@@ -1,7 +1,7 @@
 package dev.skidfuscator.ir.insn.impl;
 
 import dev.skidfuscator.ir.insn.Instruction;
-import dev.skidfuscator.ir.method.Method;
+import dev.skidfuscator.ir.Method;
 import dev.skidfuscator.ir.verify.Assert;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,19 +32,19 @@ public class InvokeInstruction extends InvokeInstructionVisitor implements Instr
 
     @Override
     public void copyTo(final AbstractInstructionsVisitor visitor) {
-        visitor.visitInvoke().visit(target);
+        visitor.visitInvoke().copyFrom(target);
     }
 
     @Override
-    public void visit(final Method target) {
+    public void copyFrom(final Method target) {
         this.target = target;
 
-        super.visit(target);
+        super.copyFrom(target);
     }
 
 
     public void visit(final InvokeInstructionVisitor visitor) {
-        visitor.visit(target);
+        visitor.copyFrom(target);
     }
 
     public static InvokeInstructionBuilder of() {

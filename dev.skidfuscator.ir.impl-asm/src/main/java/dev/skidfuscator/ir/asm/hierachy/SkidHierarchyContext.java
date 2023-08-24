@@ -1,9 +1,8 @@
 package dev.skidfuscator.ir.asm.hierachy;
 
-import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.hierarchy.HierarchyConfig;
 import dev.skidfuscator.ir.hierarchy.HierarchyContext;
-import dev.skidfuscator.ir.klass.Klass;
+import dev.skidfuscator.ir.Klass;
 import org.objectweb.asm.tree.ClassNode;
 
 import java.util.function.Function;

@@ -1,7 +1,8 @@
 package dev.skidfuscator.ir.method;
 
+import dev.skidfuscator.ir.Method;
 import dev.skidfuscator.ir.insn.impl.AbstractInstructionList;
-import dev.skidfuscator.ir.klass.Klass;
+import dev.skidfuscator.ir.Klass;
 import dev.skidfuscator.ir.klass.internal.PrimitiveKlass;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

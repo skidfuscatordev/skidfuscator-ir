@@ -1,6 +1,7 @@
 package dev.skidfuscator.ir.method;
 
-import dev.skidfuscator.ir.klass.Klass;
+import dev.skidfuscator.ir.Klass;
+import dev.skidfuscator.ir.Method;
 import dev.skidfuscator.ir.verify.Assert;
 import org.jetbrains.annotations.NotNull;
 

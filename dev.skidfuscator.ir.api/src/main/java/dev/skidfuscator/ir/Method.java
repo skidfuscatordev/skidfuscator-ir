@@ -1,8 +1,11 @@
-package dev.skidfuscator.ir.method;
+package dev.skidfuscator.ir;
 
 import dev.skidfuscator.ir.insn.impl.AbstractInstructionList;
 import dev.skidfuscator.ir.insn.impl.AbstractInstructionsVisitor;
-import dev.skidfuscator.ir.klass.Klass;
+import dev.skidfuscator.ir.method.AcknowledgeUnlinkGroupException;
+import dev.skidfuscator.ir.method.MethodGroup;
+import dev.skidfuscator.ir.method.MethodTags;
+import dev.skidfuscator.ir.method.MethodVisitor;
 import dev.skidfuscator.ir.verify.Assert;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,7 +24,7 @@ import java.util.*;
  * methods, interfaces, etc).
  */
 public class Method extends MethodVisitor {
-    private Method() {
+    protected Method() {
     }
 
     private Klass owner;
@@ -48,8 +51,8 @@ public class Method extends MethodVisitor {
     }
 
     @Override
-    public void visitGroup(MethodGroup group) {
-        super.visitGroup(group);
+    public void visit(MethodGroup group) {
+        super.visit(group);
     }
 
     @Override
@@ -279,12 +282,6 @@ public class Method extends MethodVisitor {
                     args,
                     returnType
             );
-            method.owner = owner;
-            method.group = group;
-            method.name = name;
-            method.args = args;
-            method.returnType = returnType;
-            method.tags = this.tags;
             method.instructions = this.instructions;
             return method;
         }

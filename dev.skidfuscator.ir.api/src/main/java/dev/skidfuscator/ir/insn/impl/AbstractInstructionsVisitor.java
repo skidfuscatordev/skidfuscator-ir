@@ -26,14 +26,18 @@ public abstract class AbstractInstructionsVisitor {
         return null;
     }
 
-    public void visitSetField(final Field target) {
+    public AbstractFieldInstructionVisitor visitSetField() {
         if (visitor != null)
-            visitor.visitSetField(target);
+            return visitor.visitSetField();
+
+        return null;
     }
 
-    public void visitGetField(final Field target) {
+    public AbstractFieldInstructionVisitor visitGetField() {
         if (visitor != null)
-            visitor.visitGetField(target);
+            return visitor.visitGetField();
+
+        return null;
     }
 
     public void visitIinc(final int local, final int increment) {
@@ -43,9 +47,9 @@ public abstract class AbstractInstructionsVisitor {
 
     public InvokeInstructionVisitor visitInvoke() {
         if (visitor != null)
-            return new InvokeInstruction(visitor.visitInvoke());
+            return visitor.visitInvoke();
 
-        return new InvokeInstruction();
+        return null;
     }
 
     public void visitLabel(final int offset) {
@@ -54,9 +58,11 @@ public abstract class AbstractInstructionsVisitor {
         }
     }
 
-    public void visitConstant(final Object constant) {
+    public ConstantInstructionVisitor visitConstant() {
         if (visitor != null) {
-            visitor.visitConstant(constant);
+            return visitor.visitConstant();
         }
+
+        return null;
     }
 }

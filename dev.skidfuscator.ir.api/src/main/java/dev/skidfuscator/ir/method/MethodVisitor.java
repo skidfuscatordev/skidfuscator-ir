@@ -1,7 +1,7 @@
 package dev.skidfuscator.ir.method;
 
 import dev.skidfuscator.ir.insn.impl.AbstractInstructionsVisitor;
-import dev.skidfuscator.ir.klass.Klass;
+import dev.skidfuscator.ir.Klass;
 
 import java.util.List;
 import java.util.Set;

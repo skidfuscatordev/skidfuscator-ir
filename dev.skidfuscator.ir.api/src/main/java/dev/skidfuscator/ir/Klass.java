@@ -1,7 +1,8 @@
-package dev.skidfuscator.ir.klass;
+package dev.skidfuscator.ir;
 
-import dev.skidfuscator.ir.Field;
-import dev.skidfuscator.ir.method.Method;
+import dev.skidfuscator.ir.klass.KlassTags;
+import dev.skidfuscator.ir.klass.KlassVisitor;
+import dev.skidfuscator.ir.method.MethodVisitor;
 
 import java.util.Arrays;
 import java.util.List;
@@ -184,5 +185,13 @@ public class Klass extends KlassVisitor {
 
     public void visit(final KlassVisitor visitor) {
         visitor.visit(name, parent, interfaces, tags, signature);
+    }
+
+    @Override
+    public MethodVisitor visitMethod() {
+        final Method method = new Method();
+        this.methods.add(method);
+
+        return method;
     }
 }

@@ -1,6 +1,6 @@
 package dev.skidfuscator.ir.primitive;
 
-import dev.skidfuscator.ir.klass.Klass;
+import dev.skidfuscator.ir.Klass;
 import dev.skidfuscator.ir.klass.internal.PrimitiveArrayKlass;
 import dev.skidfuscator.ir.klass.internal.PrimitiveKlass;
 

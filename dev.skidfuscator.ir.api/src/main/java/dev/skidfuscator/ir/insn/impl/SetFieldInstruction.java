@@ -3,13 +3,17 @@ package dev.skidfuscator.ir.insn.impl;
 import dev.skidfuscator.ir.Field;
 
 public class SetFieldInstruction extends AbstractFieldInstruction {
-    private SetFieldInstruction(Field target) {
-        super(target);
+    protected SetFieldInstruction() {
+        super();
+    }
+
+    protected SetFieldInstruction(AbstractFieldInstructionVisitor next) {
+        super(next);
     }
 
     @Override
     public void copyTo(AbstractInstructionsVisitor visitor) {
-        visitor.visitSetField(target);
+        this.copyTo(visitor.visitSetField());
     }
 
     public static Builder of() {
@@ -38,7 +42,9 @@ public class SetFieldInstruction extends AbstractFieldInstruction {
 
         @Override
         public SetFieldInstruction build() {
-            final SetFieldInstruction fieldInstruction = new SetFieldInstruction(target);
+            final SetFieldInstruction fieldInstruction = new SetFieldInstruction();
+            fieldInstruction.setTarget(target);
+
             return fieldInstruction;
         }
     }

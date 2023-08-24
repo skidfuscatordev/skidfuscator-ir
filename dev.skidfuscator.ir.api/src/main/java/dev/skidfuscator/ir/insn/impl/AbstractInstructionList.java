@@ -20,23 +20,19 @@ public class AbstractInstructionList extends AbstractInstructionsVisitor {
     }
 
     @Override
-    public void visitSetField(Field target) {
-        this.instructions.add(SetFieldInstruction.of()
-                .target(target)
-                .build()
-        );
+    public AbstractFieldInstructionVisitor visitSetField() {
+        final SetFieldInstruction fieldInstruction = new SetFieldInstruction(super.visitSetField());
+        this.instructions.add(fieldInstruction);
 
-        super.visitSetField(target);
+        return fieldInstruction;
     }
 
     @Override
-    public void visitGetField(Field target) {
-        this.instructions.add(GetFieldInstruction.of()
-                .target(target)
-                .build()
-        );
+    public AbstractFieldInstructionVisitor visitGetField() {
+        final GetFieldInstruction fieldInstruction = new GetFieldInstruction(super.visitSetField());
+        this.instructions.add(fieldInstruction);
 
-        super.visitGetField(target);
+        return fieldInstruction;
     }
 
     @Override
@@ -55,8 +51,11 @@ public class AbstractInstructionList extends AbstractInstructionsVisitor {
     }
 
     @Override
-    public void visitConstant(Object constant) {
-        super.visitConstant(constant);
+    public ConstantInstructionVisitor visitConstant() {
+        final ConstantInstruction constantInstruction = new ConstantInstruction();
+        this.instructions.add(constantInstruction);
+
+        return constantInstruction;
     }
 
     public List<Instruction> getInstructions() {

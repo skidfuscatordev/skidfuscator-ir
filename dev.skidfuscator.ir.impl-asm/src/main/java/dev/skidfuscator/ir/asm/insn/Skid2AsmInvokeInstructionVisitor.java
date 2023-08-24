@@ -1,9 +1,8 @@
 package dev.skidfuscator.ir.asm.insn;
 
-import dev.skidfuscator.ir.insn.impl.InvokeInstruction;
 import dev.skidfuscator.ir.insn.impl.InvokeInstructionVisitor;
-import dev.skidfuscator.ir.klass.Klass;
-import dev.skidfuscator.ir.method.Method;
+import dev.skidfuscator.ir.Klass;
+import dev.skidfuscator.ir.Method;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -15,7 +14,7 @@ public class Skid2AsmInvokeInstructionVisitor extends InvokeInstructionVisitor {
     }
 
     @Override
-    public void visit(Method target) {
+    public void copyFrom(Method target) {
         final int opcode;
         if (target.isStatic()) {
             opcode = Opcodes.INVOKESTATIC;
@@ -35,7 +34,7 @@ public class Skid2AsmInvokeInstructionVisitor extends InvokeInstructionVisitor {
                 target.getOwner().isInterface()
         );
 
-        super.visit(target);
+        super.copyFrom(target);
     }
 
     private String toDesc(final Method insn) {

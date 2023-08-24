@@ -1,7 +1,5 @@
 package dev.skidfuscator.ir;
 
-import dev.skidfuscator.ir.klass.Klass;
-
 public class Field {
     private Klass owner;
     private String name;

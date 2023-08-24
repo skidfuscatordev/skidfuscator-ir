@@ -1,7 +1,7 @@
 package dev.skidfuscator.ir.hierarchy;
 
 
-import dev.skidfuscator.ir.klass.Klass;
+import dev.skidfuscator.ir.Klass;
 
 import java.util.Collection;
 

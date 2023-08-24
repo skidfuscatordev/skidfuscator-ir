@@ -1,6 +1,6 @@
 package dev.skidfuscator.ir.hierarchy.method;
 
-import dev.skidfuscator.ir.method.Method;
+import dev.skidfuscator.ir.Method;
 
 import java.util.Objects;
 

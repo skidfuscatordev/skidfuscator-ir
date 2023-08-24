@@ -1,12 +1,16 @@
 package dev.skidfuscator.ir.insn.impl;
 
 import dev.skidfuscator.ir.Field;
+import dev.skidfuscator.ir.insn.Instruction;
 
-public abstract class AbstractFieldInstruction extends AbstractInstruction {
+public abstract class AbstractFieldInstruction extends AbstractFieldInstructionVisitor implements Instruction {
     protected Field target;
 
-    protected AbstractFieldInstruction(Field target) {
-        this.target = target;
+    protected AbstractFieldInstruction() {
+    }
+
+    protected AbstractFieldInstruction(AbstractFieldInstructionVisitor next) {
+        super(next);
     }
 
     public Field getTarget() {
@@ -15,6 +19,21 @@ public abstract class AbstractFieldInstruction extends AbstractInstruction {
 
     public void setTarget(Field target) {
         this.target = target;
+    }
+
+    public void copyTo(final AbstractFieldInstructionVisitor visitor) {
+        visitor.copyFrom(target);
+    }
+
+    @Override
+    public void copyFrom(final Field target) {
+        this.setTarget(target);
+
+        super.copyFrom(target);
+    }
+
+    public void copyFrom(final AbstractFieldInstruction visitor) {
+        visitor.copyTo(this);
     }
 
     public static abstract class Builder {

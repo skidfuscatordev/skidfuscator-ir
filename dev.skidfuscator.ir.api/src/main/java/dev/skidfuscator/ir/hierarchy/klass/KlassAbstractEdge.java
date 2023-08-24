@@ -1,6 +1,6 @@
 package dev.skidfuscator.ir.hierarchy.klass;
 
-import dev.skidfuscator.ir.klass.Klass;
+import dev.skidfuscator.ir.Klass;
 
 public abstract class KlassAbstractEdge implements KlassInheritanceEdge {
     private final Klass node;

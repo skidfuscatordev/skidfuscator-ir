@@ -3,9 +3,10 @@ package dev.skidfuscator.ir.asm;
 import dev.skidfuscator.ir.Field;
 import dev.skidfuscator.ir.asm.util.AsmUtil;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
+import dev.skidfuscator.ir.insn.impl.AbstractFieldInstructionVisitor;
 import dev.skidfuscator.ir.insn.impl.AbstractInstructionList;
-import dev.skidfuscator.ir.klass.Klass;
-import dev.skidfuscator.ir.method.Method;
+import dev.skidfuscator.ir.Klass;
+import dev.skidfuscator.ir.Method;
 import org.objectweb.asm.*;
 
 import java.util.ArrayList;
@@ -105,12 +106,11 @@ public class Asm2SkidMethodNodeVisitor extends MethodVisitor {
         final Klass parent = hierarchy.resolveClass(owner);
         final Field field = parent.resolveField(name, type);
 
+        final AbstractFieldInstructionVisitor fieldVisitor = fetch
+                ? visitor.visitCode().visitGetField()
+                : visitor.visitCode().visitSetField();
 
-        if (fetch) {
-            visitor.visitCode().visitGetField(field);
-        } else {
-            visitor.visitCode().visitSetField(field);
-        }
+        fieldVisitor.copyFrom(field);
 
         super.visitFieldInsn(opcode, owner, name, descriptor);
     }
@@ -130,7 +130,7 @@ public class Asm2SkidMethodNodeVisitor extends MethodVisitor {
         );
 
         final Method target = ownerKlass.resolveMethod(name, argsKlass, returnKlass);
-        visitor.visitCode().visitInvoke().visit(target);
+        visitor.visitCode().visitInvoke().copyFrom(target);
 
         super.visitMethodInsn(opcode, owner, name, descriptor);
     }
