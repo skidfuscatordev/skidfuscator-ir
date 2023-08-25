@@ -506,9 +506,9 @@ public class ResolvedKlassNode implements KlassNode {
         this.node.access = access;
 
         this.node.superName = parent == null ? null : parent.getName();
-        this.node.nestHostClass = this.nestHost.getName();
-        this.node.outerClass = this.outerClass.getName();
-        this.node.outerMethodDesc = this.outerMethodDesc.dump().getDescriptor();
+        this.node.nestHostClass = this.nestHost == null ? null : this.nestHost.getName();
+        this.node.outerClass = this.outerClass == null ? null : this.outerClass.getName();
+        this.node.outerMethodDesc = this.outerMethodDesc == null ? null : this.outerMethodDesc.dump().getDescriptor();
 
         this.node.interfaces = new ArrayList<>();
         for (KlassNode impl : this.interfaces) {
@@ -528,18 +528,23 @@ public class ResolvedKlassNode implements KlassNode {
             this.node.methods.add(method.dump());
         }
 
-        this.node.permittedSubclasses = new ArrayList<>();
-        for (KlassNode permittedSubclass : this.permittedSubclasses) {
-            this.node.permittedSubclasses.add(permittedSubclass.getName());
+        if (this.permittedSubclasses != null) {
+            this.node.permittedSubclasses = new ArrayList<>();
+            for (KlassNode permittedSubclass : this.permittedSubclasses) {
+                this.node.permittedSubclasses.add(permittedSubclass.getName());
+            }
         }
 
-        this.node.nestMembers = new ArrayList<>();
-        for (KlassNode nestMember : this.nestMembers) {
-            this.node.nestMembers.add(nestMember.getName());
+        if (this.nestMembers != null) {
+            this.node.nestMembers = new ArrayList<>();
+            for (KlassNode nestMember : this.nestMembers) {
+                this.node.nestMembers.add(nestMember.getName());
+            }
         }
-
-        for (RecordComponent recordComponent : this.recordComponents) {
-            recordComponent.dump();
+        if (this.recordComponents != null) {
+            for (RecordComponent recordComponent : this.recordComponents) {
+                recordComponent.dump();
+            }
         }
 
         for (Annotation annotation : this.annotations) {
