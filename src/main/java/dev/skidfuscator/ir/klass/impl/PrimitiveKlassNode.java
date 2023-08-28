@@ -9,6 +9,7 @@ import dev.skidfuscator.ir.util.Descriptor;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.util.*;
@@ -142,7 +143,7 @@ public class PrimitiveKlassNode implements KlassNode {
     }
 
     @Override
-    public void dump() {
+    public ClassNode dump() {
         throw new IllegalStateException("Cannot dump implicit array class");
     }
 

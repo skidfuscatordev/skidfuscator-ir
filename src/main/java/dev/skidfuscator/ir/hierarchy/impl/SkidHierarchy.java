@@ -17,6 +17,7 @@ import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.klass.impl.ResolvedKlassNode;
 import dev.skidfuscator.ir.util.ClassDescriptor;
 import dev.skidfuscator.ir.util.ClassHelper;
+import org.apache.commons.lang3.ClassUtils;
 import org.jgrapht.nio.GraphExporter;
 import org.jgrapht.nio.dot.DOTExporter;
 import org.objectweb.asm.Type;
@@ -383,4 +384,12 @@ public class SkidHierarchy implements Hierarchy {
         }
     }
 
+    @Override
+    public Map<KlassNode, byte[]> dumpBytes() {
+        Map<KlassNode,byte[]> bytesMap = new HashMap<>();
+        programClassEquivalence.forEach((k,v) -> {
+            bytesMap.put(v,ClassHelper.toByteArray(v.dump()));
+        });
+        return bytesMap;
+    }
 }

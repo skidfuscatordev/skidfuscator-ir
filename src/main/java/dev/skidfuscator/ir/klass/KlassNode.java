@@ -5,6 +5,7 @@ import dev.skidfuscator.ir.field.FieldNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.ClassNode;
 
 import java.util.Collection;
 import java.util.List;
@@ -182,5 +183,6 @@ public interface KlassNode {
     /**
      * Dumps the wrapper back to the original file.
      */
-    void dump();
+    ClassNode dump();
+
 }

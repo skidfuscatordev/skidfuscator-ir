@@ -59,4 +59,5 @@ public class SkidLibraryHierarchy extends SkidHierarchy {
 
         super.resolveClasses(classes);
     }
+
 }

@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.ClassNode;
 
 import java.util.*;
 
@@ -233,7 +234,7 @@ public class UnresolvedKlassNode implements KlassNode {
     }
 
     @Override
-    public void dump() {
+    public ClassNode dump() {
         throw new IllegalStateException(String.format(
                 "Cannot dump unresolved class %s",
                 name
