@@ -30,7 +30,7 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
 
     protected KlassNode owner;
     protected InstructionList instructions;
-    protected List<FunctionInvoker<?>> invokers;
+    protected List<FunctionInvoker<?, ?>> invokers;
     protected int access;
     private List<TryCatchBlock> tryCatchBlocks;
     protected List<KlassNode> exceptions;
@@ -396,19 +396,19 @@ public abstract class ResolvedAbstractFunctionNode implements FunctionNode {
     }
 
     @Override
-    public List<FunctionInvoker<?>> getInvokes() {
+    public List<FunctionInvoker<?, ?>> getInvokes() {
         return Collections.unmodifiableList(invokers);
     }
 
     @Override
-    public void addInvoke(FunctionInvoker<?> invoker) {
+    public void addInvoke(FunctionInvoker<?, ?> invoker) {
         this.invokers.add(invoker);
 
         assert invoker.getTarget() == this : "The target invocation needs to set to this function before adding!";
     }
 
     @Override
-    public void removeInvoke(FunctionInvoker<?> invoker) {
+    public void removeInvoke(FunctionInvoker<?, ?> invoker) {
         this.invokers.remove(invoker);
 
         assert invoker.getTarget() == null : "The target invocation needs to set to null before removing!";

@@ -86,20 +86,20 @@ public interface FunctionNode extends HierarchyResolvable {
      *
      * @return The list of invocations
      */
-    List<FunctionInvoker<?>> getInvokes();
+    List<FunctionInvoker<?, ?>> getInvokes();
 
     /**
      * Adds an invocation to the function.
      *
      * @param invoker The invoker to add
      */
-    void addInvoke(final FunctionInvoker<?> invoker);
+    void addInvoke(final FunctionInvoker<?, ?> invoker);
 
     /**
      * Removes an invocation from the function.
      * @param invoker The invoker to remove
      */
-    void removeInvoke(final FunctionInvoker<?> invoker);
+    void removeInvoke(final FunctionInvoker<?, ?> invoker);
 
     /**
      * Retrieves the exceptions of the function.

@@ -2,20 +2,18 @@ package dev.skidfuscator.ir.insn.impl;
 
 import dev.skidfuscator.ir.klass.KlassNode;
 import dev.skidfuscator.ir.method.FunctionNode;
-//import dev.skidfuscator.ir.gen.BytecodeFrontend;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.insn.AbstractInsn;
 import dev.skidfuscator.ir.insn.InstructionList;
 import dev.skidfuscator.ir.method.FunctionInvoker;
 import dev.skidfuscator.ir.method.invoke.StaticFunctionInvoke;
-import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class InvokeInsn extends AbstractInsn<MethodInsnNode> {
-    private FunctionInvoker<InvokeInsn> invoker;
+    private FunctionInvoker<?, ?> invoker;
     private boolean synthetic;
 
     public InvokeInsn(Hierarchy hierarchy, MethodInsnNode node) {
@@ -84,14 +82,23 @@ public class InvokeInsn extends AbstractInsn<MethodInsnNode> {
         this.invoker.setTarget(target);
     }
 
-    public FunctionInvoker<InvokeInsn> getInvoker() {
+    public FunctionInvoker<?, ?> getInvoker() {
         _checkResolve();
         return invoker;
     }
 
+    public void setInvoker(FunctionInvoker<?, ?> invoke) {
+        final FunctionInvoker<?, ?> old = this.invoker;
+        final FunctionNode target = old.getTarget();
+        target.removeInvoke(old);
+
+        this.invoker = invoke;
+        this.invoker.setTarget(target);
+    }
+
     public boolean isStatic() {
         _checkResolve();
-        return invoker.get().isStatic();
+        return invoker.getTarget().isStatic();
     }
 
     @Override
