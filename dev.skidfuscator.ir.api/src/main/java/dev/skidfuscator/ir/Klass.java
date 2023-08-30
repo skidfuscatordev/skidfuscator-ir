@@ -5,6 +5,7 @@ import dev.skidfuscator.ir.klass.KlassVisitor;
 import dev.skidfuscator.ir.method.MethodVisitor;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -105,11 +106,11 @@ public class Klass extends KlassVisitor {
     }
 
     public List<Method> getMethods() {
-        return methods;
+        return Collections.unmodifiableList(methods);
     }
 
     public List<Field> getFields() {
-        return fields;
+        return Collections.unmodifiableList(fields);
     }
 
     public boolean isPrimitive() {
@@ -121,7 +122,7 @@ public class Klass extends KlassVisitor {
                 .filter(e -> e.getName().equals(name) && e.getType().equals(type))
                 .collect(Collectors.toSet());
 
-        if (fields.size() < 1) {
+        if (fields.isEmpty()) {
             throw new IllegalStateException(String.format(
                     "Field of name %s of type %s was not found in %s",
                     name,
@@ -148,7 +149,7 @@ public class Klass extends KlassVisitor {
                 .filter(e -> e.getName().equals(name) && e.getArgs().equals(args) && e.getReturnType().equals(returnType))
                 .collect(Collectors.toSet());
 
-        if (methods.size() < 1) {
+        if (methods.isEmpty()) {
             throw new IllegalStateException(String.format(
                     "Method of name %s of args %s and return type %s was not found in %s",
                     name,

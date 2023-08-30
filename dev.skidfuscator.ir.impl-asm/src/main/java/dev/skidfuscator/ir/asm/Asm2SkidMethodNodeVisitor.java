@@ -4,7 +4,6 @@ import dev.skidfuscator.ir.Field;
 import dev.skidfuscator.ir.asm.util.AsmUtil;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.insn.impl.AbstractFieldInstructionVisitor;
-import dev.skidfuscator.ir.insn.impl.AbstractInstructionList;
 import dev.skidfuscator.ir.Klass;
 import dev.skidfuscator.ir.Method;
 import org.objectweb.asm.*;
@@ -14,19 +13,17 @@ import java.util.List;
 
 public class Asm2SkidMethodNodeVisitor extends MethodVisitor {
     private final Hierarchy hierarchy;
-    private final Method visitor;
+    private final dev.skidfuscator.ir.method.MethodVisitor visitor;
 
-    public Asm2SkidMethodNodeVisitor(Hierarchy hierarchy, Method visitor) {
+    public Asm2SkidMethodNodeVisitor(Hierarchy hierarchy, dev.skidfuscator.ir.method.MethodVisitor visitor) {
         this(hierarchy, visitor, null);
     }
 
-    protected Asm2SkidMethodNodeVisitor(Hierarchy hierarchy, Method visitor, MethodVisitor methodVisitor) {
+    protected Asm2SkidMethodNodeVisitor(Hierarchy hierarchy, dev.skidfuscator.ir.method.MethodVisitor visitor, MethodVisitor methodVisitor) {
         super(AsmUtil.ASM_VERSION, methodVisitor);
         this.hierarchy = hierarchy;
         this.visitor = visitor;
     }
-
-    private transient AbstractInstructionList instructions;
 
     @Override
     public void visitParameter(String name, int access) {
@@ -65,8 +62,6 @@ public class Asm2SkidMethodNodeVisitor extends MethodVisitor {
 
     @Override
     public void visitCode() {
-        this.instructions = new AbstractInstructionList(new ArrayList<>());
-
         super.visitCode();
     }
 
@@ -116,7 +111,7 @@ public class Asm2SkidMethodNodeVisitor extends MethodVisitor {
     }
 
     @Override
-    public void visitMethodInsn(int opcode, String owner, String name, String descriptor) {
+    public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
         final Klass ownerKlass = hierarchy.resolveClass(owner);
 
         final Type methodType = Type.getMethodType(descriptor);
@@ -132,11 +127,6 @@ public class Asm2SkidMethodNodeVisitor extends MethodVisitor {
         final Method target = ownerKlass.resolveMethod(name, argsKlass, returnKlass);
         visitor.visitCode().visitInvoke().copyFrom(target);
 
-        super.visitMethodInsn(opcode, owner, name, descriptor);
-    }
-
-    @Override
-    public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
     }
 

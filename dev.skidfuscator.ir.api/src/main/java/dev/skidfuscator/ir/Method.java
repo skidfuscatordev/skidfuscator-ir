@@ -51,8 +51,8 @@ public class Method extends MethodVisitor {
     }
 
     @Override
-    public void visit(MethodGroup group) {
-        super.visit(group);
+    public void visitGroup(MethodGroup group) {
+        super.visitGroup(group);
     }
 
     @Override

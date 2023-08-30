@@ -1,6 +1,7 @@
 package dev.skidfuscator.ir.klass;
 
 import dev.skidfuscator.ir.Klass;
+import dev.skidfuscator.ir.field.FieldVisitor;
 import dev.skidfuscator.ir.method.MethodVisitor;
 
 import java.util.List;
@@ -26,6 +27,14 @@ public class KlassVisitor {
     public MethodVisitor visitMethod() {
         if (visitor != null) {
             return visitor.visitMethod();
+        }
+
+        return null;
+    }
+
+    public FieldVisitor visitField() {
+        if (visitor != null) {
+            return visitor.visitField();
         }
 
         return null;
