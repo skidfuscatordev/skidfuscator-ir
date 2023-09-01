@@ -500,7 +500,7 @@ public class ResolvedKlassNode implements KlassNode {
     }
 
     @Override
-    public void dump() {
+    public ClassNode dump() {
         this.node.name = name;
         this.node.signature = getSignature();
         this.node.access = access;
@@ -550,6 +550,7 @@ public class ResolvedKlassNode implements KlassNode {
         for (Annotation annotation : this.annotations) {
             annotation.dump();
         }
+        return node;
     }
 
     @Override

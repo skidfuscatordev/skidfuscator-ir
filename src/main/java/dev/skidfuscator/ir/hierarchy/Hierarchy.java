@@ -12,6 +12,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 
 public interface Hierarchy {
     /**
@@ -116,4 +117,6 @@ public interface Hierarchy {
     default FieldNode findField(final FieldInsnNode node) {
         return findField(node.owner, node.name, node.desc);
     }
+
+    Map<KlassNode,byte[]> dumpBytes();
 }
