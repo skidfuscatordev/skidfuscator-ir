@@ -5,6 +5,10 @@ public class HierarchyConfig {
     private boolean generatePhantomMethods;
     private boolean generatePhantomFields;
 
+    public static Builder of() {
+        return new Builder();
+    }
+
     public boolean isGeneratePhantomClasses() {
         return generatePhantomClasses;
     }
@@ -23,10 +27,6 @@ public class HierarchyConfig {
         private boolean generatePhantomFields;
 
         private Builder() {
-        }
-
-        public static Builder of() {
-            return new Builder();
         }
 
         public Builder generatePhantomClasses() {

@@ -1,34 +1,31 @@
 package dev.skidfuscator.ir.insn.impl;
 
 import dev.skidfuscator.ir.Field;
+import dev.skidfuscator.ir.insn.InstructionsVisitor;
+import dev.skidfuscator.ir.insn.impl.visitor.AbstractFieldInstructionVisitor;
 
-public class GetFieldInstruction extends AbstractFieldInstruction {
+public non-sealed class GetFieldInstruction extends AbstractFieldInstruction {
     protected GetFieldInstruction() {
         super();
     }
 
-    protected GetFieldInstruction(AbstractFieldInstructionVisitor next) {
+    public GetFieldInstruction(AbstractFieldInstructionVisitor next) {
         super(next);
-    }
-
-    @Override
-    public void copyTo(AbstractInstructionsVisitor visitor) {
-        this.copyTo(visitor.visitGetField());
     }
 
     public static Builder of() {
         return new Builder();
     }
 
-    public static final class Builder extends AbstractFieldInstruction.Builder {
+    @Override
+    public void copyTo(InstructionsVisitor visitor) {
+        this.copyTo(visitor.visitGetField());
+    }
+
+    public static final class Builder {
         private Field target;
 
         private Builder() {
-        }
-
-        @Override
-        public Builder of() {
-            return GetFieldInstruction.of();
         }
 
         public Builder target(Field target) {
@@ -40,7 +37,6 @@ public class GetFieldInstruction extends AbstractFieldInstruction {
             return of().target(target);
         }
 
-        @Override
         public GetFieldInstruction build() {
             final GetFieldInstruction fieldInstruction = new GetFieldInstruction();
             fieldInstruction.setTarget(target);

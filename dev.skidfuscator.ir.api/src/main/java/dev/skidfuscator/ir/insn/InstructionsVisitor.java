@@ -1,27 +1,28 @@
-package dev.skidfuscator.ir.insn.impl;
+package dev.skidfuscator.ir.insn;
 
-import dev.skidfuscator.ir.Field;
-import dev.skidfuscator.ir.primitive.Primitive;
+import dev.skidfuscator.ir.insn.impl.visitor.AbstractFieldInstructionVisitor;
+import dev.skidfuscator.ir.insn.impl.visitor.ArithmeticInstructionVisitor;
+import dev.skidfuscator.ir.insn.impl.visitor.ConstantInstructionVisitor;
+import dev.skidfuscator.ir.insn.impl.visitor.InvokeInstructionVisitor;
 
 /**
  * TODO: Switch all of these to instead refer the instruction,
  * then create dedicated visitors.
  */
-public abstract class AbstractInstructionsVisitor {
-    private AbstractInstructionsVisitor visitor;
+public abstract class InstructionsVisitor {
+    private final InstructionsVisitor visitor;
 
-    public AbstractInstructionsVisitor() {
+    public InstructionsVisitor() {
         this(null);
     }
 
-    public AbstractInstructionsVisitor(AbstractInstructionsVisitor visitor) {
+    public InstructionsVisitor(InstructionsVisitor visitor) {
         this.visitor = visitor;
     }
 
-    protected ArithmeticInstructionVisitor visitArithmetic() {
-        if (visitor != null) {
+    public ArithmeticInstructionVisitor visitArithmetic() {
+        if (visitor != null)
             return visitor.visitArithmetic();
-        }
 
         return null;
     }
@@ -53,15 +54,13 @@ public abstract class AbstractInstructionsVisitor {
     }
 
     public void visitLabel(final int offset) {
-        if (visitor != null) {
+        if (visitor != null)
             visitor.visitLabel(offset);
-        }
     }
 
     public ConstantInstructionVisitor visitConstant() {
-        if (visitor != null) {
+        if (visitor != null)
             return visitor.visitConstant();
-        }
 
         return null;
     }

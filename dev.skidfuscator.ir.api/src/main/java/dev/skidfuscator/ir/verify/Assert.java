@@ -3,8 +3,6 @@ package dev.skidfuscator.ir.verify;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.function.Supplier;
 
 public class Assert {
@@ -38,12 +36,12 @@ public class Assert {
 
     @Contract("null, !null -> fail; !null, null -> fail")
     public static void eq(final Object a, final Object b) {
-        eq(a, b, () -> String.format("Objects are not equal! %s vs %s", format(a), format(b)));
+        eq(a, b, () -> "Objects are not equal! %s != %s".formatted(a, b));
     }
 
     @Contract("null, !null, _ -> fail; !null, null, _ -> fail")
     public static void eq(final Object a, final Object b, final String error) {
-        eq(a, b, () -> String.format("%s\n--> %s vs %s", error, format(a), format(b)));
+        eq(a, b, () -> "%s\n--> %s != %s".formatted(error, a, b));
     }
 
     @Contract("null, !null, _ -> fail; !null, null, _ -> fail")
@@ -52,13 +50,5 @@ public class Assert {
             return;
 
         throw new IllegalStateException(error.get());
-    }
-
-    private static String format(Object o) {
-        if (o instanceof List<?>) {
-            return Arrays.toString(((List<?>) o).toArray());
-        }
-
-        return o.toString();
     }
 }

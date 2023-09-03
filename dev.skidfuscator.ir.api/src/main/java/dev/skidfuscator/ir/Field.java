@@ -1,18 +1,54 @@
 package dev.skidfuscator.ir;
 
-import dev.skidfuscator.ir.field.FieldTags;
+import dev.skidfuscator.ir.access.impl.FieldModifier;
 import dev.skidfuscator.ir.field.FieldVisitor;
 
-import java.util.Set;
-
-public class Field extends FieldVisitor {
+public non-sealed class Field extends FieldVisitor implements DirectFieldModifier {
     private Klass owner;
-    private Set<FieldTags> tags;
+    private FieldModifier modifier;
     private String name;
     private Klass type;
+    private Object constant;
 
-    private Object dflt;
-    private boolean _static;
+    public Field() {
+    }
+
+    private Field(Klass owner, FieldModifier modifier, String name, Klass type, Object constant) {
+        this.owner = owner;
+        this.modifier = modifier;
+        this.name = name;
+        this.type = type;
+        this.constant = constant;
+    }
+
+    public static Builder of() {
+        return new Builder();
+    }
+
+    @Override
+    public void visit(final Klass owner,
+                      final FieldModifier modifier,
+                      final String name,
+                      final Klass type,
+                      final Object constant) {
+        this.owner = owner;
+        this.modifier = modifier;
+        this.name = name;
+        this.type = type;
+        this.constant = constant;
+
+        super.visit(owner, modifier, name, type, constant);
+    }
+
+    @Override
+    public FieldModifier getModifier() {
+        return modifier;
+    }
+
+    @Override
+    public void setModifier(FieldModifier modifier) {
+        this.modifier = modifier;
+    }
 
     public Klass getOwner() {
         return owner;
@@ -38,85 +74,56 @@ public class Field extends FieldVisitor {
         this.type = type;
     }
 
-    public Object getDefault() {
-        return dflt;
+    public Object getConstant() {
+        return constant;
     }
 
-    public void setDefault(Object dflt) {
-        this.dflt = dflt;
+    public void setConstant(Object constant) {
+        this.constant = constant;
     }
 
-    public boolean isStatic() {
-        return _static;
-    }
-
-    @Override
-    public void visit(final Klass owner,
-                      final Set<FieldTags> tags,
-                      final String name,
-                      final Klass type,
-                      final Object dflt) {
-        this.owner = owner;
-        this.tags = tags;
-        this.name = name;
-        this.type = type;
-        this.dflt = dflt;
-
-        super.visit(owner, tags, name, type, dflt);
-    }
-
-    public static FieldBuilder of() {
-        return new FieldBuilder();
-    }
-
-    public static final class FieldBuilder {
+    public static final class Builder {
         private Klass owner;
-        private Set<FieldTags> tags;
+        private FieldModifier modifier;
         private String name;
         private Klass type;
-        private Object dflt;
+        private Object constant;
         private FieldVisitor next;
 
-        private FieldBuilder() {
+        private Builder() {
         }
 
-        public FieldBuilder owner(Klass owner) {
+        public Builder owner(Klass owner) {
             this.owner = owner;
             return this;
         }
 
-        public FieldBuilder tags(Set<FieldTags> tags) {
-            this.tags = tags;
+        public Builder modifier(FieldModifier modifier) {
+            this.modifier = modifier;
             return this;
         }
 
-        public FieldBuilder name(String name) {
+        public Builder name(String name) {
             this.name = name;
             return this;
         }
 
-        public FieldBuilder type(Klass type) {
+        public Builder type(Klass type) {
             this.type = type;
             return this;
         }
 
-        public FieldBuilder dflt(Object dflt) {
-            this.dflt = dflt;
+        public Builder constant(Object constant) {
+            this.constant = constant;
             return this;
         }
 
-        public FieldBuilder but() {
-            return of().owner(owner).tags(tags).name(name).type(type).dflt(dflt);
+        public Builder but() {
+            return of().owner(owner).modifier(modifier).name(name).type(type).constant(constant);
         }
 
         public Field build() {
-            Field field = new Field();
-            field.setOwner(owner);
-            field.setName(name);
-            field.setType(type);
-            field.dflt = this.dflt;
-            field.tags = this.tags;
-            return field;
+            return new Field(owner, modifier, name, type, constant);
         }
     }
 }

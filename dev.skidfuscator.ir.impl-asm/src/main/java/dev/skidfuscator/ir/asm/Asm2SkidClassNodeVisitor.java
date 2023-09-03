@@ -1,14 +1,12 @@
 package dev.skidfuscator.ir.asm;
 
 import dev.skidfuscator.ir.Field;
+import dev.skidfuscator.ir.access.impl.ClassModifier;
+import dev.skidfuscator.ir.access.impl.FieldModifier;
+import dev.skidfuscator.ir.access.impl.MethodModifier;
 import dev.skidfuscator.ir.asm.util.AsmUtil;
-import dev.skidfuscator.ir.field.FieldTags;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
-import dev.skidfuscator.ir.insn.impl.AbstractInstructionList;
 import dev.skidfuscator.ir.Klass;
-import dev.skidfuscator.ir.klass.KlassTags;
-import dev.skidfuscator.ir.Method;
-import dev.skidfuscator.ir.method.MethodTags;
 import org.objectweb.asm.*;
 
 import java.util.*;
@@ -36,7 +34,7 @@ public class Asm2SkidClassNodeVisitor extends ClassVisitor {
                 name,
                 parent,
                 implement,
-                resolveKlassTags(access),
+                ClassModifier.of(access),
                 signature
         );
 
@@ -57,7 +55,7 @@ public class Asm2SkidClassNodeVisitor extends ClassVisitor {
         );
 
         final dev.skidfuscator.ir.method.MethodVisitor method = visitor.visitMethod();
-        method.visit(visitor, name, resolveMethodTags(access), argsKlass, returnKlass);
+        method.visit(visitor, name, MethodModifier.of(access), argsKlass, returnKlass);
 
         return new Asm2SkidMethodNodeVisitor(
                 hierarchy,
@@ -73,10 +71,10 @@ public class Asm2SkidClassNodeVisitor extends ClassVisitor {
 
         final Field field = Field.of()
                 .name(name)
-                .tags(resolveFieldTags(access))
+                .modifier(FieldModifier.of(access))
                 .owner(visitor)
                 .type(fieldKlass)
-                .dflt(value)
+                .constant(value)
                 .build();
 
         return new Asm2SkidFieldNodeVisitor(
@@ -144,72 +142,5 @@ public class Asm2SkidClassNodeVisitor extends ClassVisitor {
     @Override
     public void visitEnd() {
         super.visitEnd();
-    }
-
-    private static final Map<Integer, KlassTags> klassTags;
-    private static final Map<Integer, MethodTags> methodTags;
-    private static final Map<Integer, FieldTags> fieldTags;
-
-    static {
-        klassTags = Map.of(
-            Opcodes.ACC_PRIVATE, KlassTags.PRIVATE,
-            Opcodes.ACC_PROTECTED, KlassTags.PROTECTED,
-            Opcodes.ACC_PUBLIC, KlassTags.PRIVATE,
-            Opcodes.ACC_FINAL, KlassTags.FINAL
-            // temp, waiting for narumii fix
-        );
-
-        methodTags = Map.of(
-                Opcodes.ACC_PRIVATE, MethodTags.PRIVATE,
-                Opcodes.ACC_PROTECTED, MethodTags.PROTECTED,
-                Opcodes.ACC_PUBLIC, MethodTags.PRIVATE,
-                Opcodes.ACC_FINAL, MethodTags.FINAL
-                // temp, waiting for narumii fix
-        );
-
-        fieldTags = Map.of(
-                Opcodes.ACC_PRIVATE, FieldTags.PRIVATE,
-                Opcodes.ACC_PROTECTED, FieldTags.PROTECTED,
-                Opcodes.ACC_PUBLIC, FieldTags.PRIVATE,
-                Opcodes.ACC_FINAL, FieldTags.FINAL,
-                Opcodes.ACC_TRANSIENT, FieldTags.TRANSIENT
-                // temp, waiting for narumii fix
-        );
-    }
-
-    private Set<FieldTags> resolveFieldTags(final int tag) {
-        final Set<FieldTags> tags = new HashSet<>();
-
-        fieldTags.forEach((acc, resolve) -> {
-            if ((tag & acc) != 0) {
-                tags.add(resolve);
-            }
-        });
-
-        return tags;
-    }
-
-    private Set<MethodTags> resolveMethodTags(final int tag) {
-        final Set<MethodTags> tags = new HashSet<>();
-
-        methodTags.forEach((acc, resolve) -> {
-            if ((tag & acc) != 0) {
-                tags.add(resolve);
-            }
-        });
-
-        return tags;
-    }
-
-    private Set<KlassTags> resolveKlassTags(final int tag) {
-        final Set<KlassTags> tags = new HashSet<>();
-
-        klassTags.forEach((acc, resolve) -> {
-            if ((tag & acc) != 0) {
-                tags.add(resolve);
-            }
-        });
-
-        return tags;
     }
 }

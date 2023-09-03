@@ -1,8 +1,9 @@
 package dev.skidfuscator.ir.method;
 
-import dev.skidfuscator.ir.Method;
-import dev.skidfuscator.ir.insn.impl.AbstractInstructionList;
 import dev.skidfuscator.ir.Klass;
+import dev.skidfuscator.ir.Method;
+import dev.skidfuscator.ir.access.impl.MethodModifier;
+import dev.skidfuscator.ir.insn.InstructionList;
 import dev.skidfuscator.ir.klass.internal.PrimitiveKlass;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,8 +35,8 @@ class MethodTest {
                 .owner(parent)
                 .returnType(PrimitiveKlass.VOID)
                 .group(group)
-                .instructions(new AbstractInstructionList(Collections.emptyList()))
-                .tags(new HashSet<>())
+                .instructions(new InstructionList(Collections.emptyList()))
+                .modifier(MethodModifier.empty())
                 .build();
     }
 

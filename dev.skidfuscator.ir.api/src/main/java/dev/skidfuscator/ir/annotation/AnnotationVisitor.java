@@ -1,7 +1,5 @@
 package dev.skidfuscator.ir.annotation;
 
-import dev.skidfuscator.ir.Annotation;
-
 public class AnnotationVisitor {
     private AnnotationVisitor next;
 
@@ -12,5 +10,5 @@ public class AnnotationVisitor {
         this.next = next;
     }
 
-    public void visit(final )
+    //public void visit(final ) //TODO
 }

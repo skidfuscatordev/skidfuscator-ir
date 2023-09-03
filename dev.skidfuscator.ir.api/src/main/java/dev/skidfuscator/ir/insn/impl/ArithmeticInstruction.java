@@ -1,20 +1,28 @@
 package dev.skidfuscator.ir.insn.impl;
 
-import dev.skidfuscator.ir.insn.IllegalInstructionException;
+import dev.skidfuscator.ir.arithmetic.ArithmeticOperation;
 import dev.skidfuscator.ir.insn.Instruction;
+import dev.skidfuscator.ir.insn.InstructionsVisitor;
+import dev.skidfuscator.ir.insn.exception.IllegalInstructionException;
+import dev.skidfuscator.ir.insn.impl.visitor.ArithmeticInstructionVisitor;
 import dev.skidfuscator.ir.primitive.Primitive;
 import dev.skidfuscator.ir.verify.Assert;
 import org.jetbrains.annotations.NotNull;
 
 public class ArithmeticInstruction extends ArithmeticInstructionVisitor implements Instruction {
     private Primitive type;
-    private Operation operation;
+    private ArithmeticOperation operation;
 
     protected ArithmeticInstruction() {
+        super();
     }
 
-    protected ArithmeticInstruction(ArithmeticInstructionVisitor parent) {
+    public ArithmeticInstruction(ArithmeticInstructionVisitor parent) {
         super(parent);
+    }
+
+    public static Builder of() {
+        return new Builder();
     }
 
     public @NotNull Primitive getType() {
@@ -29,12 +37,12 @@ public class ArithmeticInstruction extends ArithmeticInstructionVisitor implemen
         this.type = type;
     }
 
-    public @NotNull Operation getOperation() {
+    public @NotNull ArithmeticOperation getOperation() {
         assertNotNull(type);
         return operation;
     }
 
-    public void setOperation(Operation operation) {
+    public void setOperation(ArithmeticOperation operation) {
         Assert.nonNull(operation, new IllegalInstructionException(
                 "Arithmetic instruction cannot have null operation"
         ));
@@ -52,7 +60,7 @@ public class ArithmeticInstruction extends ArithmeticInstructionVisitor implemen
      * @param visitor Visitor being visited
      */
     @Override
-    public void copyTo(AbstractInstructionsVisitor visitor) {
+    public void copyTo(InstructionsVisitor visitor) {
         copyTo(visitor.visitArithmetic());
     }
 
@@ -61,7 +69,7 @@ public class ArithmeticInstruction extends ArithmeticInstructionVisitor implemen
     }
 
     @Override
-    public void copyFrom(Primitive type, Operation operation) {
+    public void copyFrom(Primitive type, ArithmeticOperation operation) {
         this.setType(type);
         this.setOperation(operation);
 
@@ -72,50 +80,19 @@ public class ArithmeticInstruction extends ArithmeticInstructionVisitor implemen
         visitor.copyTo(this);
     }
 
-    public enum Operation {
-        ADD(Primitive.BYTE, Primitive.CHAR, Primitive.SHORT, Primitive.INT, Primitive.FLOAT, Primitive.LONG, Primitive.DOUBLE),
-        SUB(Primitive.BYTE, Primitive.CHAR, Primitive.SHORT, Primitive.INT, Primitive.FLOAT, Primitive.LONG, Primitive.DOUBLE),
-        MUL(Primitive.BYTE, Primitive.CHAR, Primitive.SHORT, Primitive.INT, Primitive.FLOAT, Primitive.LONG, Primitive.DOUBLE),
-        DIV(Primitive.BYTE, Primitive.CHAR, Primitive.SHORT, Primitive.INT, Primitive.FLOAT, Primitive.LONG, Primitive.DOUBLE),
-        REM(Primitive.BYTE, Primitive.CHAR, Primitive.SHORT, Primitive.INT, Primitive.FLOAT, Primitive.LONG, Primitive.DOUBLE),
-        XOR(Primitive.BYTE, Primitive.CHAR, Primitive.SHORT, Primitive.INT, Primitive.BOOLEAN),
-        OR(Primitive.BYTE, Primitive.CHAR, Primitive.SHORT, Primitive.INT, Primitive.BOOLEAN),
-        AND(Primitive.BYTE, Primitive.CHAR, Primitive.SHORT, Primitive.INT, Primitive.BOOLEAN),
-        NEG(Primitive.BYTE, Primitive.CHAR, Primitive.SHORT, Primitive.INT, Primitive.FLOAT, Primitive.LONG, Primitive.DOUBLE);
-
-        private final Primitive[] allowedTypes;
-
-        Operation(Primitive... allowedTypes) {
-            this.allowedTypes = allowedTypes;
-        }
-
-        public boolean isAllowed(final Primitive primitive) {
-            for (Primitive allowedType : allowedTypes) {
-                if (allowedType == primitive)
-                    return true;
-            }
-
-            return false;
-        }
-    }
-
-    public static ArithmeticInstructionBuilder of() {
-        return new ArithmeticInstructionBuilder();
-    }
-
-    public static final class ArithmeticInstructionBuilder {
+    public static final class Builder {
         private Primitive type;
-        private Operation operation;
+        private ArithmeticOperation operation;
 
-        private ArithmeticInstructionBuilder() {
+        private Builder() {
         }
 
-        public ArithmeticInstructionBuilder type(Primitive type) {
+        public Builder type(Primitive type) {
             this.type = type;
             return this;
         }
 
-        public ArithmeticInstructionBuilder operation(Operation operation) {
+        public Builder operation(ArithmeticOperation operation) {
             this.operation = operation;
             return this;
         }

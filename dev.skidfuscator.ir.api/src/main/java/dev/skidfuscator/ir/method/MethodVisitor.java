@@ -1,10 +1,10 @@
 package dev.skidfuscator.ir.method;
 
-import dev.skidfuscator.ir.insn.impl.AbstractInstructionsVisitor;
 import dev.skidfuscator.ir.Klass;
+import dev.skidfuscator.ir.access.impl.MethodModifier;
+import dev.skidfuscator.ir.insn.InstructionsVisitor;
 
 import java.util.List;
-import java.util.Set;
 
 public abstract class MethodVisitor {
     private MethodVisitor next;
@@ -16,9 +16,9 @@ public abstract class MethodVisitor {
         this.next = next;
     }
 
-    public void visit(final Klass owner, final String name, final Set<MethodTags> tags, final List<Klass> args, final Klass returnType) {
+    public void visit(final Klass owner, final String name, final MethodModifier modifier, final List<Klass> args, final Klass returnType) {
         if (next != null) {
-            next.visit(owner, name, tags, args, returnType);
+            next.visit(owner, name, modifier, args, returnType);
         }
     }
 
@@ -28,7 +28,7 @@ public abstract class MethodVisitor {
         }
     }
 
-    public AbstractInstructionsVisitor visitCode() {
+    public InstructionsVisitor visitCode() {
         if (next != null) {
             return next.visitCode();
         }

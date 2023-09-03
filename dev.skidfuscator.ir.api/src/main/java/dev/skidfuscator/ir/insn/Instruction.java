@@ -1,6 +1,5 @@
 package dev.skidfuscator.ir.insn;
 
-import dev.skidfuscator.ir.insn.impl.AbstractInstructionsVisitor;
 import dev.skidfuscator.ir.verify.Assert;
 
 public interface Instruction {
@@ -8,5 +7,5 @@ public interface Instruction {
         Assert.nonNull(var, "Instruction is not initialized! Please visit it or use the builder!");
     }
 
-    void copyTo(final AbstractInstructionsVisitor visitor);
+    void copyTo(final InstructionsVisitor visitor);
 }

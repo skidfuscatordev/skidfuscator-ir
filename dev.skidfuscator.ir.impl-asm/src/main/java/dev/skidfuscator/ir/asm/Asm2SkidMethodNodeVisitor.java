@@ -3,7 +3,7 @@ package dev.skidfuscator.ir.asm;
 import dev.skidfuscator.ir.Field;
 import dev.skidfuscator.ir.asm.util.AsmUtil;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
-import dev.skidfuscator.ir.insn.impl.AbstractFieldInstructionVisitor;
+import dev.skidfuscator.ir.insn.impl.visitor.AbstractFieldInstructionVisitor;
 import dev.skidfuscator.ir.Klass;
 import dev.skidfuscator.ir.Method;
 import org.objectweb.asm.*;

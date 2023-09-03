@@ -21,15 +21,18 @@ public enum Primitive {
     LONG(PrimitiveKlass.LONG),
     LONG_ARRAY(new PrimitiveArrayKlass("[J")),
     DOUBLE(PrimitiveKlass.DOUBLE),
-    DOUBLE_ARRAY(new PrimitiveArrayKlass("[D"))
-    ;
+    DOUBLE_ARRAY(new PrimitiveArrayKlass("[D"));
 
     private final Klass klass;
     private final boolean array;
 
     Primitive(Klass klass) {
         this.klass = klass;
-        this.array = klass.getName().contains("[");
+        this.array = klass.getName().startsWith("[");
+    }
+
+    public Klass getKlass() {
+        return klass;
     }
 
     public boolean isArray() {

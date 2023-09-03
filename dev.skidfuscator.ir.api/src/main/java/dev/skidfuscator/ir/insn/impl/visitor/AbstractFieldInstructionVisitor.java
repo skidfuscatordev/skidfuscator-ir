@@ -1,8 +1,9 @@
-package dev.skidfuscator.ir.insn.impl;
+package dev.skidfuscator.ir.insn.impl.visitor;
 
 import dev.skidfuscator.ir.Field;
+import dev.skidfuscator.ir.insn.InstructionVisitor;
 
-public class AbstractFieldInstructionVisitor {
+public class AbstractFieldInstructionVisitor implements InstructionVisitor {
     private AbstractFieldInstructionVisitor next;
 
     public AbstractFieldInstructionVisitor() {

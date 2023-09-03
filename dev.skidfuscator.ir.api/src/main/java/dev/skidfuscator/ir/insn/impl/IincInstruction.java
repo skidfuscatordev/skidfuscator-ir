@@ -1,8 +1,22 @@
 package dev.skidfuscator.ir.insn.impl;
 
-public class IincInstruction extends AbstractInstruction {
+import dev.skidfuscator.ir.insn.Instruction;
+import dev.skidfuscator.ir.insn.InstructionsVisitor;
+
+public class IincInstruction implements Instruction {
     private int local;
     private int increase;
+
+    //TODO: Constructors
+
+    public static Builder of() {
+        return new Builder();
+    }
+
+    @Override
+    public void copyTo(InstructionsVisitor visitor) {
+        visitor.visitIinc(local, increase);
+    }
 
     public int getLocal() {
         return local;
@@ -20,33 +34,24 @@ public class IincInstruction extends AbstractInstruction {
         this.increase = increase;
     }
 
-    @Override
-    public void copyTo(AbstractInstructionsVisitor visitor) {
-        visitor.visitIinc(local, increase);
-    }
-
-    public static IincInstructionBuilder of() {
-        return new IincInstructionBuilder();
-    }
-
-    public static final class IincInstructionBuilder {
+    public static final class Builder {
         private int local;
         private int increase;
 
-        private IincInstructionBuilder() {
+        private Builder() {
         }
 
-        public IincInstructionBuilder local(int local) {
+        public Builder local(int local) {
             this.local = local;
             return this;
         }
 
-        public IincInstructionBuilder increase(int increase) {
+        public Builder increase(int increase) {
             this.increase = increase;
             return this;
         }
 
-        public IincInstructionBuilder but() {
+        public Builder but() {
             return of().local(local).increase(increase);
         }
 

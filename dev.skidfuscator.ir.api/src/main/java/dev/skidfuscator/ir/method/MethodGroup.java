@@ -9,10 +9,21 @@ import java.util.List;
 
 public class MethodGroup {
     private String name;
-    private List<Method> methods;
+    private final List<Method> methods;
 
     private List<Klass> args;
     private Klass returnType;
+
+    public MethodGroup(String name, List<Method> methods, List<Klass> args, Klass returnType) {
+        this.name = name;
+        this.methods = methods;
+        this.args = args;
+        this.returnType = returnType;
+    }
+
+    public static Builder of() {
+        return new Builder();
+    }
 
     public String getName() {
         return name;
@@ -46,16 +57,19 @@ public class MethodGroup {
 
     public void addMethod(@NotNull final Method method) {
         Assert.nonNull(method, "Specified method cannot be null");
-        Assert.nonNull(method.getGroup(),"Specified method cannot belong to a different group");
+        Assert.nonNull(method.getGroup(), "Specified method cannot belong to a different group");
         Assert.eq(name, method.getName(), "Method and group have different names!");
 
-        final List<Klass> otherArgs = method.getArgs();
-        for (int i = 0; i < this.args.size(); i++) {
-            final Klass _this = this.args.get(i);
-            final Klass _other = otherArgs.get(i);
+        //TODO: Make sure this works
+        Assert.eq(args, method.getArgs(), "Specified method does not have the same descriptor!");
 
-            Assert.eq(_this, _other, "Specified method does not have the same descriptor!");
-        }
+//        final List<Klass> otherArgs = method.getArgs();
+//        for (int i = 0; i < args.size(); i++) {
+//            final Klass parent = this.args.get(i);
+//            final Klass other = otherArgs.get(i);
+//
+//            Assert.eq(parent, other, "Specified method does not have the same descriptor!");
+//        }
 
         Assert.eq(this.getReturnType(), method.getReturnType(), "Specified method does not have the same return type!");
 
@@ -77,51 +91,41 @@ public class MethodGroup {
         return this.methods.contains(method);
     }
 
-    public static MethodGroupBuilder of() {
-        return new MethodGroupBuilder();
-    }
-
-
-    public static final class MethodGroupBuilder {
+    public static final class Builder {
         private String name;
         private List<Method> methods;
         private List<Klass> args;
         private Klass returnType;
 
-        private MethodGroupBuilder() {
+        private Builder() {
         }
 
-        public MethodGroupBuilder name(String name) {
+        public Builder name(String name) {
             this.name = name;
             return this;
         }
 
-        public MethodGroupBuilder methods(List<Method> methods) {
+        public Builder methods(List<Method> methods) {
             this.methods = methods;
             return this;
         }
 
-        public MethodGroupBuilder args(List<Klass> args) {
+        public Builder args(List<Klass> args) {
             this.args = args;
             return this;
         }
 
-        public MethodGroupBuilder returnType(Klass returnType) {
+        public Builder returnType(Klass returnType) {
             this.returnType = returnType;
             return this;
         }
 
-        public MethodGroupBuilder but() {
+        public Builder but() {
             return of().name(name).methods(methods).args(args).returnType(returnType);
         }
 
         public MethodGroup build() {
-            MethodGroup methodGroup = new MethodGroup();
-            methodGroup.setName(name);
-            methodGroup.setArgs(args);
-            methodGroup.setReturnType(returnType);
-            methodGroup.methods = this.methods;
-            return methodGroup;
+            return new MethodGroup(name, methods, args, returnType);
         }
     }
 }

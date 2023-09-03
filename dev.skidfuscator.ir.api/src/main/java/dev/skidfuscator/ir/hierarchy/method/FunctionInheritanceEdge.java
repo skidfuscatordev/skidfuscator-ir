@@ -21,13 +21,12 @@ public class FunctionInheritanceEdge {
         return child;
     }
 
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof FunctionInheritanceEdge that)) return false;
-
-        if (!Objects.equals(parent, that.parent)) return false;
-        return Objects.equals(child, that.child);
+        return this == o || (o instanceof FunctionInheritanceEdge edge
+                && Objects.equals(parent, edge.parent)
+                && Objects.equals(child, edge.child));
     }
 
     @Override

@@ -2,6 +2,8 @@ package dev.skidfuscator.ir.hierarchy.klass;
 
 import dev.skidfuscator.ir.Klass;
 
+import java.util.Objects;
+
 public abstract class KlassAbstractEdge implements KlassInheritanceEdge {
     private final Klass node;
     private final Klass inherits;
@@ -23,15 +25,9 @@ public abstract class KlassAbstractEdge implements KlassInheritanceEdge {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof KlassAbstractEdge)) return false;
-
-        KlassAbstractEdge that = (KlassAbstractEdge) o;
-
-        if (node != null ? !node.equals(that.node) : that.node != null) return false;
-        if (inherits != null ? !inherits.equals(that.inherits) : that.inherits != null) return false;
-
-        return true;
+        return this == o || (o instanceof KlassAbstractEdge edge
+                && Objects.equals(node, edge.node)
+                && Objects.equals(inherits, edge.inherits));
     }
 
     @Override

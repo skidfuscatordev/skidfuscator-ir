@@ -1,20 +1,42 @@
 package dev.skidfuscator.ir.insn.impl;
 
-import dev.skidfuscator.ir.insn.Instruction;
 import dev.skidfuscator.ir.Method;
+import dev.skidfuscator.ir.insn.Instruction;
+import dev.skidfuscator.ir.insn.InstructionsVisitor;
+import dev.skidfuscator.ir.insn.impl.visitor.InvokeInstructionVisitor;
 import dev.skidfuscator.ir.verify.Assert;
 import org.jetbrains.annotations.NotNull;
 
 public class InvokeInstruction extends InvokeInstructionVisitor implements Instruction {
 
-    public InvokeInstruction() {
+    private Method target;
+
+    protected InvokeInstruction() {
+        super();
     }
 
     public InvokeInstruction(InvokeInstructionVisitor parent) {
         super(parent);
     }
 
-    private Method target;
+    public static Builder of() {
+        return new Builder();
+    }
+
+    @Override
+    public void copyTo(final InstructionsVisitor visitor) {
+        visitor.visitInvoke().copyFrom(target);
+    }
+
+    @Override
+    public void copyFrom(final Method target) {
+        this.target = target;
+        super.copyFrom(target);
+    }
+
+    public void visit(final InvokeInstructionVisitor visitor) {
+        visitor.copyFrom(target);
+    }
 
     public Method getTarget() {
         return target;
@@ -30,40 +52,18 @@ public class InvokeInstruction extends InvokeInstructionVisitor implements Instr
         return target.isStatic();
     }
 
-    @Override
-    public void copyTo(final AbstractInstructionsVisitor visitor) {
-        visitor.visitInvoke().copyFrom(target);
-    }
-
-    @Override
-    public void copyFrom(final Method target) {
-        this.target = target;
-
-        super.copyFrom(target);
-    }
-
-
-    public void visit(final InvokeInstructionVisitor visitor) {
-        visitor.copyFrom(target);
-    }
-
-    public static InvokeInstructionBuilder of() {
-        return new InvokeInstructionBuilder();
-    }
-
-
-    public static final class InvokeInstructionBuilder {
+    public static final class Builder {
         private Method target;
 
-        private InvokeInstructionBuilder() {
+        private Builder() {
         }
 
-        public InvokeInstructionBuilder target(Method target) {
+        public Builder target(Method target) {
             this.target = target;
             return this;
         }
 
-        public InvokeInstructionBuilder but() {
+        public Builder but() {
             return of().target(target);
         }
 

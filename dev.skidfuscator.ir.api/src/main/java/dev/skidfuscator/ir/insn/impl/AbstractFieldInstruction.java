@@ -2,23 +2,25 @@ package dev.skidfuscator.ir.insn.impl;
 
 import dev.skidfuscator.ir.Field;
 import dev.skidfuscator.ir.insn.Instruction;
+import dev.skidfuscator.ir.insn.impl.visitor.AbstractFieldInstructionVisitor;
 
-public abstract class AbstractFieldInstruction extends AbstractFieldInstructionVisitor implements Instruction {
+public sealed abstract class AbstractFieldInstruction extends AbstractFieldInstructionVisitor implements Instruction permits GetFieldInstruction, SetFieldInstruction {
     protected Field target;
 
     protected AbstractFieldInstruction() {
+        super();
     }
 
-    protected AbstractFieldInstruction(AbstractFieldInstructionVisitor next) {
+    public AbstractFieldInstruction(AbstractFieldInstructionVisitor next) {
         super(next);
     }
 
-    public Field getTarget() {
-        return target;
+    public static GetFieldInstruction.Builder ofGet() {
+        return GetFieldInstruction.of();
     }
 
-    public void setTarget(Field target) {
-        this.target = target;
+    public static SetFieldInstruction.Builder ofSet() {
+        return SetFieldInstruction.of();
     }
 
     public void copyTo(final AbstractFieldInstructionVisitor visitor) {
@@ -28,7 +30,6 @@ public abstract class AbstractFieldInstruction extends AbstractFieldInstructionV
     @Override
     public void copyFrom(final Field target) {
         this.setTarget(target);
-
         super.copyFrom(target);
     }
 
@@ -36,23 +37,11 @@ public abstract class AbstractFieldInstruction extends AbstractFieldInstructionV
         visitor.copyTo(this);
     }
 
-    public static abstract class Builder {
-        private Field target;
+    public Field getTarget() {
+        return target;
+    }
 
-        protected Builder() {
-        }
-
-        public abstract Builder of();
-
-        public Builder target(Field target) {
-            this.target = target;
-            return this;
-        }
-
-        public Builder but() {
-            return of().target(target);
-        }
-
-        public abstract AbstractFieldInstruction build();
+    public void setTarget(Field target) {
+        this.target = target;
     }
 }

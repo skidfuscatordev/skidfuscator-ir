@@ -1,6 +1,8 @@
-package dev.skidfuscator.ir.insn.impl;
+package dev.skidfuscator.ir.insn.impl.visitor;
 
-public class ConstantInstructionVisitor {
+import dev.skidfuscator.ir.insn.InstructionVisitor;
+
+public class ConstantInstructionVisitor implements InstructionVisitor {
     private ConstantInstructionVisitor next;
 
     public ConstantInstructionVisitor() {

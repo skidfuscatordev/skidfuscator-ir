@@ -1,7 +1,5 @@
 package dev.skidfuscator.ir;
 
-import dev.skidfuscator.ir.Klass;
-
 import java.util.Map;
 
 public class Annotation {

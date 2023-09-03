@@ -1,6 +1,6 @@
 package dev.skidfuscator.ir.asm.insn;
 
-import dev.skidfuscator.ir.insn.impl.InvokeInstructionVisitor;
+import dev.skidfuscator.ir.insn.impl.visitor.InvokeInstructionVisitor;
 import dev.skidfuscator.ir.Klass;
 import dev.skidfuscator.ir.Method;
 import org.objectweb.asm.MethodVisitor;

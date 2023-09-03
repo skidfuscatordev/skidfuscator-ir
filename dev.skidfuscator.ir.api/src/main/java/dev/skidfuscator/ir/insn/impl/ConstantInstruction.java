@@ -1,11 +1,41 @@
 package dev.skidfuscator.ir.insn.impl;
 
 import dev.skidfuscator.ir.insn.Instruction;
+import dev.skidfuscator.ir.insn.InstructionsVisitor;
+import dev.skidfuscator.ir.insn.impl.visitor.ConstantInstructionVisitor;
 
 public class ConstantInstruction extends ConstantInstructionVisitor implements Instruction {
     private Object constant;
 
     protected ConstantInstruction() {
+        super();
+    }
+
+    public ConstantInstruction(Object constant) {
+        this.constant = constant;
+    }
+
+    public static Builder of() {
+        return new Builder();
+    }
+
+    @Override
+    public void copyTo(InstructionsVisitor visitor) {
+        this.copyTo(visitor.visitConstant());
+    }
+
+    public void copyTo(final ConstantInstructionVisitor visitor) {
+        visitor.copyFrom(constant);
+    }
+
+    @Override
+    public void copyFrom(Object constant) {
+        this.setConstant(constant);
+        super.copyFrom(constant);
+    }
+
+    public void copyFrom(final ConstantInstruction visitor) {
+        visitor.copyTo(this);
     }
 
     /**
@@ -19,42 +49,18 @@ public class ConstantInstruction extends ConstantInstructionVisitor implements I
         this.constant = constant;
     }
 
-    @Override
-    public void copyTo(AbstractInstructionsVisitor visitor) {
-        this.copyTo(visitor.visitConstant());
-    }
-
-    public void copyTo(final ConstantInstructionVisitor visitor) {
-        visitor.copyFrom(constant);
-    }
-
-    @Override
-    public void copyFrom(Object constant) {
-        this.setConstant(constant);
-
-        super.copyFrom(constant);
-    }
-
-    public void copyFrom(final ConstantInstruction visitor) {
-        visitor.copyTo(this);
-    }
-
-    public static ConstantInstructionBuilder of() {
-        return new ConstantInstructionBuilder();
-    }
-
-    public static final class ConstantInstructionBuilder {
+    public static final class Builder {
         private Object constant;
 
-        private ConstantInstructionBuilder() {
+        private Builder() {
         }
 
-        public ConstantInstructionBuilder constant(Object constant) {
+        public Builder constant(Object constant) {
             this.constant = constant;
             return this;
         }
 
-        public ConstantInstructionBuilder but() {
+        public Builder but() {
             return of().constant(constant);
         }
 

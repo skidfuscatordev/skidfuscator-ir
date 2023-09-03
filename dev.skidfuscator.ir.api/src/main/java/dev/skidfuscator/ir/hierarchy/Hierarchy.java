@@ -7,7 +7,6 @@ import java.util.Collection;
 
 public interface Hierarchy {
     /**
-     *
      * @return
      */
     HierarchyConfig getConfig();

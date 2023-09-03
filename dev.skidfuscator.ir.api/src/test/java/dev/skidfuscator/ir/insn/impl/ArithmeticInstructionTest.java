@@ -1,7 +1,9 @@
 package dev.skidfuscator.ir.insn.impl;
 
-import dev.skidfuscator.ir.insn.IllegalInstructionException;
+import dev.skidfuscator.ir.arithmetic.ArithmeticOperation;
 import dev.skidfuscator.ir.insn.Instruction;
+import dev.skidfuscator.ir.insn.InstructionList;
+import dev.skidfuscator.ir.insn.exception.IllegalInstructionException;
 import dev.skidfuscator.ir.primitive.Primitive;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +22,7 @@ class ArithmeticInstructionTest {
         instruction = ArithmeticInstruction
                 .of()
                 .type(Primitive.BOOLEAN)
-                .operation(ArithmeticInstruction.Operation.OR)
+                .operation(ArithmeticOperation.OR)
                 .build();
     }
 
@@ -42,20 +44,20 @@ class ArithmeticInstructionTest {
 
     @Test
     void getOperation() {
-        assertEquals(ArithmeticInstruction.Operation.OR, instruction.getOperation());
+        assertEquals(ArithmeticOperation.OR, instruction.getOperation());
     }
 
     @Test
     void setOperation() {
-        instruction.setOperation(ArithmeticInstruction.Operation.XOR);
-        assertEquals(ArithmeticInstruction.Operation.XOR, instruction.getOperation());
+        instruction.setOperation(ArithmeticOperation.XOR);
+        assertEquals(ArithmeticOperation.XOR, instruction.getOperation());
     }
 
     @Test
     void visitSetter() {
-        instruction.copyFrom(Primitive.BYTE, ArithmeticInstruction.Operation.OR);
+        instruction.copyFrom(Primitive.BYTE, ArithmeticOperation.OR);
         assertEquals(Primitive.BYTE, instruction.getType());
-        assertEquals(ArithmeticInstruction.Operation.OR, instruction.getOperation());
+        assertEquals(ArithmeticOperation.OR, instruction.getOperation());
     }
 
     @Test
@@ -78,8 +80,8 @@ class ArithmeticInstructionTest {
 
     @Test
     void visitCreate() {
-        final AbstractInstructionList list = new AbstractInstructionList(new ArrayList<>());
-        list.visitArithmetic().copyFrom(Primitive.BOOLEAN, ArithmeticInstruction.Operation.OR);
+        final InstructionList list = new InstructionList(new ArrayList<>());
+        list.visitArithmetic().copyFrom(Primitive.BOOLEAN, ArithmeticOperation.OR);
 
         final List<Instruction> instructions = list.getInstructions();
 
@@ -88,7 +90,7 @@ class ArithmeticInstructionTest {
         final ArithmeticInstruction insn = (ArithmeticInstruction) instructions.get(0);
 
         assertEquals(Primitive.BOOLEAN, insn.getType());
-        assertEquals(ArithmeticInstruction.Operation.OR, insn.getOperation());
+        assertEquals(ArithmeticOperation.OR, insn.getOperation());
     }
 
     @Test
@@ -105,7 +107,7 @@ class ArithmeticInstructionTest {
 
         // Missing type test
         assertThrows(IllegalInstructionException.class, () -> {
-            ArithmeticInstruction.of().operation(ArithmeticInstruction.Operation.OR).build();
+            ArithmeticInstruction.of().operation(ArithmeticOperation.OR).build();
         });
     }
 
@@ -118,14 +120,12 @@ class ArithmeticInstructionTest {
                 assertThrows(IllegalInstructionException.class, () -> {
                     ArithmeticInstruction.of()
                             .type(primitive)
-                            .operation(ArithmeticInstruction.Operation.OR)
+                            .operation(ArithmeticOperation.OR)
                             .build();
                 });
-            }
-
-            else {
+            } else {
                 // Lets test all operations
-                for (ArithmeticInstruction.Operation value : ArithmeticInstruction.Operation.values()) {
+                for (ArithmeticOperation value : ArithmeticOperation.values()) {
                     // If the operation is allowed, it should not throw
                     if (value.isAllowed(primitive)) {
                         assertDoesNotThrow(() -> {

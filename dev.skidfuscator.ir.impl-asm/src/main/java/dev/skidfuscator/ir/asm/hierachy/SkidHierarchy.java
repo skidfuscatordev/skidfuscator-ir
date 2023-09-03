@@ -27,8 +27,8 @@ public class SkidHierarchy implements Hierarchy {
         return null;
     }
 
-    @Override
-    public KlassGraph getKlassGraph() {
-        return null;
-    }
+//    @Override //TODO
+//    public KlassGraph getKlassGraph() {
+//        return null;
+//    }
 }

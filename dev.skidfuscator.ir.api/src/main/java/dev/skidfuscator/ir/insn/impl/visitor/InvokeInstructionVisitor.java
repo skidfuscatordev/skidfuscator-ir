@@ -1,9 +1,9 @@
-package dev.skidfuscator.ir.insn.impl;
+package dev.skidfuscator.ir.insn.impl.visitor;
 
-import dev.skidfuscator.ir.insn.InstructionVisitor;
 import dev.skidfuscator.ir.Method;
+import dev.skidfuscator.ir.insn.InstructionVisitor;
 
-public class InvokeInstructionVisitor extends InstructionVisitor {
+public class InvokeInstructionVisitor implements InstructionVisitor {
     private InvokeInstructionVisitor next;
 
     public InvokeInstructionVisitor() {

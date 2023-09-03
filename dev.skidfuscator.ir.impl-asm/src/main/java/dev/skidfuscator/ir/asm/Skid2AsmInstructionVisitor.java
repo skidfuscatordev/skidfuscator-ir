@@ -2,14 +2,13 @@ package dev.skidfuscator.ir.asm;
 
 import dev.skidfuscator.ir.Field;
 import dev.skidfuscator.ir.asm.insn.Skid2AsmInvokeInstructionVisitor;
-import dev.skidfuscator.ir.insn.impl.InvokeInstruction;
-import dev.skidfuscator.ir.insn.impl.AbstractInstructionsVisitor;
-import dev.skidfuscator.ir.insn.impl.InvokeInstructionVisitor;
+import dev.skidfuscator.ir.insn.InstructionsVisitor;
+import dev.skidfuscator.ir.insn.impl.visitor.InvokeInstructionVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class Skid2AsmInstructionVisitor extends AbstractInstructionsVisitor {
+public class Skid2AsmInstructionVisitor extends InstructionsVisitor {
     private final MethodVisitor visitor;
     public Skid2AsmInstructionVisitor(MethodVisitor visitor) {
         this.visitor = visitor;

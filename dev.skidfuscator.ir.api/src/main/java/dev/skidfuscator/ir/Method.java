@@ -1,16 +1,18 @@
 package dev.skidfuscator.ir;
 
-import dev.skidfuscator.ir.insn.impl.AbstractInstructionList;
-import dev.skidfuscator.ir.insn.impl.AbstractInstructionsVisitor;
+import dev.skidfuscator.ir.access.impl.MethodModifier;
+import dev.skidfuscator.ir.insn.InstructionList;
+import dev.skidfuscator.ir.insn.InstructionsVisitor;
 import dev.skidfuscator.ir.method.AcknowledgeUnlinkGroupException;
 import dev.skidfuscator.ir.method.MethodGroup;
-import dev.skidfuscator.ir.method.MethodTags;
 import dev.skidfuscator.ir.method.MethodVisitor;
 import dev.skidfuscator.ir.verify.Assert;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Java method wrapping class. A method is a group of
@@ -23,31 +25,46 @@ import java.util.*;
  * belongs to a method group which handles hierarchy (overwritten
  * methods, interfaces, etc).
  */
-public class Method extends MethodVisitor {
-    protected Method() {
-    }
-
+public non-sealed class Method extends MethodVisitor implements DirectMethodModifier {
     private Klass owner;
     private MethodGroup group;
     private String name;
-    private Set<MethodTags> tags;
+    private MethodModifier modifier;
     private List<Klass> args;
     private Klass returnType;
-    private AbstractInstructionList instructions;
+    private InstructionList instructions;
+
+    public Method() {
+    }
+
+    private Method(Klass owner, MethodGroup group, String name, MethodModifier modifier, List<Klass> args, Klass returnType, InstructionList instructions) {
+        this.owner = owner;
+        this.group = group;
+        this.name = name;
+        this.modifier = modifier;
+        this.args = args;
+        this.returnType = returnType;
+        this.instructions = instructions;
+    }
+
+    public static Builder of() {
+        return new Builder();
+    }
 
     @Override
-    public void visit(Klass owner, String name, Set<MethodTags> tags, List<Klass> args, Klass returnType) {
+    public void visit(Klass owner, String name, MethodModifier modifier, List<Klass> args, Klass returnType) {
         this.setOwner(owner);
 
         try {
             this.setName(name);
             this.setArgs(args);
             this.setReturnType(returnType);
-        } catch (AcknowledgeUnlinkGroupException ignored) {}
+        } catch (AcknowledgeUnlinkGroupException ignored) {
+        }
 
-        this.tags = tags;
+        this.modifier = modifier;
 
-        super.visit(owner, name, tags, args, returnType);
+        super.visit(owner, name, modifier, args, returnType);
     }
 
     @Override
@@ -56,7 +73,7 @@ public class Method extends MethodVisitor {
     }
 
     @Override
-    public AbstractInstructionsVisitor visitCode() {
+    public InstructionsVisitor visitCode() {
         return instructions;
     }
 
@@ -80,10 +97,10 @@ public class Method extends MethodVisitor {
     }
 
     /**
-     * @return  The method group it belongs to, null
-     *          if the method has been manually removed
-     *          from the group. If static, the method
-     *          group will be unique.
+     * @return The method group it belongs to, null
+     * if the method has been manually removed
+     * from the group. If static, the method
+     * group will be unique.
      */
     public @Nullable MethodGroup getGroup() {
         return group;
@@ -95,11 +112,10 @@ public class Method extends MethodVisitor {
      *              really be accessed by MethodGroup
      *              or if you really know what you're
      *              doing.
-     *
      * @see MethodGroup#addMethod(Method)
      * @see MethodGroup#removeMethod(Method)
      */
-    protected void setGroup(@Nullable MethodGroup group) {
+    public void setGroup(@Nullable MethodGroup group) {
         this.group = group;
     }
 
@@ -117,14 +133,13 @@ public class Method extends MethodVisitor {
      * there is a parent group, the AcknowledgeUnlinkGroupException
      * exception will be thrown.
      *
-     * @see MethodGroup#setArgs(List)
-     *
      * @param name the new name of the method
-     * @throws IllegalStateException if the name is null
+     * @throws IllegalStateException           if the name is null
      * @throws AcknowledgeUnlinkGroupException If there is a
-     *         parent group, the exception will be thrown to
-     *         force the developer to acknowledge this implicit
-     *         change.
+     *                                         parent group, the exception will be thrown to
+     *                                         force the developer to acknowledge this implicit
+     *                                         change.
+     * @see MethodGroup#setArgs(List)
      */
     public void setName(@NotNull String name) throws AcknowledgeUnlinkGroupException {
         Assert.nonNull(name, "Cannot set null method name");
@@ -151,17 +166,16 @@ public class Method extends MethodVisitor {
      * there is a parent group, the AcknowledgeUnlinkGroupException
      * exception will be thrown.
      *
-     * @see MethodGroup#setArgs(List)
-     *
      * @param args The method arguments for the method
-     * @throws IllegalStateException if the arguments are null
+     * @throws IllegalStateException           if the arguments are null
      * @throws AcknowledgeUnlinkGroupException If there is a
-     *         parent group, the exception will be thrown to
-     *         force the developer to acknowledge this implicit
-     *         change.
+     *                                         parent group, the exception will be thrown to
+     *                                         force the developer to acknowledge this implicit
+     *                                         change.
+     * @see MethodGroup#setArgs(List)
      */
     public void setArgs(@NotNull final List<Klass> args) throws AcknowledgeUnlinkGroupException {
-        Assert.nonNull(args,"Method args cannot be null");
+        Assert.nonNull(args, "Method args cannot be null");
 
         this.args = args;
         this.group = null; // UNSAFE
@@ -190,79 +204,81 @@ public class Method extends MethodVisitor {
     }
 
     /**
-     * @return whether the method is static
-     */
-    public boolean isStatic() {
-        return tags.contains(MethodTags.STATIC);
-    }
-
-    /**
      * @return whether the method is an object initializer
      */
     public boolean isInit() {
         return name.equals("<init>");
     }
 
-    public static MethodBuilder of() {
-        return new MethodBuilder();
+    public boolean isClassInit() {
+        return name.equals("<clinit>");
+    }
+
+    @Override
+    public MethodModifier getModifier() {
+        return modifier;
+    }
+
+    @Override
+    public void setModifier(MethodModifier modifier) {
+        this.modifier = modifier;
     }
 
 
-
-    public static final class MethodBuilder {
+    public static final class Builder {
         private Klass owner;
         private MethodGroup group;
         private String name;
-        private Set<MethodTags> tags;
+        private MethodModifier modifier;
         private List<Klass> args;
         private Klass returnType;
-        private AbstractInstructionList instructions;
+        private InstructionList instructions;
 
-        private MethodBuilder() {
+        private Builder() {
         }
 
-        public MethodBuilder owner(Klass owner) {
+        public Builder owner(Klass owner) {
             this.owner = owner;
             return this;
         }
 
-        public MethodBuilder group(MethodGroup group) {
+        public Builder group(MethodGroup group) {
             this.group = group;
             return this;
         }
 
-        public MethodBuilder name(String name) {
+        public Builder name(String name) {
             this.name = name;
             return this;
         }
 
-        public MethodBuilder tags(Set<MethodTags> tags) {
-            this.tags = tags;
+        public Builder modifier(MethodModifier modifier) {
+            this.modifier = modifier;
             return this;
         }
 
-        public MethodBuilder args(List<Klass> args) {
+        public Builder args(List<Klass> args) {
             this.args = args;
             return this;
         }
 
-        public MethodBuilder args(Klass... args) {
+        public Builder args(Klass... args) {
             this.args = Arrays.asList(args);
             return this;
         }
 
-        public MethodBuilder returnType(Klass returnType) {
+        public Builder returnType(Klass returnType) {
             this.returnType = returnType;
             return this;
         }
 
-        public MethodBuilder instructions(AbstractInstructionList instructions) {
+        public Builder instructions(InstructionList instructions) {
             this.instructions = instructions;
             return this;
         }
 
-        public MethodBuilder but() {
-            return of().owner(owner).group(group).name(name).tags(tags).args(args).returnType(returnType).instructions(instructions);
+        public Builder but() {
+            return of().owner(owner).group(group).name(name).modifier(modifier).args(args).returnType(returnType).instructions(instructions);
         }
 
         public Method build() {
@@ -271,19 +287,9 @@ public class Method extends MethodVisitor {
             Assert.nonNull(args, "Method args cannot be null");
             Assert.nonNull(returnType, "Method return type cannot be null");
             Assert.nonNull(args, "Method parameters cannot be null (but can be empty!)");
-            Assert.nonNull(tags, "Method tags cannot be null (but can be empty!)");
+            Assert.nonNull(modifier, "Method modifier cannot be null (but can be empty!)");
             Assert.nonNull(instructions, "Method instructions cannot be null (but can be empty!)");
-
-            final Method method = new Method();
-            method.visit(
-                    owner,
-                    name,
-                    tags,
-                    args,
-                    returnType
-            );
-            method.instructions = this.instructions;
-            return method;
+            return new Method(owner, group, name, modifier, args, returnType, instructions);
         }
     }
 }

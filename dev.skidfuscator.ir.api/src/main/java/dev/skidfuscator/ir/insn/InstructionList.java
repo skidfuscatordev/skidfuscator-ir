@@ -1,14 +1,20 @@
-package dev.skidfuscator.ir.insn.impl;
+package dev.skidfuscator.ir.insn;
 
-import dev.skidfuscator.ir.Field;
-import dev.skidfuscator.ir.insn.Instruction;
+import dev.skidfuscator.ir.insn.impl.ArithmeticInstruction;
+import dev.skidfuscator.ir.insn.impl.ConstantInstruction;
+import dev.skidfuscator.ir.insn.impl.GetFieldInstruction;
+import dev.skidfuscator.ir.insn.impl.SetFieldInstruction;
+import dev.skidfuscator.ir.insn.impl.visitor.AbstractFieldInstructionVisitor;
+import dev.skidfuscator.ir.insn.impl.visitor.ArithmeticInstructionVisitor;
+import dev.skidfuscator.ir.insn.impl.visitor.ConstantInstructionVisitor;
+import dev.skidfuscator.ir.insn.impl.visitor.InvokeInstructionVisitor;
 
 import java.util.List;
 
-public class AbstractInstructionList extends AbstractInstructionsVisitor {
+public class InstructionList extends InstructionsVisitor {
     private final List<Instruction> instructions;
 
-    public AbstractInstructionList(List<Instruction> instructions) {
+    public InstructionList(List<Instruction> instructions) {
         this.instructions = instructions;
     }
 
@@ -52,7 +58,7 @@ public class AbstractInstructionList extends AbstractInstructionsVisitor {
 
     @Override
     public ConstantInstructionVisitor visitConstant() {
-        final ConstantInstruction constantInstruction = new ConstantInstruction();
+        final ConstantInstruction constantInstruction = new ConstantInstruction(super.visitConstant());
         this.instructions.add(constantInstruction);
 
         return constantInstruction;

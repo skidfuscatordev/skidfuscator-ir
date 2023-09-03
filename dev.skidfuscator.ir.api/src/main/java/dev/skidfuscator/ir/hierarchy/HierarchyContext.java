@@ -10,8 +10,8 @@ public interface HierarchyContext {
     Klass create(final String name);
 
     /**
-     * @return  Configuration of the hierarchy
-     *          context provided
+     * @return Configuration of the hierarchy
+     * context provided
      */
     HierarchyConfig config();
 }
