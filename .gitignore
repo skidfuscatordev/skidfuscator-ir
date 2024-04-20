@@ -44,7 +44,6 @@ mappings/*
 *.jar
 **/dependency-reduced-pom.xml
 
-/gradle/
 **/build/
 !src/**/build/
 
