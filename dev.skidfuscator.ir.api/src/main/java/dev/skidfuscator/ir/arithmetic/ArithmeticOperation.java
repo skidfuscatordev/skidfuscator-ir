@@ -11,6 +11,9 @@ public enum ArithmeticOperation {
     XOR(Primitive.BYTE, Primitive.CHAR, Primitive.SHORT, Primitive.INT, Primitive.BOOLEAN),
     OR(Primitive.BYTE, Primitive.CHAR, Primitive.SHORT, Primitive.INT, Primitive.BOOLEAN),
     AND(Primitive.BYTE, Primitive.CHAR, Primitive.SHORT, Primitive.INT, Primitive.BOOLEAN),
+    SHL(Primitive.BYTE, Primitive.CHAR, Primitive.SHORT, Primitive.INT, Primitive.LONG),
+    SHR(Primitive.BYTE, Primitive.CHAR, Primitive.SHORT, Primitive.INT, Primitive.LONG),
+    USHR(Primitive.BYTE, Primitive.CHAR, Primitive.SHORT, Primitive.INT, Primitive.LONG),
     NEG(Primitive.BYTE, Primitive.CHAR, Primitive.SHORT, Primitive.INT, Primitive.FLOAT, Primitive.LONG, Primitive.DOUBLE);
 
     private final Primitive[] allowedTypes;

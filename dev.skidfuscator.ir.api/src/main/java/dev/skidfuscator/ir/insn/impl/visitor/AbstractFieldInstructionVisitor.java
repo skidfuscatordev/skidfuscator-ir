@@ -3,7 +3,7 @@ package dev.skidfuscator.ir.insn.impl.visitor;
 import dev.skidfuscator.ir.Field;
 import dev.skidfuscator.ir.insn.InstructionVisitor;
 
-public class AbstractFieldInstructionVisitor implements InstructionVisitor {
+public abstract class AbstractFieldInstructionVisitor implements InstructionVisitor {
     private AbstractFieldInstructionVisitor next;
 
     public AbstractFieldInstructionVisitor() {

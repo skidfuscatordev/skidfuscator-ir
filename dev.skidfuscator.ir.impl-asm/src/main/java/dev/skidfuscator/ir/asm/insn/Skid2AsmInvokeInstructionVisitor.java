@@ -1,8 +1,10 @@
 package dev.skidfuscator.ir.asm.insn;
 
+import dev.skidfuscator.ir.Method;
 import dev.skidfuscator.ir.insn.impl.visitor.InvokeInstructionVisitor;
 import dev.skidfuscator.ir.Klass;
-import dev.skidfuscator.ir.Method;
+import dev.skidfuscator.ir.JavaMethod;
+import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -14,7 +16,7 @@ public class Skid2AsmInvokeInstructionVisitor extends InvokeInstructionVisitor {
     }
 
     @Override
-    public void copyFrom(Method target) {
+    public void copyFrom(@NotNull Method target) {
         final int opcode;
         if (target.isStatic()) {
             opcode = Opcodes.INVOKESTATIC;

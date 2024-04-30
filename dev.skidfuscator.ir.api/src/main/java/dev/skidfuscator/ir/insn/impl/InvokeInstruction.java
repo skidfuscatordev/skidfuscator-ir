@@ -1,5 +1,6 @@
 package dev.skidfuscator.ir.insn.impl;
 
+import dev.skidfuscator.ir.JavaMethod;
 import dev.skidfuscator.ir.Method;
 import dev.skidfuscator.ir.insn.Instruction;
 import dev.skidfuscator.ir.insn.InstructionsVisitor;
@@ -25,11 +26,20 @@ public class InvokeInstruction extends InvokeInstructionVisitor implements Instr
 
     @Override
     public void copyTo(final InstructionsVisitor visitor) {
-        visitor.visitInvoke().copyFrom(target);
+        // Assert visitor is not null
+        Assert.nonNull(visitor, "Cannot copy to null visitor!");
+
+        final InvokeInstructionVisitor invokeVisitor = visitor.visitInvoke();
+        Assert.nonNull(invokeVisitor, "Cannot copy to null invoke visitor!");
+
+        // Assert target is not null
+        Assert.nonNull(target, "Cannot copy from null target!");
+
+        invokeVisitor.copyFrom(target);
     }
 
     @Override
-    public void copyFrom(final Method target) {
+    public void copyFrom(final @NotNull Method target) {
         this.target = target;
         super.copyFrom(target);
     }

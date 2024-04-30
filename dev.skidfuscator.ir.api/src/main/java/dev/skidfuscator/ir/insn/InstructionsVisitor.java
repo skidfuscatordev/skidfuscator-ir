@@ -1,9 +1,8 @@
 package dev.skidfuscator.ir.insn;
 
-import dev.skidfuscator.ir.insn.impl.visitor.AbstractFieldInstructionVisitor;
-import dev.skidfuscator.ir.insn.impl.visitor.ArithmeticInstructionVisitor;
-import dev.skidfuscator.ir.insn.impl.visitor.ConstantInstructionVisitor;
-import dev.skidfuscator.ir.insn.impl.visitor.InvokeInstructionVisitor;
+import dev.skidfuscator.ir.insn.impl.GotoJumpInstruction;
+import dev.skidfuscator.ir.insn.impl.LabelInstruction;
+import dev.skidfuscator.ir.insn.impl.visitor.*;
 
 /**
  * TODO: Switch all of these to instead refer the instruction,
@@ -53,14 +52,23 @@ public abstract class InstructionsVisitor {
         return null;
     }
 
-    public void visitLabel(final int offset) {
+    public LabelInstruction visitLabel() {
         if (visitor != null)
-            visitor.visitLabel(offset);
+            return visitor.visitLabel();
+
+        return null;
     }
 
     public ConstantInstructionVisitor visitConstant() {
         if (visitor != null)
             return visitor.visitConstant();
+
+        return null;
+    }
+
+    public GotoJumpInstructionVisitor visitGotoJump() {
+        if (visitor != null)
+            return visitor.visitGotoJump();
 
         return null;
     }

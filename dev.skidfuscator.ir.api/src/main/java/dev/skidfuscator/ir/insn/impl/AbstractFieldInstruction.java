@@ -3,6 +3,7 @@ package dev.skidfuscator.ir.insn.impl;
 import dev.skidfuscator.ir.Field;
 import dev.skidfuscator.ir.insn.Instruction;
 import dev.skidfuscator.ir.insn.impl.visitor.AbstractFieldInstructionVisitor;
+import dev.skidfuscator.ir.verify.Assert;
 
 public sealed abstract class AbstractFieldInstruction extends AbstractFieldInstructionVisitor implements Instruction permits GetFieldInstruction, SetFieldInstruction {
     protected Field target;
@@ -42,6 +43,7 @@ public sealed abstract class AbstractFieldInstruction extends AbstractFieldInstr
     }
 
     public void setTarget(Field target) {
+        Assert.nonNull(target, "Cannot set field target to null!");
         this.target = target;
     }
 }

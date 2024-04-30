@@ -13,7 +13,7 @@ public class Assert {
 
     @Contract("null, _ -> fail")
     public static void nonNull(final Object var, @NotNull final String error) {
-        nonNull(var, new IllegalStateException(error));
+        nonNull(var, new IllegalArgumentException(error));
     }
 
     @Contract("null, _ -> fail")

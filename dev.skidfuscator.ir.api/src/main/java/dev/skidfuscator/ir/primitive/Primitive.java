@@ -38,4 +38,44 @@ public enum Primitive {
     public boolean isArray() {
         return array;
     }
+    
+    public boolean isDouble() {
+        return this == DOUBLE || this == DOUBLE_ARRAY;
+    }
+    
+    public boolean isLong() {
+        return this == LONG || this == LONG_ARRAY;
+    }
+    
+    public boolean isInt() {
+        return this == INT || this == INT_ARRAY;
+    }
+    
+    public boolean isFloat() {
+        return this == FLOAT || this == FLOAT_ARRAY;
+    }
+    
+    public boolean isShort() {
+        return this == SHORT || this == SHORT_ARRAY;
+    }
+    
+    public boolean isChar() {
+        return this == CHAR || this == CHAR_ARRAY;
+    }
+    
+    public boolean isByte() {
+        return this == BYTE || this == BYTE_ARRAY;
+    }
+    
+    public boolean isBoolean() {
+        return this == BOOLEAN || this == BOOLEAN_ARRAY;
+    }
+    
+    public boolean isInteger() {
+        return isInt();
+    }
+    
+    public boolean isDoubleStack() {
+        return isDouble() || isLong();
+    }
 }

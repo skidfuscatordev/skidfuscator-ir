@@ -2,6 +2,7 @@ package dev.skidfuscator.ir.insn.impl;
 
 import dev.skidfuscator.ir.insn.Instruction;
 import dev.skidfuscator.ir.insn.InstructionsVisitor;
+import dev.skidfuscator.ir.verify.Assert;
 
 public class IincInstruction implements Instruction {
     private int local;
@@ -23,6 +24,7 @@ public class IincInstruction implements Instruction {
     }
 
     public void setLocal(int local) {
+        Assert.isTrue(local >= 0, "Local cannot be negative!");
         this.local = local;
     }
 

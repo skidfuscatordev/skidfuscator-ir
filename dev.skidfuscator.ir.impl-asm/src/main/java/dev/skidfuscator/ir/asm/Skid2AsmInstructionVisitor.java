@@ -3,6 +3,9 @@ package dev.skidfuscator.ir.asm;
 import dev.skidfuscator.ir.Field;
 import dev.skidfuscator.ir.asm.insn.Skid2AsmInvokeInstructionVisitor;
 import dev.skidfuscator.ir.insn.InstructionsVisitor;
+import dev.skidfuscator.ir.insn.impl.visitor.AbstractFieldInstructionVisitor;
+import dev.skidfuscator.ir.insn.impl.visitor.ArithmeticInstructionVisitor;
+import dev.skidfuscator.ir.insn.impl.visitor.ConstantInstructionVisitor;
 import dev.skidfuscator.ir.insn.impl.visitor.InvokeInstructionVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -12,6 +15,26 @@ public class Skid2AsmInstructionVisitor extends InstructionsVisitor {
     private final MethodVisitor visitor;
     public Skid2AsmInstructionVisitor(MethodVisitor visitor) {
         this.visitor = visitor;
+    }
+
+    @Override
+    public ArithmeticInstructionVisitor visitArithmetic() {
+        return new Skid2AsmInvokeInstructionVisitor();
+    }
+
+    @Override
+    public AbstractFieldInstructionVisitor visitSetField() {
+        return super.visitSetField();
+    }
+
+    @Override
+    public AbstractFieldInstructionVisitor visitGetField() {
+        return super.visitGetField();
+    }
+
+    @Override
+    public ConstantInstructionVisitor visitConstant() {
+        return super.visitConstant();
     }
 
     @Override

@@ -1,7 +1,7 @@
 package dev.skidfuscator.ir.method;
 
 import dev.skidfuscator.ir.Klass;
-import dev.skidfuscator.ir.Method;
+import dev.skidfuscator.ir.JavaMethod;
 import dev.skidfuscator.ir.access.impl.MethodModifier;
 import dev.skidfuscator.ir.insn.InstructionList;
 import dev.skidfuscator.ir.klass.internal.PrimitiveKlass;
@@ -18,7 +18,7 @@ class MethodTest {
 
     private Klass parent;
     private MethodGroup group;
-    private Method method;
+    private JavaMethod method;
 
     @BeforeEach
     void setUp() {
@@ -29,7 +29,7 @@ class MethodTest {
                 .returnType(PrimitiveKlass.VOID)
                 .methods(new ArrayList<>())
                 .build();
-        method = Method.of()
+        method = JavaMethod.of()
                 .name("kek")
                 .args()
                 .owner(parent)

@@ -1,7 +1,7 @@
 package dev.skidfuscator.ir.method;
 
 import dev.skidfuscator.ir.Klass;
-import dev.skidfuscator.ir.Method;
+import dev.skidfuscator.ir.JavaMethod;
 import dev.skidfuscator.ir.verify.Assert;
 import org.jetbrains.annotations.NotNull;
 
@@ -9,12 +9,12 @@ import java.util.List;
 
 public class MethodGroup {
     private String name;
-    private final List<Method> methods;
+    private final List<JavaMethod> methods;
 
     private List<Klass> args;
     private Klass returnType;
 
-    public MethodGroup(String name, List<Method> methods, List<Klass> args, Klass returnType) {
+    public MethodGroup(String name, List<JavaMethod> methods, List<Klass> args, Klass returnType) {
         this.name = name;
         this.methods = methods;
         this.args = args;
@@ -55,7 +55,7 @@ public class MethodGroup {
         this.returnType = returnType;
     }
 
-    public void addMethod(@NotNull final Method method) {
+    public void addMethod(@NotNull final JavaMethod method) {
         Assert.nonNull(method, "Specified method cannot be null");
         Assert.nonNull(method.getGroup(), "Specified method cannot belong to a different group");
         Assert.eq(name, method.getName(), "Method and group have different names!");
@@ -77,7 +77,7 @@ public class MethodGroup {
         method.setGroup(this);
     }
 
-    public void removeMethod(@NotNull final Method method) {
+    public void removeMethod(@NotNull final JavaMethod method) {
         Assert.nonNull(method, "Specified method cannot be null");
         Assert.eq(this, method.getGroup(), "Method does not belong to this group!");
 
@@ -85,7 +85,7 @@ public class MethodGroup {
         method.setGroup(null);
     }
 
-    public boolean hasMethod(@NotNull final Method method) {
+    public boolean hasMethod(@NotNull final JavaMethod method) {
         Assert.nonNull(method, "Specified method cannot be null");
 
         return this.methods.contains(method);
@@ -93,7 +93,7 @@ public class MethodGroup {
 
     public static final class Builder {
         private String name;
-        private List<Method> methods;
+        private List<JavaMethod> methods;
         private List<Klass> args;
         private Klass returnType;
 
@@ -105,7 +105,7 @@ public class MethodGroup {
             return this;
         }
 
-        public Builder methods(List<Method> methods) {
+        public Builder methods(List<JavaMethod> methods) {
             this.methods = methods;
             return this;
         }

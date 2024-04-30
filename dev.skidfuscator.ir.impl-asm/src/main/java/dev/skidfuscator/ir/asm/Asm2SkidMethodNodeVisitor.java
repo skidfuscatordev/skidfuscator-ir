@@ -5,7 +5,7 @@ import dev.skidfuscator.ir.asm.util.AsmUtil;
 import dev.skidfuscator.ir.hierarchy.Hierarchy;
 import dev.skidfuscator.ir.insn.impl.visitor.AbstractFieldInstructionVisitor;
 import dev.skidfuscator.ir.Klass;
-import dev.skidfuscator.ir.Method;
+import dev.skidfuscator.ir.JavaMethod;
 import org.objectweb.asm.*;
 
 import java.util.ArrayList;
@@ -73,6 +73,7 @@ public class Asm2SkidMethodNodeVisitor extends MethodVisitor {
     @Override
     public void visitInsn(int opcode) {
         // TODO
+        visitor.visitCode().visitIinc();
         //this.instructions.add()
 
         super.visitInsn(opcode);
@@ -101,11 +102,11 @@ public class Asm2SkidMethodNodeVisitor extends MethodVisitor {
         final Klass parent = hierarchy.resolveClass(owner);
         final Field field = parent.resolveField(name, type);
 
-        final AbstractFieldInstructionVisitor fieldVisitor = fetch
+        final AbstractFieldInstructionVisitor fieldInsnVisitor = fetch
                 ? visitor.visitCode().visitGetField()
                 : visitor.visitCode().visitSetField();
 
-        fieldVisitor.copyFrom(field);
+        fieldInsnVisitor.copyFrom(field);
 
         super.visitFieldInsn(opcode, owner, name, descriptor);
     }
@@ -124,7 +125,7 @@ public class Asm2SkidMethodNodeVisitor extends MethodVisitor {
                 methodType.getReturnType().getInternalName()
         );
 
-        final Method target = ownerKlass.resolveMethod(name, argsKlass, returnKlass);
+        final JavaMethod target = ownerKlass.resolveMethod(name, argsKlass, returnKlass);
         visitor.visitCode().visitInvoke().copyFrom(target);
 
         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);

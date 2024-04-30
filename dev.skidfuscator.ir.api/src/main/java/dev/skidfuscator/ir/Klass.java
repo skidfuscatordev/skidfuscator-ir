@@ -18,7 +18,7 @@ public non-sealed class Klass extends KlassVisitor implements DirectClassModifie
 
     private List<Klass> interfaces;
     private String signature;
-    private List<Method> methods;
+    private List<JavaMethod> methods;
     private List<Field> fields;
 
     public Klass(String name) {
@@ -52,8 +52,8 @@ public non-sealed class Klass extends KlassVisitor implements DirectClassModifie
         return fields.iterator().next();
     }
 
-    public Method resolveMethod(final String name, final List<Klass> args, final Klass returnType) {
-        final Set<Method> methods = this.methods.stream()
+    public JavaMethod resolveMethod(final String name, final List<Klass> args, final Klass returnType) {
+        final Set<JavaMethod> methods = this.methods.stream()
                 .filter(e -> e.getName().equals(name) && e.getArgs().equals(args) && e.getReturnType().equals(returnType))
                 .collect(Collectors.toSet());
 
@@ -98,7 +98,7 @@ public non-sealed class Klass extends KlassVisitor implements DirectClassModifie
 
     @Override
     public MethodVisitor visitMethod() {
-        final Method method = new Method();
+        final JavaMethod method = new JavaMethod();
         this.methods.add(method);
 
         return method;
@@ -122,7 +122,7 @@ public non-sealed class Klass extends KlassVisitor implements DirectClassModifie
         return "L" + name + ";";
     }
 
-    public List<Method> getMethods() {
+    public List<JavaMethod> getMethods() {
         return Collections.unmodifiableList(methods);
     }
 

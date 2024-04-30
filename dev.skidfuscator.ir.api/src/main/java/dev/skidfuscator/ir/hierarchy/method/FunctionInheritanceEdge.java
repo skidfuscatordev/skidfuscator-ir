@@ -1,23 +1,23 @@
 package dev.skidfuscator.ir.hierarchy.method;
 
-import dev.skidfuscator.ir.Method;
+import dev.skidfuscator.ir.JavaMethod;
 
 import java.util.Objects;
 
 public class FunctionInheritanceEdge {
-    private final Method parent;
-    private final Method child;
+    private final JavaMethod parent;
+    private final JavaMethod child;
 
-    public FunctionInheritanceEdge(Method parent, Method child) {
+    public FunctionInheritanceEdge(JavaMethod parent, JavaMethod child) {
         this.parent = parent;
         this.child = child;
     }
 
-    public Method getParent() {
+    public JavaMethod getParent() {
         return parent;
     }
 
-    public Method getChild() {
+    public JavaMethod getChild() {
         return child;
     }
 
